@@ -467,7 +467,7 @@
         $result = mysql_query($sql);
         while ($tab = mysql_fetch_array($result)){
             $mot = explode(" ",$tab[$nomColonne]);
-            for ($i=0; $i<strlen($mot); $i++){
+            for ($i=0; $i<sizeof($mot); $i++){
                 $t = strtoupper($mot[$i]);
                 if ($t!=""){
                     $sql = "SELECT id FROM y_".$nomBase."_".$nomColonne."_keyword WHERE name='$t' LIMIT 1";
