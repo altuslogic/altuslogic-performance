@@ -20,7 +20,7 @@
             creeTables(); 
             break;
         case 'performances': 
-            performance();                                       
+            performances();                                       
         case 'details':    
             $print_details = getDetails();  
             break;       
@@ -50,7 +50,8 @@
                 if ($text!="" && existe($text)) suppression($text);  
             }                                                     
             break;
-        case 'index':            
+        case 'index':
+            //echo "selec : ",$_POST[t_id];            
             creeIndex();
             break;
     }
@@ -72,20 +73,27 @@
     // Colonnes
     $sql = "SHOW COLUMNS FROM ".$nomBase;
     $result = mysql_query($sql);
-    $print_colonnes = "<table><tr><td>Nom</td><td>Type</td><td>Nombre</td><td>Tables</td><td>Index</td><td>Action</td>";
+    $print_colonnes = "<form action='?stage=index' method='post'><table><tr><td>Nom</td><td>Type</td><td>Nombre</td><td>Tables</td><td>Index</td>";
 
     while ($ligne=mysql_fetch_array($result)){
-        $print_colonnes .= "<tr><form action='?stage=index' method='post'><td>";
-        if ($ligne[Field]==$nomColonne){
-            $print_colonnes .= "<b>".$ligne[Field]."</b>";  
+        $nom = $ligne[Field];
+
+        $sql = "SHOW TABLES LIKE 'z\_".$nomBase."\_".$nom."\_%'";
+        $tables = mysql_num_rows(mysql_query($sql))>0? "checked disabled='disabled'" : "";    
+        $sql = "SHOW TABLES LIKE 'y\_".$nomBase."\_".$nom."\_index'";
+        $index = mysql_num_rows(mysql_query($sql))>0? "checked disabled='disabled'" : "";
+
+        $print_colonnes .= "<tr><td>";
+        if ($nom==$nomColonne){
+            $print_colonnes .= "<b>".$nom."</b>";  
         }
-        else $print_colonnes .= "<a href='?nomColonne=".$ligne[Field]."'>".$ligne[Field]."</a>";
+        else $print_colonnes .= "<a href='?nomColonne=".$nom."'>".$nom."</a>";
         $print_colonnes .= "</td><td>".$ligne[Type]."</td>";
-        $sql = "SELECT COUNT(DISTINCT $ligne[Field]) FROM ".$nomBase;
+        $sql = "SELECT COUNT(DISTINCT $nom) FROM ".$nomBase;
         $nb = mysql_result(mysql_query($sql),0);
-        $print_colonnes .= "<td>".$nb."</td><td><p align='center'><input type='checkbox'></p></td><td><p align='center'><input type='checkbox'></p></td><td><input type='submit' value='go'></td></form></tr>";    
+        $print_colonnes .= "<td>".$nb."</td><td><p align='center'><input type='checkbox' ".$tables." id='t_".$nom."'></p></td><td><p align='center'><input type='checkbox' ".$index." id='i_".$nom."'></p></td></tr>";    
     }                                                                                                
-    $print_colonnes .= "</table>";
+    $print_colonnes .= "</table><p align='center'><input type='submit' value='apply'></p></form>";
 
     // Log
     $sql = "SELECT action,temps,heure FROM y_".$nomBase."_log ORDER BY id DESC LIMIT 10";
