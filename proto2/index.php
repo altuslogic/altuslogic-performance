@@ -10,6 +10,8 @@
     echo '<link rel="stylesheet" type="text/css" href="my.css"><body><br><br><br>';
     init(5,5,600,30,'#fff','#444','#006699');
 
+    creeLog(); 
+
     $stage = $_GET[stage];                       
     $option = $_POST[option];
 
@@ -37,7 +39,6 @@
             break;
         case 'search':
             deleteLog();
-            creeLog();
             /*$text =  $_POST[champ1];
             if ($text!="") recherche($text,true); */
             break;

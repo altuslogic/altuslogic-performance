@@ -20,9 +20,9 @@
         </script>
         <script type="text/javascript">
             function initialize() {
-                var latlng = new google.maps.LatLng(-34.397, 150.644);
+                var latlng = new google.maps.LatLng(14.0, 105.0);
                 var myOptions = {
-                    zoom: 8,
+                    zoom: 4,
                     center: latlng,
                     mapTypeId: google.maps.MapTypeId.ROADMAP
                 };
@@ -69,7 +69,7 @@
             </form>
         </div>
         <div id="init">
-            <form action="?stage=initialize" method="get" autocomplete="on">
+            <form action="?stage=initialize" method="get" autocomplete="off">
                 <h2>Indexation (création des sous-tables)</h2>
                 Threshold (nb items / sous-table)<br><input type="text" size=8 id="threshold" name="threshold" value="<?php echo $thres; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
                 <br>Ordre d'indexation<br> <input type="text" size=8 name="ordre" id="ordre" value="<?php echo $ordreMax; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">

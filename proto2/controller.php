@@ -3,17 +3,15 @@
     function creeLog(){
         global $nomBase; 
         $temps = start_timer();
-        $sql = "CREATE TABLE IF NOT EXISTS y_".$nomBase."_log (
+        $sql = "CREATE TABLE y_".$nomBase."_log (
         `id` int(11) NOT NULL AUTO_INCREMENT,
         `action` varchar(255) NOT NULL,
         `heure` datetime NOT NULL,
         `temps` float NOT NULL DEFAULT '0', 
         PRIMARY KEY (`id`)
         ) ENGINE=MyISAM  DEFAULT CHARSET=latin1" ;
-        mysql_query($sql);
-        $sql = "TRUNCATE TABLE y_".$nomBase."_log";
-        mysql_query($sql); 
-        updateLog("Création du log",end_timer($temps));
+        $result = mysql_query($sql);
+        if ($result) updateLog("Création du log",end_timer($temps));
     }
 
     function updateLog($action,$temps){
