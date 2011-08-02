@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+    <head>
+        <meta http-equiv="Expires" content="Fri, Jan 01 1900 00:00:00 GMT">
+        <meta http-equiv="Pragma" content="no-cache">
+        <meta http-equiv="Cache-Control" content="no-cache">
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <meta http-equiv="Lang" content="en">
+        <meta name="author" content="">
+        <meta http-equiv="Reply-to" content="@.com">
+        <meta name="generator" content="PhpED 5.8">
+        <meta name="description" content="">
+        <meta name="keywords" content="">
+        <meta name="creation-date" content="01/01/2009">
+        <meta name="revisit-after" content="15 days">                            
+        <title>Recherche</title>
+        <link rel="stylesheet" type="text/css" href="my.css">
+        <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=true&amp;key=ABQIAAAAnNatFxH2LX42s_QZL51BihTS00s8BpmtWZHzIF6WCUpWiuK3aRRmBn4IP2AQhagC-AxWLjZBS5QlSg" type="text/javascript"></script>
+        <script type="text/javascript">
+            function initialize() {
+                var latlng = new google.maps.LatLng(-34.397, 150.644);
+                var myOptions = {
+                    zoom: 8,
+                    center: latlng,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                };
+                var map = new google.maps.Map(document.getElementById("map_canvas"),
+                myOptions);
+            }
+
+        </script>
+    </head>
+    <body onload="initialize()">
+        <script src="jquery.js"></script>
+        <script type="text/javascript" src="action.js"></script>
+        <style></style>
+        <br><br>
+        <div id="init">
+            <h2>Menu action </h2>
+            <a href="?stage=">Home</a> |
+            <a href="?stage=initialize">Initialize</a> <br><br>
+            <a href="?stage=performances">Performances</a> <br><br>
+            <a href="?stage=details">Details</a><br><br>       
+            <a href="?stage=delete_tables">Delete tables</a>  -  
+            <a href="?stage=clear_tables">Clear tables</a> - 	        
+            <a href="?stage=clear_cache">Clear cache</a>    
+
+        </div>                                                    
+        <div id="init">
+            <h2>Recherche</h2>
+            <form action="?stage=search" method="post" autocomplete="off">
+                <input type="text" size=25 name="champ1" id="champ1" value="<?php echo $_POST[champ1]; ?>" onkeyup="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444;">
+                <br><br><select id="mode" onchange="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444;">
+                    <option <?php if ($mode=="tout") echo 'selected'; ?> value="tout">exactement</option>
+                    <option <?php if ($mode=="debut") echo 'selected'; ?> value="debut">commence par</option>
+                    <option <?php if ($mode=="milieu" || $mode=="") echo 'selected'; ?> value="milieu">contient</option>
+                    <option <?php if ($mode=="fin") echo 'selected'; ?> value="fin">finit par</option>
+                </select>   
+                <input type="submit" value="search">
+            </form>
+        </div>
+
+        <div id="init">
+            <h2>Insert / Delete</h2>
+            <form action="?stage=modif" method="post" autocomplete="off">
+                <input type="text" size=25 name="champ2" id="champ2" value="<?php echo $_POST[champ2]; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
+                <br><br><input type="submit" value="insert" name="insert" id="insert"> 
+                <input type="submit" value="delete" name="delete" id="delete">   
+            </form>
+        </div>
+        <div id="init">
+            <form action="?stage=initialize" method="get" autocomplete="on">
+                <h2>Indexation (création des sous-tables)</h2>
+                Threshold (nb items / sous-table)<br><input type="text" size=8 id="threshold" name="threshold" value="<?php echo $thres; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
+                <br>Ordre d'indexation<br> <input type="text" size=8 name="ordre" id="ordre" value="<?php echo $ordreMax; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
+                <br><br><input type="submit" value="validate" id="initialize"> 
+            </form>
+        </div>
+        <div id="init">
+            <h2>Sélection des données</h2> 
+            <?php          
+            echo $print_donnees;    
+            ?>
+        </div>
+        <div id="init">
+            <h2>Colonnes</h2>
+            <?php          
+            echo $print_colonnes;    
+            ?>
+        </div>
+        <div id="init">
+            <h2>Log</h2>
+            <?php          
+            echo $print_log;    
+            ?>
+        </div>
+        <div id="init">
+            <h2>Géo</h2>
+            <div id="map_canvas" style="width:100%; height:100%"></div>   
+        </div>
+        <div id="ajax"><h2>Résultats de la recherche</h2></div> 
+
+    </body>
+</html>
