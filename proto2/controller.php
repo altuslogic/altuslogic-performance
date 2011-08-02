@@ -35,7 +35,7 @@
             } 
         }
         progressBar("Création des tables terminée",100); 
-        updateLog("Création des tables",end_timer($temps));           
+        updateLog("Création des tables ".$nomColonne,end_timer($temps));           
     }
 
     function clearTables(){      

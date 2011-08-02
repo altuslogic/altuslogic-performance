@@ -6,7 +6,7 @@
         $MD5_PREFIX = "astrochew_is_king_of_security";
 
 $DbHost     = "localhost"; // The host where the MySQL server resides
-$DbDatabase = "dev"; // The database you are going to use
+$DbDatabase = "antoine_dev"; // The database you are going to use
 $DbUser     = "antoine"; // Username
 $DbPassword = "klm417al"; // Password
 
