@@ -5,7 +5,7 @@
     include "time_function.php";
     include "controller.php"; 
     include "progressbar.php";
-             error_reporting(15);
+    error_reporting(15);
     $temps_total = start_timer();
     echo '<link rel="stylesheet" type="text/css" href="my.css"><body><br><br><br>';
     init(5,5,600,30,'#fff','#444','#006699');
@@ -59,6 +59,9 @@
         case 'index':
             //echo "selec : ",$_POST[t_id];            
             creeIndex();
+            break;
+        case 'position':
+
             break;
     }
 

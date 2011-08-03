@@ -12,7 +12,7 @@
         `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
         `action` varchar(255) NOT NULL,
         `heure` datetime NOT NULL,
-        `temps` float NOT NULL DEFAULT '0', 
+        `temps` float NOT NULL, 
         PRIMARY KEY (`id`)
         ) ENGINE=MyISAM  DEFAULT CHARSET=latin1" ;
         $result = mysql_query($sql);

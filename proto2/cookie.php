@@ -25,5 +25,7 @@
     $thres = readCookie("threshold",5000);
     $ordreMax = readCookie("ordre",3);
     $DbDatabase = readCookie("DbDatabase","");
+    $lat = readCookie("latitude",45.6);
+    $long = readCookie("longitude",-73.5);
 
 ?>
