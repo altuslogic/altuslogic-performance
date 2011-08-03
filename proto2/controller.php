@@ -222,7 +222,7 @@
         if ($mode=="tout"){
             // mode expression régulière
             $sql = "SELECT $nomColonne FROM ".$nomBase." WHERE $nomColonne RLIKE '$text' LIMIT 100";                                    
-            $result = mysql_query($sql);
+            $result = mysql_query($sql) or die($sql."<br>".mysql_error());
             while ($tab = mysql_fetch_array($result)){ 
                 $print .= ($print==""?"":",").$tab[$nomColonne];      
             }
@@ -307,7 +307,7 @@
             }
         }                                     
         //echo $sql,"<br>";   
-        $result = mysql_query($sql);
+        $result = mysql_query($sql) or die(mysql_error());
         $tab = mysql_fetch_array($result);   
         return $tab['name'];
     } 
@@ -499,23 +499,102 @@
         }  */
         return $print;
     } 
-    
-    
-    
-     function list_db(){
-     	
-        global $DbUser,$DbPassword,$DbHost;
-        
-        $link = mysql_connect($DbHost, $DbUser, $DbPassword);
-		$db_list = mysql_list_dbs($link);
 
-		while ($row = mysql_fetch_object($db_list)) {
-		     $out_print.= "<a href=\"?DbDatabase=".$row->Database."\">".$row->Database . "</a><br>";
-		} 
-		return $out_print;
-		      
+
+
+    function list_db(){
+
+        global $DbUser,$DbPassword,$DbHost,$DbDatabase;
+
+        $link = mysql_connect($DbHost, $DbUser, $DbPassword);
+        $db_list = mysql_list_dbs($link);
+        $out_print = "";
+
+        while ($row = mysql_fetch_object($db_list)) {
+            if ($row->Database==$DbDatabase){
+                $out_print .= "<b>".$row->Database."</b><br>";  
+            }
+            else $out_print.= "<a href=\"?DbDatabase=".$row->Database."\">".$row->Database . "</a><br>";
+        } 
+        return $out_print;
+
     } 
 
-    
+
+    function list_tables(){
+        global $DbDatabase,$nomBase,$print_details,$temps_total;
+
+        $sql = "SELECT table_name FROM information_schema.tables WHERE table_schema = '$DbDatabase'
+        AND table_name NOT LIKE 'y\_%' AND table_name NOT LIKE 'z\_%'";
+        $result = mysql_query($sql);
+        $print = "";
+
+        while ($ligne=mysql_fetch_array($result)){
+            if ($ligne[0]==$nomBase){
+                $print .= "<b>".$ligne[0]."</b><br>";  
+            }
+            else $print .= "<a href='?nomBase=".$ligne[0]."'>".$ligne[0]."</a><br>";
+        }                                                            
+        $print .= "<br>Temps total : ".end_timer($temps_total)." secondes.<br>".$print_details;
+        return $print; 
+    }
+
+
+    function list_colonnes(){
+        global $nomBase,$nomColonne;
+
+        $sql = "SHOW COLUMNS FROM ".$nomBase;
+        $result = mysql_query($sql);
+        $print = "<form action='?stage=index' method='post'><table><tr><td>Nom</td><td>Type</td><td>Nombre</td><td>Tables</td><td>Index</td>";
+
+        while ($ligne=mysql_fetch_array($result)){
+            $nom = $ligne['Field'];
+
+            $sql = "SHOW TABLES LIKE 'z\_".$nomBase."\_".$nom."\_%'";
+            $tables = mysql_num_rows(mysql_query($sql))>0? "checked disabled='disabled'" : "";    
+            $sql = "SHOW TABLES LIKE 'y\_".$nomBase."\_".$nom."\_index'";
+            $index = mysql_num_rows(mysql_query($sql))>0? "checked disabled='disabled'" : "";
+
+            $print .= "<tr><td>";
+            if ($nom==$nomColonne){
+                $print .= "<b>".$nom."</b>";  
+            }
+            else $print .= "<a href='?nomColonne=".$nom."'>".$nom."</a>";
+            $print .= "</td><td>".$ligne['Type']."</td>";
+            $sql = "SELECT COUNT(DISTINCT $nom) FROM ".$nomBase;
+            $nb = mysql_result(mysql_query($sql),0);
+            $print .= "<td>".$nb."</td><td><p align='center'><input type='checkbox' ".$tables." id='t_".$nom."'></p></td><td><p align='center'><input type='checkbox' ".$index." id='i_".$nom."'></p></td></tr>";    
+        }                                                                                                
+        $print .= "</table><p align='center'><input type='submit' value='apply'></p></form>";
+        return $print;
+    }
+
+
+    function list_log(){
+        global $nomBase;
+
+        $sql = "SELECT action,temps,heure FROM y_".$nomBase."_log ORDER BY id DESC LIMIT 10";
+        $result = mysql_query($sql);
+        $print = "";
+
+        while ($ligne=mysql_fetch_array($result)){ 
+            $print = "<tr><td>".$ligne['heure']."</td><td>".$ligne['action']."</td><td>".$ligne['temps']."</td></tr>".$print;  
+        }
+        $print = "<table><tr><td>Heure</td><td>Action</td><td>Durée</td></tr>".$print."</table>";
+        return $print;  
+    }
+
+    function analyse(){
+        global $nomBase,$nomColonne;
+
+        $sql = "SELECT * FROM y_".$nomBase."_".$nomColonne."_stats PROCEDURE ANALYSE(3,24)";
+        $result = mysql_query($sql);
+        $print = "<table><tr><td>Field name</td><td>Min value</td><td>Max value</td><td>Min length</td><td>Max length</td><td>Empties or zeros</td><td>Nulls</td><td>Optimal field type</td></tr>";
+        while ($ligne=mysql_fetch_array($result)){
+            $print .= "<tr><td>".$ligne[0]."</td><td>".$ligne[1]."</td><td>".$ligne[2]."</td><td>".$ligne[3]."</td><td>".$ligne[4]."</td><td>".$ligne[5]."</td><td>".$ligne[6]."</td><td>".$ligne[9]."</td></tr>";  
+        }
+        return $print."</table>";
+    }
+
 
 ?>

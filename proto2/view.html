@@ -50,12 +50,12 @@
         <div id="init">
             <h2>Recherche</h2>
             <form action="?stage=search" method="post" autocomplete="off">
-                <input type="text" size=25 name="champ1" id="champ1" value="<?php echo $_POST['champ1']; ?>" onkeyup="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444;">
+                <input type="text" size=25 name="champ1" id="champ1" value="<?php if (isset($_POST['champ1'])) echo $_POST['champ1']; ?>" onkeyup="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444;">
                 <br><br><select id="mode" onchange="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444;">
-                    <option <?php if ($mode=="tout") echo 'selected'; ?> value="tout">exactement</option>
-                    <option <?php if ($mode=="debut") echo 'selected'; ?> value="debut">commence par</option>
-                    <option <?php if ($mode=="milieu" || $mode=="") echo 'selected'; ?> value="milieu">contient</option>
-                    <option <?php if ($mode=="fin") echo 'selected'; ?> value="fin">finit par</option>
+                    <option <?php if (isset($mode) && $mode=="tout") echo 'selected'; ?> value="tout">exactement</option>
+                    <option <?php if (isset($mode) && $mode=="debut") echo 'selected'; ?> value="debut">commence par</option>
+                    <option <?php if (!isset($mode) || $mode=="milieu") echo 'selected'; ?> value="milieu">contient</option>
+                    <option <?php if (isset($mode) && $mode=="fin") echo 'selected'; ?> value="fin">finit par</option>
                 </select>   
                 <input type="submit" value="search">
             </form>
@@ -63,7 +63,7 @@
         <div id="init">
             <h2>Insert / Delete</h2>
             <form action="?stage=modif" method="post" autocomplete="off">
-                <input type="text" size=25 name="champ2" id="champ2" value="<?php echo $_POST['champ2']; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
+                <input type="text" size=25 name="champ2" id="champ2" value="<?php if (isset($_POST['champ2'])) echo $_POST['champ2']; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
                 <br><br><input type="submit" value="insert" name="insert" id="insert"> 
                 <input type="submit" value="delete" name="delete" id="delete">   
             </form>
@@ -84,19 +84,19 @@
         </div><div id="init">
             <h2>Sélection des données</h2> 
             <?php          
-            echo $print_donnees;    
+            if ($DbDatabase) echo list_tables();    
             ?>
         </div>
         <div id="init">
             <h2>Colonnes</h2>
             <?php          
-            echo $print_colonnes;    
+            if ($DbDatabase && $nomBase) echo list_colonnes();    
             ?>
         </div>
         <div id="init">
             <h2>Log</h2>
             <?php          
-            echo $print_log;    
+            echo list_log();    
             ?>
         </div>
         <div id="init">

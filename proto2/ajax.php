@@ -4,9 +4,9 @@
     $search = $_GET['search'];
     $mode = $_GET['mode'];                         
 
+    include "cookie.php";
     include "config/db.php";
-    include "time_function.php";
-    include "cookie.php";  
+    include "time_function.php";  
     include "controller.php";  
 
     // retourne les résultats de la recherche

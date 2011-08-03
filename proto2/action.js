@@ -23,7 +23,7 @@ function soumettre(){
             document.getElementById('ajax').innerHTML = xhr.responseText; 
         }
         else { 
-            document.getElementById('ajax').innerHTML = "Erreur : " + url;     
+            document.getElementById('ajax').innerHTML = "Erreur : " + url;    
         }   
     };
 
