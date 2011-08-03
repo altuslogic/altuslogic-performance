@@ -437,7 +437,7 @@
         $sql = "SELECT COUNT(*) FROM $tableStats";     
         $result = mysql_query($sql);
         $taille = mysql_result($result,0);
-        $print .= "Nombre de sous-tables : ".$taille."<br>";
+        $print = "Nombre de sous-tables : ".$taille."<br>";
         $i=1;
         while ($i<10){
             $sql = "SELECT COUNT(*) FROM $tableStats WHERE ordre=$i";     

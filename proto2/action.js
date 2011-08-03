@@ -2,7 +2,7 @@ function soumettre(){
     var search = escape(document.getElementById('champ1').value);
     if (search.length==0) return;                          
     var mode = document.getElementById('mode').value; 
-    var url = "http://localhost/proto2/ajax.php?search=" + search + "&mode=" + mode;
+    var url = "ajax.php?search=" + search + "&mode=" + mode;
 
     // création d'un objet capable d'interagir avec le serveur
     try {
