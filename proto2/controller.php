@@ -1,10 +1,15 @@
 <?php
 
+    function tableExiste($nomTable){
+        $sql = "SELECT COUNT(*) FROM $nomTable";
+        return mysql_query($sql);
+    }
+
     function creeLog(){
         global $nomBase; 
         $temps = start_timer();
         $sql = "CREATE TABLE y_".$nomBase."_log (
-        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
         `action` varchar(255) NOT NULL,
         `heure` datetime NOT NULL,
         `temps` float NOT NULL DEFAULT '0', 
@@ -29,19 +34,21 @@
             $result = mysql_query($sql) or die(mysql_error());
             if (mysql_num_rows($result)==0) break;
             while ($tab = mysql_fetch_array($result)){
-                creeSousTables($tab[name]);
+                creeSousTables($tab['name']);
             } 
         }
         progressBar("Création des tables terminée",100); 
         updateLog("Création des tables ".$nomColonne,end_timer($temps));           
     }
 
-    function clearTables(){      
-        operation("clearTable","Réinitialisation tables"); 
+    function clearTables(){
+        global $nomColonne;      
+        operation("clearTable","Réinitialisation tables ".$nomColonne); 
     }
 
-    function deleteTables(){      
-        operation("deleteTable","Suppression tables"); 
+    function deleteTables(){  
+        global $nomColonne;     
+        operation("deleteTable","Suppression tables ".$nomColonne); 
     }
 
     function performances(){
@@ -49,12 +56,12 @@
     }
 
     function creeStats(){
-        global $nomBase,$nomColonne; 
+        global $nomBase,$nomColonne,$ordreMax; 
         clearStats();
         $sql = "CREATE TABLE IF NOT EXISTS y_".$nomBase."_".$nomColonne."_stats (
-        `name` varchar(255) NOT NULL,
-        `ordre` int(11) NOT NULL,
-        `nombre` int(11) NOT NULL DEFAULT '0',
+        `name` varchar($ordreMax) NOT NULL,
+        `ordre` tinyint(3) UNSIGNED NOT NULL,
+        `nombre` int(11) UNSIGNED NOT NULL DEFAULT '0',
         `temps` float NOT NULL DEFAULT '0', 
         PRIMARY KEY (`name`)
         ) ENGINE=MyISAM  DEFAULT CHARSET=latin1" ;
@@ -85,8 +92,8 @@
         $cpt=0;
         $progress=0;
         while ($tab = mysql_fetch_array($result)){
-            $op($tab[name]);
-            echo $tab[name]," "; //Richard
+            $op($tab['name']);
+            echo $tab['name']," "; //Richard
             $cpt++;
             $pourcent = round(100*$cpt/$count_table);
             if ($pourcent > $progress){
@@ -130,8 +137,8 @@
                 flush();
                 //$sql1 = "CREATE TABLE z_".$nomBase."_".$nomColonne."_".$mot." LIKE y_original_index"; //new thing .. copy table from model
                 $sql1 = "CREATE TABLE z_".$nomBase."_".$nomColonne."_".$mot." (
-                `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                 $nomColonne varchar(255) NOT NULL
+                `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                $nomColonne varchar(255) NOT NULL
                 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1";
                 $sql2 = "INSERT INTO z_".$nomBase."_".$nomColonne."_".$mot." (SELECT id,$nomColonne FROM $table WHERE $nomColonne LIKE '%$mot%')";
                 mysql_query($sql1);   
@@ -142,7 +149,6 @@
         }
 
     }     
-
 
     function clearTable($mot){
         global $nomBase,$nomColonne;  
@@ -226,8 +232,8 @@
             $temps1 = start_timer();
             $mot = explode(" ",$text);
             $tab = tailleMax($mot);
-            $long = $tab["taille"];
-            $nb = $tab["nombre"];
+            $long = $tab['taille'];
+            $nb = $tab['nombre'];
 
             if ($long>=1){
 
@@ -239,13 +245,6 @@
                 echo "1) Choix de la table : ",end_timer($temps1),"<br>";  
                 $temps2 = start_timer();
 
-                /*   
-                echo "Choix : ".$tab[name]." (".$tab[nombre].")<br>"; 
-                while ($tab = mysql_fetch_array($result)){ 
-                echo "Autres : ".$tab[name]." (".$tab[nombre].")<br>";      
-                }
-                */ 
-
                 $sql = "SELECT $nomColonne FROM z_".$nomBase."_".$nomColonne."_".$table." WHERE";
                 $debut = $mode=="debut"?"":"%";
                 $fin = $mode=="fin"?"":"%";
@@ -255,7 +254,7 @@
                     if (strlen($mot[$i])>0){
                         $sql .= $and." $nomColonne LIKE '".$debut."$mot[$i]".$fin."'";
                         $and = " AND"; 
-                        if (i==0){
+                        if ($i==0){
                             $debut = $fin = "%";
                         }
                     }
@@ -310,7 +309,7 @@
         //echo $sql,"<br>";   
         $result = mysql_query($sql);
         $tab = mysql_fetch_array($result);   
-        return $tab[name];
+        return $tab['name'];
     } 
 
     function existe($text){
@@ -386,15 +385,15 @@
         global $nomBase,$nomColonne; 
         $temps = start_timer(); 
         $sql = "CREATE TABLE IF NOT EXISTS y_".$nomBase."_".$nomColonne."_keyword (
-        `id` int(11) NOT NULL AUTO_INCREMENT,    
+        `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,    
         `name` varchar(30) NOT NULL,
         PRIMARY KEY (`id`)
         ) ENGINE=MyISAM  DEFAULT CHARSET=latin1" ;
         mysql_query($sql); 
         // FOREIGN KEYS
         $sql = "CREATE TABLE IF NOT EXISTS y_".$nomBase."_".$nomColonne."_index (
-        `id` int(11) NOT NULL,                                
-        `keyword` int(11) NOT NULL,
+        `id` int(11) UNSIGNED NOT NULL,                                
+        `keyword` int(11) UNSIGNED NOT NULL,
         PRIMARY KEY (`id`,`keyword`)
         ) ENGINE=MyISAM  DEFAULT CHARSET=latin1" ;
         mysql_query($sql); 
@@ -453,7 +452,7 @@
         $sql = "SELECT AVG(temps) AS moyenne FROM $tableStats WHERE nombre>0";
         $result = mysql_query($sql);
         $tab = mysql_fetch_array($result);
-        $print .= "Temps moyen : ".$tab[moyenne]." seconde(s).<br>";
+        $print .= "Temps moyen : ".$tab['moyenne']." seconde(s).<br>";
 
         for ($i=1; $i<$max; $i++){
             $print .= "<br><b>Ordre ".$i."</b><br>";
@@ -464,32 +463,32 @@
                 if ($i==1){
                     $sql = "SELECT COUNT(*) FROM $nomBase";
                     $prop = mysql_result(mysql_query($sql),0);
-                    $txt = round(100*$tab[nombre]/$prop)."%"; 
+                    $txt = round(100*$tab['nombre']/$prop)."%"; 
                 }
                 else {                
-                    $sup = substr($tab[name],0,strlen($tab[name])-1);
+                    $sup = substr($tab['name'],0,strlen($tab['name'])-1);
                     $sql = "SELECT nombre FROM $tableStats WHERE name='$sup' LIMIT 1";
                     $prop = mysql_fetch_array(mysql_query($sql));
-                    $txt = round(100*$tab[nombre]/$prop[0])."% - ";
-                    $sup = substr($tab[name],1,strlen($tab[name])-1);
+                    $txt = round(100*$tab['nombre']/$prop[0])."% - ";
+                    $sup = substr($tab['name'],1,strlen($tab['name'])-1);
                     $sql = "SELECT nombre FROM $tableStats WHERE name='$sup' LIMIT 1";
                     $prop = mysql_fetch_array(mysql_query($sql));
-                    $txt .= round(100*$tab[nombre]/$prop[0])."%"; 
+                    $txt .= round(100*$tab['nombre']/$prop[0])."%"; 
                 }
                 $prop = mysql_fetch_array(mysql_query($sql));
-                $print .= "<tr><td>".$tab[name]."</td><td>".$tab[nombre]."</td><td>".$txt."</td/></tr>"; 
+                $print .= "<tr><td>".$tab['name']."</td><td>".$tab['nombre']."</td><td>".$txt."</td/></tr>"; 
             }
             $print .= "</table>";
 
             $sql = "SELECT AVG(nombre) AS moyenne FROM $tableStats WHERE ordre=$i AND nombre>0";
             $result = mysql_query($sql);
             $tab = mysql_fetch_array($result);
-            $print .= "Moyenne : ".$tab[moyenne]."<br>";
+            $print .= "Moyenne : ".$tab['moyenne']."<br>";
 
             $sql = "SELECT STD(nombre) AS ecart FROM $tableStats WHERE ordre=$i AND nombre>0";
             $result = mysql_query($sql);
             $tab = mysql_fetch_array($result);
-            $print .= "Ecart-type : ".$tab[ecart]."<br>";
+            $print .= "Ecart-type : ".$tab['ecart']."<br>";
         }
 
         /* $print .= "<br><b>Liste des 100 premiers éléments les plus nombreux</b>";
