@@ -1,8 +1,8 @@
 <?php             
 
+    include "cookie.php";  
     include "config/db.php";
     include "time_function.php";
-    include "cookie.php";  
     include "controller.php"; 
     include "progressbar.php";
 
@@ -12,8 +12,10 @@
 
     creeLog(); 
 
-    $stage = $_GET[stage];                       
-    $option = $_POST[option];
+	$stage="";
+    if (isset($_GET[stage]))$stage = $_GET[stage];                       
+    if (isset($_GET[option]))$option = $_POST[option];
+    
 
     switch($stage){
         case 'initialize':
@@ -57,6 +59,8 @@
             break;
     }
 
+if($DbDatabase){
+	
     // Sélection des données
     $sql = "SELECT table_name FROM information_schema.tables WHERE table_schema = '$DbDatabase'
     AND table_name NOT LIKE 'y\_%' AND table_name NOT LIKE 'z\_%'";
@@ -71,31 +75,32 @@
     }                                                            
     $print_donnees .= "<br>Temps total : ".end_timer($temps_total)." secondes.<br>".$print_details;   
 
-    // Colonnes
-    $sql = "SHOW COLUMNS FROM ".$nomBase;
-    $result = mysql_query($sql);
-    $print_colonnes = "<form action='?stage=index' method='post'><table><tr><td>Nom</td><td>Type</td><td>Nombre</td><td>Tables</td><td>Index</td>";
-
-    while ($ligne=mysql_fetch_array($result)){
-        $nom = $ligne[Field];
-
-        $sql = "SHOW TABLES LIKE 'z\_".$nomBase."\_".$nom."\_%'";
-        $tables = mysql_num_rows(mysql_query($sql))>0? "checked disabled='disabled'" : "";    
-        $sql = "SHOW TABLES LIKE 'y\_".$nomBase."\_".$nom."\_index'";
-        $index = mysql_num_rows(mysql_query($sql))>0? "checked disabled='disabled'" : "";
-
-        $print_colonnes .= "<tr><td>";
-        if ($nom==$nomColonne){
-            $print_colonnes .= "<b>".$nom."</b>";  
-        }
-        else $print_colonnes .= "<a href='?nomColonne=".$nom."'>".$nom."</a>";
-        $print_colonnes .= "</td><td>".$ligne[Type]."</td>";
-        $sql = "SELECT COUNT(DISTINCT $nom) FROM ".$nomBase;
-        $nb = mysql_result(mysql_query($sql),0);
-        $print_colonnes .= "<td>".$nb."</td><td><p align='center'><input type='checkbox' ".$tables." id='t_".$nom."'></p></td><td><p align='center'><input type='checkbox' ".$index." id='i_".$nom."'></p></td></tr>";    
-    }                                                                                                
-    $print_colonnes .= "</table><p align='center'><input type='submit' value='apply'></p></form>";
-
+	
+if($nomBase){		    // Colonnes
+		    $sql = "SHOW COLUMNS FROM ".$nomBase;
+		    $result = mysql_query($sql);
+		    $print_colonnes = "<form action='?stage=index' method='post'><table><tr><td>Nom</td><td>Type</td><td>Nombre</td><td>Tables</td><td>Index</td>";
+		
+		    while ($ligne=mysql_fetch_array($result)){
+		        $nom = $ligne[Field];
+		
+		        $sql = "SHOW TABLES LIKE 'z\_".$nomBase."\_".$nom."\_%'";
+		        $tables = mysql_num_rows(mysql_query($sql))>0? "checked disabled='disabled'" : "";    
+		        $sql = "SHOW TABLES LIKE 'y\_".$nomBase."\_".$nom."\_index'";
+		        $index = mysql_num_rows(mysql_query($sql))>0? "checked disabled='disabled'" : "";
+		
+		        $print_colonnes .= "<tr><td>";
+		        if ($nom==$nomColonne){
+		            $print_colonnes .= "<b>".$nom."</b>";  
+		        }
+		        else $print_colonnes .= "<a href='?nomColonne=".$nom."'>".$nom."</a>";
+		        $print_colonnes .= "</td><td>".$ligne[Type]."</td>";
+		        $sql = "SELECT COUNT(DISTINCT $nom) FROM ".$nomBase;
+		        $nb = mysql_result(mysql_query($sql),0);
+		        $print_colonnes .= "<td>".$nb."</td><td><p align='center'><input type='checkbox' ".$tables." id='t_".$nom."'></p></td><td><p align='center'><input type='checkbox' ".$index." id='i_".$nom."'></p></td></tr>";    
+		    }                                                                                                
+		    $print_colonnes .= "</table><p align='center'><input type='submit' value='apply'></p></form>";
+}
     // Log
     $sql = "SELECT action,temps,heure FROM y_".$nomBase."_log ORDER BY id DESC LIMIT 10";
     $result = mysql_query($sql);
@@ -105,7 +110,7 @@
         $print_log = "<tr><td>".$ligne[heure]."</td><td>".$ligne[action]."</td><td>".$ligne[temps]."</td></tr>".$print_log;  
     }
     $print_log = "<table><tr><td>Heure</td><td>Action</td><td>Durée</td></tr>".$print_log."</table>";
-
+}
     include "view.html";   
 
 ?>

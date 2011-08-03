@@ -500,5 +500,23 @@
         }  */
         return $print;
     } 
+    
+    
+    
+     function list_db(){
+     	
+        global $DbUser,$DbPassword,$DbHost;
+        
+        $link = mysql_connect($DbHost, $DbUser, $DbPassword);
+		$db_list = mysql_list_dbs($link);
+
+		while ($row = mysql_fetch_object($db_list)) {
+		     $out_print.= "<a href=\"?DbDatabase=".$row->Database."\">".$row->Database . "</a><br>";
+		} 
+		return $out_print;
+		      
+    } 
+
+    
 
 ?>

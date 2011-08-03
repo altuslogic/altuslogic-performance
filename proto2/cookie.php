@@ -5,9 +5,13 @@
     }
 
     function readCookie($token,$default){
-        if (!$_GET[$token]){
-            $value = $_COOKIE[$token]; 
-            if (!$value) $value = $default; 
+        if (!isset($_GET[$token])){
+            if (isset($_COOKIE[$token])){
+            	
+            	$value = $_COOKIE[$token]; 
+            }else{
+            	$value = $default;
+            } 
         }
         else {
             saveCookie($token,$_GET[$token]);
@@ -16,9 +20,10 @@
         return $value;
     }
 
-    $nomBase = readCookie("nomBase","business_10k");
+    $nomBase = readCookie("nomBase","");
     $nomColonne = readCookie("nomColonne","name");
     $thres = readCookie("threshold",5000);
     $ordreMax = readCookie("ordre",3);
+    $DbDatabase = readCookie("DbDatabase","");
 
 ?>
