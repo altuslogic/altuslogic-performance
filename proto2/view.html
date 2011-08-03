@@ -50,7 +50,7 @@
         <div id="init">
             <h2>Recherche</h2>
             <form action="?stage=search" method="post" autocomplete="off">
-                <input type="text" size=25 name="champ1" id="champ1" value="<?php echo $_POST[champ1]; ?>" onkeyup="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444;">
+                <input type="text" size=25 name="champ1" id="champ1" value="<?php echo $_POST['champ1']; ?>" onkeyup="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444;">
                 <br><br><select id="mode" onchange="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444;">
                     <option <?php if ($mode=="tout") echo 'selected'; ?> value="tout">exactement</option>
                     <option <?php if ($mode=="debut") echo 'selected'; ?> value="debut">commence par</option>
@@ -63,7 +63,7 @@
         <div id="init">
             <h2>Insert / Delete</h2>
             <form action="?stage=modif" method="post" autocomplete="off">
-                <input type="text" size=25 name="champ2" id="champ2" value="<?php echo $_POST[champ2]; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
+                <input type="text" size=25 name="champ2" id="champ2" value="<?php echo $_POST['champ2']; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
                 <br><br><input type="submit" value="insert" name="insert" id="insert"> 
                 <input type="submit" value="delete" name="delete" id="delete">   
             </form>

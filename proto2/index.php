@@ -5,16 +5,17 @@
     include "cookie.php";  
     include "controller.php"; 
     include "progressbar.php";
-
+     
     $temps_total = start_timer();
     echo '<link rel="stylesheet" type="text/css" href="my.css"><body><br><br><br>';
     init(5,5,600,30,'#fff','#444','#006699');
 
     creeLog(); 
 
-    $stage = $_GET[stage];                       
-    $option = $_POST[option];
-
+    $stage = $_GET['stage'];                       
+    $option = $_POST['option'];
+    $print_details = "";
+    
     switch($stage){
         case 'initialize':
             creeLog();
@@ -38,7 +39,14 @@
             mysql_query("RESET QUERY CACHE");
             break;
         case 'search':
-            deleteLog();
+            $sql = "SELECT * FROM y_".$nomBase."_".$nomColonne."_stats PROCEDURE ANALYSE(3,24)";
+            $result = mysql_query($sql);
+            echo "<table><tr><td>Field name</td><td>Min value</td><td>Max value</td><td>Min length</td><td>Max length</td><td>Empties or zeros</td><td>Nulls</td><td>Optimal field type</td></tr>";
+            while ($ligne=mysql_fetch_array($result)){
+              echo "<tr><td>",$ligne[0],"</td><td>",$ligne[1],"</td><td>",$ligne[2],"</td><td>",$ligne[3],"</td><td>",$ligne[4],"</td><td>",$ligne[5],"</td><td>",$ligne[6],"</td><td>",$ligne[9],"</td></tr>";  
+            }
+            echo "</table>";
+            //deleteLog();
             /*$text =  $_POST[champ1];
             if ($text!="") recherche($text,true); */
             break;
@@ -77,19 +85,18 @@
     $print_colonnes = "<form action='?stage=index' method='post'><table><tr><td>Nom</td><td>Type</td><td>Nombre</td><td>Tables</td><td>Index</td>";
 
     while ($ligne=mysql_fetch_array($result)){
-        $nom = $ligne[Field];
+        $nom = $ligne['Field'];
 
         $sql = "SHOW TABLES LIKE 'z\_".$nomBase."\_".$nom."\_%'";
-        $tables = mysql_num_rows(mysql_query($sql))>0? "checked disabled='disabled'" : "";    
-        $sql = "SHOW TABLES LIKE 'y\_".$nomBase."\_".$nom."\_index'";
-        $index = mysql_num_rows(mysql_query($sql))>0? "checked disabled='disabled'" : "";
+        $tables = mysql_num_rows(mysql_query($sql))>0? "checked disabled='disabled'" : "";
+        $index = tableExiste("y_".$nomBase."_".$nom."_index")? "checked disabled='disabled'" : "";
 
         $print_colonnes .= "<tr><td>";
         if ($nom==$nomColonne){
             $print_colonnes .= "<b>".$nom."</b>";  
         }
         else $print_colonnes .= "<a href='?nomColonne=".$nom."'>".$nom."</a>";
-        $print_colonnes .= "</td><td>".$ligne[Type]."</td>";
+        $print_colonnes .= "</td><td>".$ligne['Type']."</td>";
         $sql = "SELECT COUNT(DISTINCT $nom) FROM ".$nomBase;
         $nb = mysql_result(mysql_query($sql),0);
         $print_colonnes .= "<td>".$nb."</td><td><p align='center'><input type='checkbox' ".$tables." id='t_".$nom."'></p></td><td><p align='center'><input type='checkbox' ".$index." id='i_".$nom."'></p></td></tr>";    
@@ -102,7 +109,7 @@
     $print_log = "";
 
     while ($ligne=mysql_fetch_array($result)){ 
-        $print_log = "<tr><td>".$ligne[heure]."</td><td>".$ligne[action]."</td><td>".$ligne[temps]."</td></tr>".$print_log;  
+        $print_log = "<tr><td>".$ligne['heure']."</td><td>".$ligne['action']."</td><td>".$ligne['temps']."</td></tr>".$print_log;  
     }
     $print_log = "<table><tr><td>Heure</td><td>Action</td><td>Durée</td></tr>".$print_log."</table>";
 

@@ -1,8 +1,8 @@
 <?php
 
     header("Content-type: text/html; charset=ISO-8859-1");
-    $search = $_GET[search];
-    $mode = $_GET[mode];                         
+    $search = $_GET['search'];
+    $mode = $_GET['mode'];                         
 
     include "config/db.php";
     include "time_function.php";
