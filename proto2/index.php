@@ -12,18 +12,17 @@
 
     creeLog(); 
 
-<<<<<<< HEAD
 	$stage="";
     if (isset($_GET[stage]))$stage = $_GET[stage];                       
     if (isset($_GET[option]))$option = $_POST[option];
     
 
-=======
+
     $stage = $_GET['stage'];                       
     $option = $_POST['option'];
     $print_details = "";
     
->>>>>>> 3d5b4a49ba817a7243f6a817b402f8f7ccbce616
+
     switch($stage){
         case 'initialize':
             creeLog();
@@ -89,7 +88,7 @@ if($DbDatabase){
     }                                                            
     $print_donnees .= "<br>Temps total : ".end_timer($temps_total)." secondes.<br>".$print_details;   
 
-<<<<<<< HEAD
+
 	
 if($nomBase){		    // Colonnes
 		    $sql = "SHOW COLUMNS FROM ".$nomBase;
@@ -116,32 +115,8 @@ if($nomBase){		    // Colonnes
 		    }                                                                                                
 		    $print_colonnes .= "</table><p align='center'><input type='submit' value='apply'></p></form>";
 }
-=======
-    // Colonnes
-    $sql = "SHOW COLUMNS FROM ".$nomBase;
-    $result = mysql_query($sql);
-    $print_colonnes = "<form action='?stage=index' method='post'><table><tr><td>Nom</td><td>Type</td><td>Nombre</td><td>Tables</td><td>Index</td>";
 
-    while ($ligne=mysql_fetch_array($result)){
-        $nom = $ligne['Field'];
 
-        $sql = "SHOW TABLES LIKE 'z\_".$nomBase."\_".$nom."\_%'";
-        $tables = mysql_num_rows(mysql_query($sql))>0? "checked disabled='disabled'" : "";
-        $index = tableExiste("y_".$nomBase."_".$nom."_index")? "checked disabled='disabled'" : "";
-
-        $print_colonnes .= "<tr><td>";
-        if ($nom==$nomColonne){
-            $print_colonnes .= "<b>".$nom."</b>";  
-        }
-        else $print_colonnes .= "<a href='?nomColonne=".$nom."'>".$nom."</a>";
-        $print_colonnes .= "</td><td>".$ligne['Type']."</td>";
-        $sql = "SELECT COUNT(DISTINCT $nom) FROM ".$nomBase;
-        $nb = mysql_result(mysql_query($sql),0);
-        $print_colonnes .= "<td>".$nb."</td><td><p align='center'><input type='checkbox' ".$tables." id='t_".$nom."'></p></td><td><p align='center'><input type='checkbox' ".$index." id='i_".$nom."'></p></td></tr>";    
-    }                                                                                                
-    $print_colonnes .= "</table><p align='center'><input type='submit' value='apply'></p></form>";
-
->>>>>>> 3d5b4a49ba817a7243f6a817b402f8f7ccbce616
     // Log
     $sql = "SELECT action,temps,heure FROM y_".$nomBase."_log ORDER BY id DESC LIMIT 10";
     $result = mysql_query($sql);
