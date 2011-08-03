@@ -18,21 +18,11 @@
         <script type="text/javascript"
             src="http://maps.googleapis.com/maps/api/js?sensor=true">
         </script>
-        <script type="text/javascript">
-            function initialize() {
-                var lat = document.getElementById('latitude').value;
-                var lon = document.getElementById('longitude').value; 
-                var myOptions = {
-                    zoom: 5,
-                    center: new google.maps.LatLng(lat,lon),
-                    mapTypeId: google.maps.MapTypeId.ROADMAP
-                };
-                var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
-            }
-
+        <script type="text/javascript"
+            src="http://www.google.com/jsapi?key=ABQIAAAAuIowY22xd6M7t2fgVRJUZhTS00s8BpmtWZHzIF6WCUpWiuK3aRR3Kcl7kSKmyZnX6ao-QJp2Ptyj_w">
         </script>
     </head>
-    <body onload="initialize()">
+    <body onload="initCoord()">
         <script src="jquery.js"></script>
         <script type="text/javascript" src="action.js"></script>
         <style></style>
@@ -105,8 +95,8 @@
             <form action="?stage=position" method="get" autocomplete="off">
                 Latitude<br><input type="text" size=25 name="latitude" id="latitude" value="<?php echo $lat; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;"> 
                 <br><br>Longitude<br><input type="text" size=25 name="longitude" id="longitude" value="<?php echo $lon; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
-                <br><br><input type="submit" value="goto" id="goto">      
-                </form>    
+                <br><br><input type="button" value="goto" id="goto" onclick="javascript:gotoCoord();"><input type="button" value="reset" id="reset" onclick="javascript:resetCoord();">       
+            </form>    
             <div id="map_canvas" style="width:100%; height:100%"></div> 
         </div>  
         <div id="ajax"><h2>Résultats de la recherche</h2></div> 
