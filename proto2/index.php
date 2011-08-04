@@ -44,11 +44,11 @@
         case 'search':
             echo analyse();
             //deleteLog();
-            /*$text =  $_POST[champ1];
+            /*$text =  $_POST[search];
             if ($text!="") recherche($text,true); */
             break;
         case 'modif':
-            $text = $_POST[champ2];   
+            $text = $_POST[modif];   
             if ($_POST[insert]=="insert"){
                 if ($text!="" && !existe($text)) insertion($text);
             }

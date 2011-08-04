@@ -3,6 +3,8 @@
     header("Content-type: text/html; charset=ISO-8859-1");
     $search = $_GET['search'];
     $mode = $_GET['mode'];                         
+    $lat = $_GET['lat'];
+    $lon = $_GET['lon'];
 
     include "cookie.php";
     include "config/db.php";
@@ -10,10 +12,11 @@
     include "controller.php";  
 
     // retourne les résultats de la recherche
-    echo "<h2>Résultats de la recherche</h2>";
-    $array = recherche($search, $mode); 
-    $result = $array["resultats"];
-    $temps = $array["temps"];
-    echo "<br>",str_replace(",","<br>",$result);
-    echo "<br><br>Temps écoulé : ",$temps," seconde(s)";
+    $array = recherche($search, $mode, $lat, $lon); 
+    $result = $array['resultats'];                                                 
+    for ($i=0; $i<sizeof($result); $i++){
+        echo $result[$i][0],",",round($result[$i]['distance']),",",$result[$i]['latitude'],",",$result[$i]['longitude'],"|";
+    }
+    echo $array['temps'];                           
+
 ?>

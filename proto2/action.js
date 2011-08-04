@@ -1,8 +1,11 @@
 function soumettre(){ 
-    var search = escape(document.getElementById('champ1').value);
+    var search = escape(document.getElementById('search').value);
     if (search.length==0) return;                          
     var mode = document.getElementById('mode').value; 
-    var url = "ajax.php?search=" + search + "&mode=" + mode;
+    var lat = document.getElementById('latitude').value;
+    var lon = document.getElementById('longitude').value;
+
+    var url = "ajax.php?search=" + search + "&mode=" + mode + "&lat=" + lat + "&lon=" + lon;
 
     // création d'un objet capable d'interagir avec le serveur
     try {
@@ -20,7 +23,25 @@ function soumettre(){
     xhr.onreadystatechange = function(){
         // instructions de traitement de la réponse  
         if (xhr.readyState == 4) {
-            document.getElementById('ajax').innerHTML = xhr.responseText; 
+
+            clearMarkers();
+
+            var print = "<h2>Résultats de la recherche</h2>";
+            var result = xhr.responseText;
+            var tab = result.split('|');
+
+            if (tab.length==1) print += "Pas de résultats.<br>";
+            else {
+                for (var i=0; i<tab.length-1; i++){
+                    var t = tab[i].split(',');
+                    print += t[0]+" ("+t[1]+" km)<br>";
+                    createMarker(i,t[0],t[2],t[3]);
+                }
+            }
+            print += "<br>Temps écoulé : "+tab[tab.length-1]+" seconde(s)";
+
+            document.getElementById('ajax').innerHTML = print; 
+
         }
         else { 
             //document.getElementById('ajax').innerHTML = "Erreur : " + url;    
@@ -84,4 +105,23 @@ function locate(){
     document.getElementById('latitude').value = lat;
     document.getElementById('longitude').value = lon;
     return new google.maps.LatLng(lat,lon);       
+}
+
+var markArray = [];
+
+function createMarker(i, nom, lat, lon){     
+    var lettre = String.fromCharCode(i+65);
+    var marker = new google.maps.Marker({
+        position: new google.maps.LatLng(lat,lon),
+        map: map, 
+        title: nom,
+        icon: "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld="+lettre+"|0099FF|000000" 
+    });
+    markArray.push(marker); 
+}
+
+function clearMarkers(){
+    for (i in markArray) {
+        markArray[i].setMap(null);
+    }
 }

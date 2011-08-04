@@ -23,7 +23,6 @@
         </script>
     </head>
     <body onload="initCoord()">
-        <script src="jquery.js"></script>
         <script type="text/javascript" src="action.js"></script>
         <style></style>
         <br><br>
@@ -41,7 +40,7 @@
         <div id="init">
             <h2>Recherche</h2>
             <form action="?stage=search" method="post" autocomplete="off">
-                <input type="text" size=25 name="champ1" id="champ1" value="<?php if (isset($_POST['champ1'])) echo $_POST['champ1']; ?>" onkeyup="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444;">
+                <input type="text" size=25 name="search" id="search" value="<?php if (isset($_POST['search'])) echo $_POST['search']; ?>" onkeyup="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444;">
                 <br><br><select id="mode" onchange="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444;">
                     <option <?php if (isset($mode) && $mode=="tout") echo 'selected'; ?> value="tout">exactement</option>
                     <option <?php if (isset($mode) && $mode=="debut") echo 'selected'; ?> value="debut">commence par</option>
@@ -54,7 +53,7 @@
         <div id="init">
             <h2>Insert / Delete</h2>
             <form action="?stage=modif" method="post" autocomplete="off">
-                <input type="text" size=25 name="champ2" id="champ2" value="<?php if (isset($_POST['champ2'])) echo $_POST['champ2']; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
+                <input type="text" size=25 name="modif" id="modif" value="<?php if (isset($_POST['modif'])) echo $_POST['modif']; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
                 <br><br><input type="submit" value="insert" name="insert" id="insert"> 
                 <input type="submit" value="delete" name="delete" id="delete">   
             </form>
@@ -93,8 +92,8 @@
         <div id="init">
             <h2>Géo</h2>
             <form action="?stage=position" method="get" autocomplete="off">
-                Latitude<br><input type="text" size=25 name="latitude" id="latitude" value="<?php echo $lat; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;"> 
-                <br><br>Longitude<br><input type="text" size=25 name="longitude" id="longitude" value="<?php echo $lon; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
+                Latitude<br><input type="text" size=25 name="latitude" id="latitude" style="background-color: transparent; color: #444; border: 1px solid #444;"> 
+                <br><br>Longitude<br><input type="text" size=25 name="longitude" id="longitude" style="background-color: transparent; color: #444; border: 1px solid #444;">
                 <br><br><input type="button" value="goto" id="goto" onclick="javascript:gotoCoord();"><input type="button" value="reset" id="reset" onclick="javascript:resetCoord();">       
             </form>    
             <div id="map_canvas" style="width:100%; height:100%"></div> 

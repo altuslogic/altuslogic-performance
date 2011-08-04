@@ -213,19 +213,17 @@
     * @param mixed $text : la chaîne à chercher
     * @param mixed $option : l'option de recherche
     */
-    function recherche($text, $mode){
+    function recherche($text, $mode, $lat, $lon){
 
         global $nomBase,$nomColonne,$ordreMax;
         $temps = start_timer();
-        $print="";
+        $limit = 20;
+        $result;
 
         if ($mode=="tout"){
             // mode expression régulière
-            $sql = "SELECT $nomColonne FROM ".$nomBase." WHERE $nomColonne RLIKE '$text' LIMIT 100";                                    
+            $sql = "SELECT $nomColonne FROM ".$nomBase." WHERE $nomColonne RLIKE '$text' LIMIT ".$limit;                                    
             $result = mysql_query($sql) or die($sql."<br>".mysql_error());
-            while ($tab = mysql_fetch_array($result)){ 
-                $print .= ($print==""?"":",").$tab[$nomColonne];      
-            }
         }
 
         else {
@@ -242,15 +240,14 @@
                 while ($table==""){
                     $table = getTable($text,$truc--);
                 }
-                echo "1) Choix de la table : ",end_timer($temps1),"<br>";  
+                //echo "1) Choix de la table : ",end_timer($temps1),"<br>";  
                 $temps2 = start_timer();
 
                 $rayon = 6370;
-                global $lat,$lon;
                 $dist = "(ACOS( SIN($lat*PI()/180) * SIN(latitude*PI()/180) + COS($lat*PI()/180) * COS(latitude*PI()/180) * COS(($lon-longitude)*PI()/180)) * $rayon) AS distance";
                 $nomTable = "z_".$nomBase."_".$nomColonne."_".$table;
-                
-                $sql = "SELECT $nomTable.$nomColonne,".$dist." FROM $nomBase, $nomTable WHERE $nomBase.id = $nomTable.id AND ";
+
+                $sql = "SELECT $nomTable.$nomColonne,latitude,longitude,".$dist." FROM $nomBase, $nomTable WHERE $nomBase.id = $nomTable.id AND latitude NOT LIKE '' AND";
                 $debut = $mode=="debut"?"":"%";
                 $fin = $mode=="fin"?"":"%";
                 $and = "";
@@ -265,19 +262,21 @@
                     }
                 }                                     
 
-                $sql .= " ORDER BY distance LIMIT 250";       
+                $sql .= " ORDER BY distance LIMIT ".$limit;       
 
                 $result = mysql_query($sql) or die($sql."<br>".mysql_error());
-                echo "2) Requête : ",end_timer($temps2),"<br><br>";
-                $temps4 = start_timer();
-                while ($tab = mysql_fetch_array($result)){ 
-                    $print .= ($print==""?"":",").$tab[$nomColonne]." (".round($tab['distance'])." km)";      
-                } 
-                echo $sql,"<br>";               
+                //echo "2) Requête : ",end_timer($temps2),"<br>";
+
             }
         }
+
+        $array=array(); 
+        while ($tab = mysql_fetch_array($result)){ 
+            array_push($array,$tab);                                                                     
+        }                
+
         updateLog("Recherche ".$text,$temps=end_timer($temps));
-        return array("resultats" => ($print==""?"Pas de résultats.":$print), "temps" => $temps);
+        return array("resultats" => $array, "temps" => $temps);
     }  
 
     /**
