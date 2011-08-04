@@ -8,7 +8,7 @@
     function creeLog(){
         global $nomBase; 
         $temps = start_timer();
-        $sql = "CREATE TABLE y_".$nomBase."_log (
+        $sql = "CREATE TABLE y_log (
         `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
         `action` varchar(255) NOT NULL,
         `heure` datetime NOT NULL,
@@ -21,7 +21,7 @@
 
     function updateLog($action,$temps){
         global $nomBase;
-        $sql = "INSERT INTO y_".$nomBase."_log SET action='$action', heure=NOW(), temps='$temps'";
+        $sql = "INSERT INTO y_log SET action='$action', heure=NOW(), temps='$temps'";
         mysql_query($sql); 
     }
 
@@ -204,7 +204,7 @@
 
     function deleteLog(){
         global $nomBase,$nomColonne;
-        $sql = "DROP TABLE y_".$nomBase."_log";
+        $sql = "DROP TABLE y_log";
         mysql_query($sql);
     }
 
@@ -577,7 +577,7 @@
     function list_log(){
         global $nomBase;
 
-        $sql = "SELECT action,temps,heure FROM y_".$nomBase."_log ORDER BY id DESC LIMIT 10";
+        $sql = "SELECT action,temps,heure FROM y_log ORDER BY id DESC LIMIT 10";
         $result = mysql_query($sql);
         $print = "";
 
