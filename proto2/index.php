@@ -14,7 +14,6 @@
 
     $stage="";
     if (isset($_GET['stage'])) $stage = $_GET['stage'];                       
-    if (isset($_GET['option'])) $option = $_POST['option'];
 
     $print_details = "";
 
@@ -41,11 +40,14 @@
         case 'clear_cache':
             mysql_query("RESET QUERY CACHE");
             break;
-        case 'search':
-            echo analyse();
-            //deleteLog();
-            /*$text =  $_POST[search];
-            if ($text!="") recherche($text,true); */
+        case 'search':     
+             mysql_select_db("maitre"); 
+             $hash = md5($nomBase.$nomTable.$nomColonne.'milieutoutresult');
+             $sql = "INSERT INTO champs_recherche SET hash='$hash', nomBase='$nomBase', nomTable='$nomTable',
+             nomCol='$nomColonne', mode='milieu', methode='tout', visuel='result'";
+             mysql_query($sql) or die($sql);
+             mysql_select_db($nomBase); 
+            //echo analyse();
             break;
         case 'modif':
             $text = $_POST[modif];   

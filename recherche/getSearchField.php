@@ -1,79 +1,83 @@
 <?php 
     error_reporting(15); 
     $key=$_GET['key'];
-    include "config/db.php";
-    init();
+    $nomBase="maitre";
+
+    include "../proto2/config/db.php";
+    include "../proto2/time_function.php"; 
+    include "../proto2/controller.php";
+    initChamps();
     $sql = "SELECT * FROM champs_recherche WHERE hash='$key'";
     $result = mysql_query($sql) or die(mysql_error());
-    $ligne = mysql_fetch_array($result);                                              
-    $base = $ligne['base'];
-    $table = $ligne['table'];
-    $colonne = $ligne['colonne'];
+    $ligne = mysql_fetch_array($result);
+    $base = $ligne['nomBase'];
+    $table = $ligne['nomTable'];
+    $colonne = $ligne['nomCol'];
+    $mode = $ligne['mode'];
+    $methode = $ligne['methode'];
+    $visuel = $ligne['visuel'];
 
-    function init(){
-        $sql = "CREATE TABLE IF NOT EXISTS champs_recherche (
-        `hash` char(10) NOT NULL,
-        `base` char(20) NOT NULL,
-        `table` char(20) NOT NULL,
-        `colonne` char(20) NOT NULL, 
-        PRIMARY KEY (`hash`)
-        ) ENGINE=MyISAM  DEFAULT CHARSET=latin1";
-        mysql_query($sql); 
-    }
+    mysql_select_db($base);
 
-?>
+    $param = "\"".$base."\",\"".$table."\",\"".$colonne."\",\"".$mode."\",\"".$methode."\",\"".$visuel."\"";
 
-<form>
-    <input type="text" value="" onkeypress="javascript:soumettre();" id="champ_<? echo $key; ?>">
+    echo "<table border='1'><tr><td>base</td><td>",$base,"</td></tr>";   
+    echo "<tr><td>table</td><td>",$table,"</td></tr>";   
+    echo "<tr><td>colonne</td><td>",$colonne,"</td></tr></table>";   
+    echo "<br><form><input type='text' onkeyup='javascript:soumettre(this.value,".$param.");' id='champ_",$key,"'>";
+    echo tableExiste("y_".$table."_".$colonne."_stats")?" OK":" KO";
+
+?> 
 </form>
-<div id="ajax"><h2>Résultats de la recherche</h2></div> 
+<div id='ajax' style='border: 1px solid #444;'><b>Résultats de la recherche</b></div>  
 
 <script>
     //ajax
-    function soumettre(){ 
-    var search = escape(document.getElementById('champ_'<? echo $key; ?>).value);
-    if (search.length==0) return; 
+    function soumettre(search,base,table,colonne,mode,methode,visuel){  
 
-    var url = "ajax.php?search=" + search;
+        search = escape(search);
 
-    // création d'un objet capable d'interagir avec le serveur
-    try {
-        // Essayer IE
-        xhr = new ActiveXObject("Microsoft.XMLHTTP");   
-        //document.getElementById('ajax').innerHTML = "micro";   
-    }
-    catch(e){
-        // Echec, utiliser l'objet standard    
-        xhr = new XMLHttpRequest();
-        //document.getElementById('ajax').innerHTML = "other"; 
-    }
+        if (search.length==0) return; 
 
-    // attente du résultat
-    xhr.onreadystatechange = function(){
-        // instructions de traitement de la réponse  
-        if (xhr.readyState == 4) {
+        var url = "ajax.php?search="+search + "&base="+base + "&table="+table + "&colonne="+colonne
+        + "&mode="+mode + "&methode="+methode + "&visuel="+visuel;
 
-            var print = "<h2>Résultats de la recherche</h2>";
-            var result = xhr.responseText;
-            var tab = result.split('|');
-
-            if (tab.length==1) print += "Pas de résultats.<br>";
-            else {
-                for (var i=0; i<tab.length; i++){
-                    print += tab[i];  
-                }
-            }                                                             
-
-            document.getElementById('ajax').innerHTML = print; 
-
+        // création d'un objet capable d'interagir avec le serveur
+        try {
+            // Essayer IE
+            xhr = new ActiveXObject("Microsoft.XMLHTTP");             
         }
-        else { 
-            //document.getElementById('ajax').innerHTML = "Erreur : " + url;    
-        }   
-    };
+        catch(e){
+            // Echec, utiliser l'objet standard    
+            xhr = new XMLHttpRequest();                           
+        }
 
-    // envoi de la requête
-    xhr.open("GET", url, true); 
-    xhr.send(null); 
-}
+        // attente du résultat
+        xhr.onreadystatechange = function(){
+            // instructions de traitement de la réponse  
+            if (xhr.readyState == 4) {
+
+                var print = "<b>Résultats de la recherche : "+search+"</b>";
+                var result = xhr.responseText;
+                var tab = result.split('|');
+
+                if (tab.length==1) print += "<br>Pas de résultats.";
+                else {
+                    for (var i=0; i<tab.length-1; i++){
+                        print += "<br>"+tab[i];  
+                    }
+                }                                                             
+                print += "<br><br>Temps écoulé : "+tab[tab.length-1]+" seconde(s)";
+
+                document.getElementById('ajax').innerHTML = print; 
+
+            }
+        };
+
+        // envoi de la requête
+        xhr.open("GET", url, true); 
+        xhr.send(null);  
+
+    }
+
 </script>

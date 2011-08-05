@@ -1,14 +1,15 @@
 <?php
 
-    function tableExiste($nomTable){
-        $sql = "SELECT COUNT(*) FROM $nomTable";
+    function tableExiste($table){
+        $sql = "SELECT COUNT(*) FROM $table";
         return mysql_query($sql);
     }
 
     function creeLog(){
-        global $nomBase; 
+        global $nomBase,$nomTable; 
         $temps = start_timer();
-        $sql = "CREATE TABLE y_log (
+        mysql_select_db("maitre");    
+        $sql = "CREATE TABLE log (
         `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
         `action` varchar(255) NOT NULL,
         `heure` datetime NOT NULL,
@@ -16,21 +17,24 @@
         PRIMARY KEY (`id`)
         ) ENGINE=MyISAM  DEFAULT CHARSET=latin1" ;
         $result = mysql_query($sql);
+        mysql_select_db($nomBase);
         if ($result) updateLog("Création du log",end_timer($temps));
     }
 
     function updateLog($action,$temps){
-        global $nomBase;
-        $sql = "INSERT INTO y_log SET action='$action', heure=NOW(), temps='$temps'";
+        global $nomBase,$nomTable;  
+        mysql_select_db("maitre");  
+        $sql = "INSERT INTO log SET action='$action', heure=NOW(), temps='$temps'";
         mysql_query($sql); 
+        mysql_select_db($nomBase);     
     }
 
     function creeTables(){
-        global $nomBase, $nomColonne, $ordreMax, $thres;
+        global $nomTable, $nomColonne, $ordreMax, $thres;
         $temps = start_timer();
         creeSousTables("");    
         for ($i=2; $i<=$ordreMax; $i++){
-            $sql = "SELECT name FROM y_".$nomBase."_".$nomColonne."_stats WHERE ordre='$i'-1 AND nombre>'$thres'";
+            $sql = "SELECT name FROM y_".$nomTable."_".$nomColonne."_stats WHERE ordre='$i'-1 AND nombre>'$thres'";
             $result = mysql_query($sql) or die(mysql_error());
             if (mysql_num_rows($result)==0) break;
             while ($tab = mysql_fetch_array($result)){
@@ -56,9 +60,9 @@
     }
 
     function creeStats(){
-        global $nomBase,$nomColonne,$ordreMax; 
+        global $nomTable,$nomColonne,$ordreMax; 
         clearStats();
-        $sql = "CREATE TABLE IF NOT EXISTS y_".$nomBase."_".$nomColonne."_stats (
+        $sql = "CREATE TABLE IF NOT EXISTS y_".$nomTable."_".$nomColonne."_stats (
         `name` varchar($ordreMax) NOT NULL,
         `ordre` tinyint(3) UNSIGNED NOT NULL,
         `nombre` int(11) UNSIGNED NOT NULL DEFAULT '0',
@@ -84,9 +88,9 @@
     * @param mixed $comm : le texte à afficher dans la barre de progression
     * */
     function operation($op,$comm){ 
-        global $nomBase,$nomColonne;
+        global $nomTable,$nomColonne;
         $temps = start_timer();
-        $sql = "SELECT name FROM y_".$nomBase."_".$nomColonne."_stats";
+        $sql = "SELECT name FROM y_".$nomTable."_".$nomColonne."_stats";
         $result = mysql_query($sql);
         $count_table=mysql_num_rows($result);  //Richard
         $cpt=0;
@@ -110,7 +114,7 @@
     * @param mixed $debut : le mot
     */
     function creeSousTables($debut){
-        global $nomBase,$nomColonne;
+        global $nomTable,$nomColonne;
 
         $pourcent = 0;
         for ($i=0; $i<strlen($debut); $i++){
@@ -123,24 +127,24 @@
 
             $mot = $debut.chr($lettre);
             $table; 
-            if (strlen($mot)==1) $table = $nomBase;
+            if (strlen($mot)==1) $table = $nomTable;
             else {
-                $table = "z_".$nomBase."_".$nomColonne."_".getTable($mot,strlen($mot)-1);
+                $table = "z_".$nomTable."_".$nomColonne."_".getTable($mot,strlen($mot)-1);
             }
 
             $sql = "SELECT $nomColonne,id FROM $table WHERE $nomColonne LIKE '%$mot%' LIMIT 1";
-            $result = mysql_query($sql) or die($sql."<br>[[SKIP DIED '%$mot%']]<br>");
+            $result = mysql_query($sql) or die(mysql_error());
             $estVide = mysql_num_rows($result)==0;
 
             if (!$estVide){
                 echo " $mot";
                 flush();
-                //$sql1 = "CREATE TABLE z_".$nomBase."_".$nomColonne."_".$mot." LIKE y_original_index"; //new thing .. copy table from model
-                $sql1 = "CREATE TABLE z_".$nomBase."_".$nomColonne."_".$mot." (
+                //$sql1 = "CREATE TABLE z_".$nomTable."_".$nomColonne."_".$mot." LIKE y_original_index"; //new thing .. copy table from model
+                $sql1 = "CREATE TABLE z_".$nomTable."_".$nomColonne."_".$mot." (
                 `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
                 $nomColonne varchar(255) NOT NULL
                 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1";
-                $sql2 = "INSERT INTO z_".$nomBase."_".$nomColonne."_".$mot." (SELECT id,$nomColonne FROM $table WHERE $nomColonne LIKE '%$mot%')";
+                $sql2 = "INSERT INTO z_".$nomTable."_".$nomColonne."_".$mot." (SELECT id,$nomColonne FROM $table WHERE $nomColonne LIKE '%$mot%')";
                 mysql_query($sql1);   
                 mysql_query($sql2); 
                 initStat($mot);       
@@ -151,14 +155,14 @@
     }     
 
     function clearTable($mot){
-        global $nomBase,$nomColonne;  
-        $sql = "TRUNCATE TABLE z_".$nomBase."_".$nomColonne."_".$mot;
+        global $nomTable,$nomColonne;  
+        $sql = "TRUNCATE TABLE z_".$nomTable."_".$nomColonne."_".$mot;
         mysql_query($sql);
     }
 
     function deleteTable($mot){
-        global $nomBase,$nomColonne;  
-        $sql = "DROP TABLE z_".$nomBase."_".$nomColonne."_".$mot;
+        global $nomTable,$nomColonne;  
+        $sql = "DROP TABLE z_".$nomTable."_".$nomColonne."_".$mot;
         mysql_query($sql);
     }
 
@@ -167,11 +171,11 @@
     * @param mixed $mot : le mot
     */
     function initStat($mot){
-        global $nomBase,$nomColonne; 
+        global $nomTable,$nomColonne; 
         $ordre = strlen($mot);
-        $sql = "SELECT COUNT(*) FROM z_".$nomBase."_".$nomColonne."_".$mot;
+        $sql = "SELECT COUNT(*) FROM z_".$nomTable."_".$nomColonne."_".$mot;
         $taille = mysql_result(mysql_query($sql),0);                         
-        $sql = "INSERT INTO y_".$nomBase."_".$nomColonne."_stats SET ordre='$ordre', name='$mot', nombre='$taille'";
+        $sql = "INSERT INTO y_".$nomTable."_".$nomColonne."_stats SET ordre='$ordre', name='$mot', nombre='$taille'";
         mysql_query($sql);
     }
 
@@ -182,52 +186,53 @@
     * @param mixed $mot : le mot à rechercher
     */
     function performance($mot){
-        global $nomBase,$nomColonne;
+        global $nomTable,$nomColonne;
         $debut = start_timer();
-        recherche($mot,"milieu");
+        recherche($mot,$nomTable,$nomColonne,"milieu","tout","result");
         $temps = end_timer($debut);       
-        $sql = "UPDATE y_".$nomBase."_".$nomColonne."_stats SET temps='$temps' WHERE $nomColonne='$mot'";
+        $sql = "UPDATE y_".$nomTable."_".$nomColonne."_stats SET temps='$temps' WHERE $nomColonne='$mot'";
         mysql_query($sql);
     }
 
     function clearStats(){
-        global $nomBase,$nomColonne;
-        $sql = "TRUNCATE TABLE y_".$nomBase."_".$nomColonne."_stats";
+        global $nomTable,$nomColonne;
+        $sql = "TRUNCATE TABLE y_".$nomTable."_".$nomColonne."_stats";
         mysql_query($sql);
     }
 
     function deleteStats(){
-        global $nomBase,$nomColonne;
-        $sql = "DROP TABLE y_".$nomBase."_".$nomColonne."_stats";
+        global $nomTable,$nomColonne;
+        $sql = "DROP TABLE y_".$nomTable."_".$nomColonne."_stats";
         mysql_query($sql);
     }
 
     function deleteLog(){
-        global $nomBase,$nomColonne;
-        $sql = "DROP TABLE y_log";
+        global $nomBase;
+        mysql_select_db("maitre"); 
+        $sql = "DROP TABLE log";
         mysql_query($sql);
+        mysql_select_db($nomBase); 
     }
 
     /***
     * Effectue la recherche d'une chaîne de caractères  
     * @param mixed $text : la chaîne à chercher
-    * @param mixed $option : l'option de recherche
+    * @param mixed $mode : le mode de recherche
     */
-    function recherche($text, $mode, $lat, $lon){
+    function recherche($text, $mode, $methode, $visuel, $coord){
 
-        global $nomBase,$nomColonne,$ordreMax;
+        global $nomTable, $nomColonne,$ordreMax;
         $temps = start_timer();
         $limit = 20;
         $result;
 
         if ($mode=="tout"){
             // mode expression régulière
-            $sql = "SELECT $nomColonne FROM ".$nomBase." WHERE $nomColonne RLIKE '$text' LIMIT ".$limit;                                    
+            $sql = "SELECT $nomColonne FROM $nomTable WHERE $nomColonne RLIKE '$text' LIMIT ".$limit;                                    
             $result = mysql_query($sql) or die($sql."<br>".mysql_error());
         }
 
-        else {
-            $temps1 = start_timer();
+        else {                        
             $mot = explode(" ",$text);
             $tab = tailleMax($mot);
             $long = $tab['taille'];
@@ -239,22 +244,28 @@
                 $truc = $long>$ordreMax?$ordreMax:$long;
                 while ($table==""){
                     $table = getTable($text,$truc--);
+                }                            
+
+                $table = "z_".$nomTable."_".$nomColonne."_".$table;  
+                $sql;
+
+                if ($coord!=null){
+                    $lat = $coord[0];
+                    $lon = $coord[1];
+                    $rayon = 6370;
+                    $dist = "(ACOS( SIN($lat*PI()/180) * SIN(latitude*PI()/180) + COS($lat*PI()/180) * COS(latitude*PI()/180) * COS(($lon-longitude)*PI()/180)) * $rayon) AS distance";
+                    $sql = "SELECT $table.$nomColonne,latitude,longitude,".$dist." FROM $nomTable, $table WHERE $nomTable.id = $table.id AND latitude NOT LIKE '' AND";
                 }
-                //echo "1) Choix de la table : ",end_timer($temps1),"<br>";  
-                $temps2 = start_timer();
-
-                $rayon = 6370;
-                $dist = "(ACOS( SIN($lat*PI()/180) * SIN(latitude*PI()/180) + COS($lat*PI()/180) * COS(latitude*PI()/180) * COS(($lon-longitude)*PI()/180)) * $rayon) AS distance";
-                $nomTable = "z_".$nomBase."_".$nomColonne."_".$table;
-
-                $sql = "SELECT $nomTable.$nomColonne,latitude,longitude,".$dist." FROM $nomBase, $nomTable WHERE $nomBase.id = $nomTable.id AND latitude NOT LIKE '' AND";
+                else {
+                    $sql = "SELECT $nomColonne FROM $table WHERE ";      
+                }
                 $debut = $mode=="debut"?"":"%";
                 $fin = $mode=="fin"?"":"%";
                 $and = "";
 
                 for ($i=0; $i<sizeof($mot); $i++){
                     if (strlen($mot[$i])>0){
-                        $sql .= $and." $nomTable.$nomColonne LIKE '".$debut."$mot[$i]".$fin."'";
+                        $sql .= $and." $table.$nomColonne LIKE '".$debut."$mot[$i]".$fin."'";
                         $and = " AND"; 
                         if ($i==0){
                             $debut = $fin = "%";
@@ -262,10 +273,8 @@
                     }
                 }                                     
 
-                $sql .= " ORDER BY distance LIMIT ".$limit;       
-
+                $sql .= ($coord!=null?" ORDER BY distance":"")." LIMIT ".$limit;       
                 $result = mysql_query($sql) or die($sql."<br>".mysql_error());
-                //echo "2) Requête : ",end_timer($temps2),"<br>";
 
             }
         }
@@ -297,8 +306,8 @@
     */
     function getTable($text,$long){
 
-        global $nomBase,$nomColonne;       
-        $sql = "SELECT name,MIN(nombre) FROM y_".$nomBase."_".$nomColonne."_stats WHERE";   
+        global $nomTable,$nomColonne;       
+        $sql = "SELECT name,MIN(nombre) FROM y_".$nomTable."_".$nomColonne."_stats WHERE";   
         $liste = array();   
         $or="";
         for ($i=0; $i<strlen($text)-$long+1; $i++){
@@ -318,7 +327,7 @@
 
     function existe($text){
 
-        global $nomBase,$nomColonne,$ordreMax;
+        global $nomTable,$nomColonne,$ordreMax;
         // test d'appartenance à la table d'origine (en fait à la sous-table appropriée)
         $table = "";
         $truc = $ordreMax;
@@ -326,18 +335,18 @@
             $table = getTable($text,$truc--);
         }
         if ($table == "") return false;
-        $sql = "SELECT $nomColonne FROM z_".$nomBase."_".$nomColonne."_".$table." WHERE $nomColonne='$text' LIMIT 1";
+        $sql = "SELECT $nomColonne FROM z_".$nomTable."_".$nomColonne."_".$table." WHERE $nomColonne='$text' LIMIT 1";
         $result = mysql_query($sql);      
         return (mysql_num_rows($result)!=0);
     } 
 
     function insertion($text){
 
-        global $nomBase;
+        global $nomTable;
         $temps = start_timer();
         // mise à jour de la table principale
-        $sql = "INSERT INTO ".$nomBase." SET name='$text'";
-        echo "Insertion du mot ",$text," dans la table ".$nomBase."<br>"; 
+        $sql = "INSERT INTO ".$nomTable." SET name='$text'";
+        echo "Insertion du mot ",$text," dans la table ".$nomTable."<br>"; 
         mysql_query($sql);
         $id = mysql_insert_id(); 
         // mise à jour des sous-tables et de la table Stats
@@ -347,9 +356,9 @@
                 $t = strtoupper(substr($text,$i,$long));
                 if (array_search($t,$liste)===FALSE){
                     array_unshift($liste,$t);  
-                    $sql = "INSERT INTO z_".$nomBase."_".$nomColonne."_".$t." SET name='$text', id='$id'";
+                    $sql = "INSERT INTO z_".$nomTable."_".$nomColonne."_".$t." SET name='$text', id='$id'";
                     mysql_query($sql);
-                    $sql = "UPDATE y_".$nomBase."_".$nomColonne."_stats SET nombre=nombre+1 WHERE name='$t'";
+                    $sql = "UPDATE y_".$nomTable."_".$nomColonne."_stats SET nombre=nombre+1 WHERE name='$t'";
                     echo "Insertion du mot ",$text," dans la sous-table ".$t."<br>";
                     mysql_query($sql);  
                 }           
@@ -360,10 +369,10 @@
 
     function suppression($text){
 
-        global $nomBase;
+        global $nomTable;
         $temps = start_timer();
         // mise à jour de la table principale
-        $sql = "DELETE FROM ".$nomBase." WHERE name='$text' LIMIT 1";
+        $sql = "DELETE FROM ".$nomTable." WHERE name='$text' LIMIT 1";
         echo $sql."<br>";
         $result = mysql_query($sql);          
         // mise à jour des sous-tables et de la table Stats
@@ -373,10 +382,10 @@
                 $t = strtoupper(substr($text,$i,$long));
                 if (array_search($t,$liste)===FALSE){
                     array_unshift($liste,$t);  
-                    $sql = "DELETE FROM z_".$nomBase."_".$nomColonne."_".$t." WHERE name='$text' LIMIT 1";
+                    $sql = "DELETE FROM z_".$nomTable."_".$nomColonne."_".$t." WHERE name='$text' LIMIT 1";
                     echo $sql."<br>";
                     mysql_query($sql);
-                    $sql = "UPDATE y_".$nomBase."_".$nomColonne."_stats SET nombre=nombre-1 WHERE name='$t'";
+                    $sql = "UPDATE y_".$nomTable."_".$nomColonne."_stats SET nombre=nombre-1 WHERE name='$t'";
                     echo $sql."<br>";
                     mysql_query($sql);  
                 }           
@@ -386,43 +395,43 @@
     }
 
     function creeIndex(){
-        global $nomBase,$nomColonne; 
+        global $nomTable,$nomColonne; 
         $temps = start_timer(); 
-        $sql = "CREATE TABLE IF NOT EXISTS y_".$nomBase."_".$nomColonne."_keyword (
+        $sql = "CREATE TABLE IF NOT EXISTS y_".$nomTable."_".$nomColonne."_keyword (
         `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,    
         `name` varchar(30) NOT NULL,
         PRIMARY KEY (`id`)
         ) ENGINE=MyISAM  DEFAULT CHARSET=latin1" ;
         mysql_query($sql); 
         // FOREIGN KEYS
-        $sql = "CREATE TABLE IF NOT EXISTS y_".$nomBase."_".$nomColonne."_index (
+        $sql = "CREATE TABLE IF NOT EXISTS y_".$nomTable."_".$nomColonne."_index (
         `id` int(11) UNSIGNED NOT NULL,                                
         `keyword` int(11) UNSIGNED NOT NULL,
         PRIMARY KEY (`id`,`keyword`)
         ) ENGINE=MyISAM  DEFAULT CHARSET=latin1" ;
         mysql_query($sql); 
-        $sql = "TRUNCATE TABLE y_".$nomBase."_".$nomColonne."_index";
+        $sql = "TRUNCATE TABLE y_".$nomTable."_".$nomColonne."_index";
         mysql_query($sql);               
 
-        $sql = "SELECT id,$nomColonne FROM $nomBase LIMIT 50";
+        $sql = "SELECT id,$nomColonne FROM $nomTable";
         $result = mysql_query($sql);
         while ($tab = mysql_fetch_array($result)){
             $mot = explode(" ",$tab[$nomColonne]);
             for ($i=0; $i<sizeof($mot); $i++){
                 $t = strtoupper($mot[$i]);
                 if ($t!=""){
-                    $sql = "SELECT id FROM y_".$nomBase."_".$nomColonne."_keyword WHERE name='$t' LIMIT 1";
+                    $sql = "SELECT id FROM y_".$nomTable."_".$nomColonne."_keyword WHERE name='$t' LIMIT 1";
                     $res = mysql_query($sql);
                     if (mysql_num_rows($res)>0){
                         $ligne = mysql_fetch_array($res);
-                        $sql = "INSERT INTO y_".$nomBase."_".$nomColonne."_index SET id='$tab[id]', keyword='$ligne[id]'";
+                        $sql = "INSERT INTO y_".$nomTable."_".$nomColonne."_index SET id='$tab[id]', keyword='$ligne[id]'";
                         mysql_query($sql);
                     }
                     else {
-                        $sql = "INSERT INTO y_".$nomBase."_".$nomColonne."_keyword SET name='$t'"; 
+                        $sql = "INSERT INTO y_".$nomTable."_".$nomColonne."_keyword SET name='$t'"; 
                         mysql_query($sql);
                         $id = mysql_insert_id();
-                        $sql = "INSERT INTO y_".$nomBase."_".$nomColonne."_index SET id='$tab[id]', keyword='$id'";
+                        $sql = "INSERT INTO y_".$nomTable."_".$nomColonne."_index SET id='$tab[id]', keyword='$id'";
                         mysql_query($sql);
                     }
                 } 
@@ -435,8 +444,8 @@
     * Affiche quelques détails sur la table Stats
     */
     function getDetails(){
-        global $nomBase,$nomColonne;  
-        $tableStats = "y_".$nomBase."_".$nomColonne."_stats";
+        global $nomTable,$nomColonne;  
+        $tableStats = "y_".$nomTable."_".$nomColonne."_stats";
 
         $sql = "SELECT COUNT(*) FROM $tableStats";     
         $result = mysql_query($sql);
@@ -465,7 +474,7 @@
             $print .= "<table><tr><td>Nom</td><td>Nombre</td><td>Proportion</td></tr>";
             while ($tab = mysql_fetch_array($result)){
                 if ($i==1){
-                    $sql = "SELECT COUNT(*) FROM $nomBase";
+                    $sql = "SELECT COUNT(*) FROM $nomTable";
                     $prop = mysql_result(mysql_query($sql),0);
                     $txt = round(100*$tab['nombre']/$prop)."%"; 
                 }
@@ -496,7 +505,7 @@
         }
 
         /* $print .= "<br><b>Liste des 100 premiers éléments les plus nombreux</b>";
-        $sql = "SELECT name,COUNT(*) AS compte FROM $nomBase GROUP BY name ORDER BY compte DESC LIMIT 100";
+        $sql = "SELECT name,COUNT(*) AS compte FROM $nomTable GROUP BY name ORDER BY compte DESC LIMIT 100";
         $result = mysql_query($sql);
         while ($tab = mysql_fetch_array($result)){
         $print .= "<br>".$tab[name]." - ".$tab[compte]; 
@@ -508,17 +517,17 @@
 
     function list_db(){
 
-        global $DbUser,$DbPassword,$DbHost,$DbDatabase;
+        global $DbUser,$DbPassword,$DbHost,$nomBase;
 
         $link = mysql_connect($DbHost, $DbUser, $DbPassword);
         $db_list = mysql_list_dbs($link);
         $out_print = "";
 
         while ($row = mysql_fetch_object($db_list)) {
-            if ($row->Database==$DbDatabase){
+            if ($row->Database==$nomBase){
                 $out_print .= "<b>".$row->Database."</b><br>";  
             }
-            else $out_print.= "<a href=\"?DbDatabase=".$row->Database."\">".$row->Database . "</a><br>";
+            else $out_print.= "<a href=\"?nomBase=".$row->Database."\">".$row->Database . "</a><br>";
         } 
         return $out_print;
 
@@ -526,18 +535,18 @@
 
 
     function list_tables(){
-        global $DbDatabase,$nomBase,$print_details,$temps_total;
+        global $nomBase,$nomTable,$print_details,$temps_total;
 
-        $sql = "SELECT table_name FROM information_schema.tables WHERE table_schema = '$DbDatabase'
+        $sql = "SELECT table_name FROM information_schema.tables WHERE table_schema = '$nomBase'
         AND table_name NOT LIKE 'y\_%' AND table_name NOT LIKE 'z\_%'";
         $result = mysql_query($sql);
         $print = "";
 
         while ($ligne=mysql_fetch_array($result)){
-            if ($ligne[0]==$nomBase){
+            if ($ligne[0]==$nomTable){
                 $print .= "<b>".$ligne[0]."</b><br>";  
             }
-            else $print .= "<a href='?nomBase=".$ligne[0]."'>".$ligne[0]."</a><br>";
+            else $print .= "<a href='?nomTable=".$ligne[0]."'>".$ligne[0]."</a><br>";
         }                                                            
         $print .= "<br>Temps total : ".end_timer($temps_total)." secondes.<br>".$print_details;
         return $print; 
@@ -545,18 +554,18 @@
 
 
     function list_colonnes(){
-        global $nomBase,$nomColonne;
+        global $nomTable,$nomColonne;
 
-        $sql = "SHOW COLUMNS FROM ".$nomBase;
+        $sql = "SHOW COLUMNS FROM ".$nomTable;
         $result = mysql_query($sql);
         $print = "<form action='?stage=index' method='post'><table><tr><td>Nom</td><td>Type</td><td>Nombre</td><td>Tables</td><td>Index</td>";
 
         while ($ligne=mysql_fetch_array($result)){
             $nom = $ligne['Field'];
 
-            $sql = "SHOW TABLES LIKE 'z\_".$nomBase."\_".$nom."\_%'";
+            $sql = "SHOW TABLES LIKE 'z\_".$nomTable."\_".$nom."\_%'";
             $tables = mysql_num_rows(mysql_query($sql))>0? "checked disabled='disabled'" : "";    
-            $sql = "SHOW TABLES LIKE 'y\_".$nomBase."\_".$nom."\_index'";
+            $sql = "SHOW TABLES LIKE 'y\_".$nomTable."\_".$nom."\_keyword'";
             $index = mysql_num_rows(mysql_query($sql))>0? "checked disabled='disabled'" : "";
 
             $print .= "<tr><td>";
@@ -565,7 +574,7 @@
             }
             else $print .= "<a href='?nomColonne=".$nom."'>".$nom."</a>";
             $print .= "</td><td>".$ligne['Type']."</td>";
-            $sql = "SELECT COUNT(DISTINCT $nom) FROM ".$nomBase;
+            $sql = "SELECT COUNT(DISTINCT $nom) FROM ".$nomTable;
             $nb = mysql_result(mysql_query($sql),0);
             $print .= "<td>".$nb."</td><td><p align='center'><input type='checkbox' ".$tables." id='t_".$nom."'></p></td><td><p align='center'><input type='checkbox' ".$index." id='i_".$nom."'></p></td></tr>";    
         }                                                                                                
@@ -577,8 +586,9 @@
     function list_log(){
         global $nomBase;
 
-        $sql = "SELECT action,temps,heure FROM y_log ORDER BY id DESC LIMIT 10";
-        $result = mysql_query($sql);
+        mysql_select_db("maitre");
+        $sql = "SELECT action,temps,heure FROM log ORDER BY id DESC LIMIT 10";
+        $result = mysql_query($sql) or die(mysql_error());
         $print = "";
 
         while ($ligne=mysql_fetch_array($result)){ 
@@ -589,15 +599,30 @@
     }
 
     function analyse(){
-        global $nomBase,$nomColonne;
+        global $nomTable,$nomColonne;
 
-        $sql = "SELECT * FROM y_".$nomBase."_".$nomColonne."_stats PROCEDURE ANALYSE(3,24)";
+        $sql = "SELECT * FROM y_".$nomTable."_".$nomColonne."_stats PROCEDURE ANALYSE(3,24)";
         $result = mysql_query($sql);
         $print = "<table><tr><td>Field name</td><td>Min value</td><td>Max value</td><td>Min length</td><td>Max length</td><td>Empties or zeros</td><td>Nulls</td><td>Optimal field type</td></tr>";
         while ($ligne=mysql_fetch_array($result)){
             $print .= "<tr><td>".$ligne[0]."</td><td>".$ligne[1]."</td><td>".$ligne[2]."</td><td>".$ligne[3]."</td><td>".$ligne[4]."</td><td>".$ligne[5]."</td><td>".$ligne[6]."</td><td>".$ligne[9]."</td></tr>";  
         }
+        mysql_select_db($nomBase);
         return $print."</table>";
+    }
+
+    function initChamps(){
+        $sql = "CREATE TABLE IF NOT EXISTS champs_recherche (
+        `hash` char(32) NOT NULL,
+        `nomBase` char(20) NOT NULL,
+        `nomTable` char(20) NOT NULL,
+        `nomCol` char(20) NOT NULL, 
+        `mode` enum('debut','milieu','fin','tout') NOT NULL,
+        `methode` enum('mot','tout') NOT NULL,
+        `visuel` enum('suggest','result') NOT NULL,
+        PRIMARY KEY (`hash`)
+        ) ENGINE=MyISAM  DEFAULT CHARSET=latin1";
+        mysql_query($sql); 
     }
 
 

@@ -7,10 +7,10 @@
     function readCookie($token,$default){
         if (!isset($_GET[$token])){
             if (isset($_COOKIE[$token])){
-            	
-            	$value = $_COOKIE[$token]; 
+
+                $value = $_COOKIE[$token]; 
             }else{
-            	$value = $default;
+                $value = $default;
             } 
         }
         else {
@@ -20,10 +20,10 @@
         return $value;
     }
 
-    $nomBase = readCookie("nomBase","");
+    $nomBase = readCookie("nomBase","");     
+    $nomTable = readCookie("nomTable","");
     $nomColonne = readCookie("nomColonne","name");
     $thres = readCookie("threshold",5000);
     $ordreMax = readCookie("ordre",3);
-    $DbDatabase = readCookie("DbDatabase","");
 
 ?>

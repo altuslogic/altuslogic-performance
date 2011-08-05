@@ -1,16 +1,24 @@
 <?php
+
     header("Content-type: text/html; charset=ISO-8859-1");
-    $search = $_GET['search'];                         
+    $search = $_GET['search']; 
+    $nomBase = $_GET['base'];
+    $nomTable = $_GET['table'];
+    $nomColonne = $_GET['colonne'];                        
+    $mode = $_GET['mode'];
+    $methode = $_GET['methode'];
+    $visuel = $_GEt['visuel'];
+    $ordreMax=3;
+    
+    include "../proto2/config/db.php";
+    include "../proto2/time_function.php";
+    include "../proto2/controller.php";                 
 
-    /*include "cookie.php";
-    include "config/db.php";
-    include "time_function.php";  
-    include "controller.php";*/ 
-
-    // retourne les résultats de la recherche
-    //$array = recherche($search); 
-    $result = array('résultat 1','résultat 2');                                                 
+    $tab = recherche($search,$mode,$methode,$visuel,null); 
+    $result = $tab['resultats'];                                         
     for ($i=0; $i<sizeof($result); $i++){
-        echo $result[$i],"|";
-    }                     
+        echo $result[$i][$nomColonne],"|";
+    }
+    echo $tab['temps'];                    
+
 ?>

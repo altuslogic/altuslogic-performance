@@ -12,7 +12,7 @@
     include "controller.php";  
 
     // retourne les résultats de la recherche
-    $array = recherche($search, $mode, $lat, $lon); 
+    $array = recherche($search, $mode, "tout", "result", array($lat,$lon)); 
     $result = $array['resultats'];                                                 
     for ($i=0; $i<sizeof($result); $i++){
         echo $result[$i][0],",",round($result[$i]['distance']),",",$result[$i]['latitude'],",",$result[$i]['longitude'],"|";
