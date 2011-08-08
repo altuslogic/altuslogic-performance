@@ -223,7 +223,7 @@
 
         global $nomTable, $nomColonne,$ordreMax;
         $temps = start_timer();
-        $limit = 20;
+        $limit = 10;
         $result;
 
         if ($mode=="tout"){
@@ -242,7 +242,7 @@
 
                 $table = "";
                 $truc = $long>$ordreMax?$ordreMax:$long;
-                while ($table==""){
+                while ($table=="" && $truc>0){
                     $table = getTable($text,$truc--);
                 }                            
 
@@ -557,7 +557,7 @@
         global $nomTable,$nomColonne;
 
         $sql = "SHOW COLUMNS FROM ".$nomTable;
-        $result = mysql_query($sql);
+        $result = mysql_query($sql) or die(mysql_error()."<br>".$sql);
         $print = "<form action='?stage=index' method='post'><table><tr><td>Nom</td><td>Type</td><td>Nombre</td><td>Tables</td><td>Index</td>";
 
         while ($ligne=mysql_fetch_array($result)){
@@ -599,7 +599,7 @@
     }
 
     function analyse(){
-        global $nomTable,$nomColonne;
+        global $nomBase,$nomTable,$nomColonne;
 
         $sql = "SELECT * FROM y_".$nomTable."_".$nomColonne."_stats PROCEDURE ANALYSE(3,24)";
         $result = mysql_query($sql);

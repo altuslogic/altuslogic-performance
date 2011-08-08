@@ -40,18 +40,22 @@
         case 'clear_cache':
             mysql_query("RESET QUERY CACHE");
             break;
-        case 'search':     
-             mysql_select_db("maitre"); 
-             $hash = md5($nomBase.$nomTable.$nomColonne.'milieutoutresult');
-             $sql = "INSERT INTO champs_recherche SET hash='$hash', nomBase='$nomBase', nomTable='$nomTable',
-             nomCol='$nomColonne', mode='milieu', methode='tout', visuel='result'";
-             mysql_query($sql) or die($sql);
-             mysql_select_db($nomBase); 
+        case 'save':     
+            mysql_select_db("maitre");
+            $hash = md5($nomBase.$nomTable.$nomColonne.$mode.$methode.$visuel);
+            $sql = "INSERT INTO champs_recherche SET hash='$hash', nomBase='$nomBase', nomTable='$nomTable',
+            nomCol='$nomColonne', mode='$mode', methode='$methode', visuel='$visuel'";
+            mysql_query($sql);
+            
+            $code = "<iframe src=\'http://localhost/recherche/getSearchField.php?key=".$hash."\' width=\'100%\' height=\'500\'<p>Your browser does not support iframes.</p></iframe><br><br>";
+            
+            echo "<script>prompt('Code :','".$code."');</script>";    
+            mysql_select_db($nomBase); 
             //echo analyse();
-            break;
+            break;    
         case 'modif':
-            $text = $_POST[modif];   
-            if ($_POST[insert]=="insert"){
+            $text = $_POST['modif'];   
+            if ($_POST['insert']=="insert"){
                 if ($text!="" && !existe($text)) insertion($text);
             }
             else {
@@ -61,9 +65,6 @@
         case 'index':
             //echo "selec : ",$_POST[t_id];            
             creeIndex();
-            break;
-        case 'position':
-
             break;
     }
 

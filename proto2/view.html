@@ -46,7 +46,7 @@
             </form>
         </div>
         <div id="init">
-            <form action="?stage=initialize" method="get" autocomplete="off">
+            <form method="get" autocomplete="off">
                 <h2>Indexation (création des sous-tables)</h2>
                 Threshold (nb items / sous-table)<br><input type="text" size=8 id="threshold" name="threshold" value="<?php echo $thres; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
                 <br>Ordre d'indexation<br> <input type="text" size=8 name="ordre" id="ordre" value="<?php echo $ordreMax; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
@@ -55,25 +55,25 @@
         </div>
         <div id="init">
             <h2>Recherche</h2>
-            <form action="?stage=search" method="post" autocomplete="off">
-                <input type="text" size=25 name="search" id="search" value="<?php if (isset($_POST['search'])) echo $_POST['search']; ?>" onkeyup="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444;">
-                <input type="submit" value="search">
+            <form method="get" autocomplete="off">
+                <input type="text" size=25 name="search" id="search" value="<?php if (isset($_GET['search'])) echo $_GET['search']; ?>" onkeyup="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444;">
+                <input type="submit" value="save" name="stage"> 
                 <br><br><table> 
-                <tr><td>Mode de recherche</td><td><select id="mode" onchange="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444;">
+                <tr><td>Mode de recherche</td><td><select id="mode" name="mode" onchange="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444; width: 120;">
                     <option <?php if (isset($mode) && $mode=="tout") echo 'selected'; ?> value="tout">exactement</option>
                     <option <?php if (isset($mode) && $mode=="debut") echo 'selected'; ?> value="debut">commence par</option>
                     <option <?php if (!isset($mode) || $mode=="milieu") echo 'selected'; ?> value="milieu">contient</option>
                     <option <?php if (isset($mode) && $mode=="fin") echo 'selected'; ?> value="fin">finit par</option>
                 </select></td></tr>   
-                <tr><td>Méthode d'indexation</td><td><select id="methode" onchange="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444;">
-                    <option <?php if (isset($methode) && $methode=="tout") echo 'selected'; ?> value="mot">mot par mot</option>
-                    <option <?php if (!isset($methode) || $methode=="debut") echo 'selected'; ?> value="tout">texte entier</option>
+                <tr><td>Méthode d'indexation</td><td><select id="methode" name="methode" onchange="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444; width: 120;">
+                    <option <?php if (isset($methode) && $methode=="mot") echo 'selected'; ?> value="mot">mot par mot</option>
+                    <option <?php if (!isset($methode) || $methode=="tout") echo 'selected'; ?> value="tout">texte entier</option>
                 </select></td></tr>
-                <tr><td>Visuel</td><td><select id="visuel" onchange="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444;">
+                <tr><td>Visuel</td><td><select id="visuel" name="visuel" onchange="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444; width: 120;">
                     <option <?php if (isset($visuel) && $visuel=="suggest") echo 'selected'; ?> value="suggest">suggestion</option>
                     <option <?php if (!isset($visuel) || $visuel=="result") echo 'selected'; ?> value="result">résultats</option> 
                 </select></td></tr> 
-                </table>
+                </table> 
             </form>
         </div>
         <div id="init">
@@ -102,7 +102,7 @@
         <div id="ajax"><h2>Résultats de la recherche</h2></div> 
         <div id="geo">
             <h2>Géo</h2>
-            <form action="?stage=position" method="get" autocomplete="off">
+            <form method="get" autocomplete="off">
                 Latitude<br><input type="text" size=25 name="latitude" id="latitude" style="background-color: transparent; color: #444; border: 1px solid #444;"> 
                 <br><br>Longitude<br><input type="text" size=25 name="longitude" id="longitude" style="background-color: transparent; color: #444; border: 1px solid #444;">
                 <br><br><input type="button" value="goto" id="goto" onclick="javascript:gotoCoord();"><input type="button" value="reset" id="reset" onclick="javascript:resetCoord();">       
