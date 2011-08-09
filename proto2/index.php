@@ -36,6 +36,7 @@
         case 'delete_tables':
             deleteTables(); 
             deleteStats();
+            deleteIndex();
             break;
         case 'clear_cache':
             mysql_query("RESET QUERY CACHE");
@@ -46,9 +47,9 @@
             $sql = "INSERT INTO champs_recherche SET hash='$hash', nomBase='$nomBase', nomTable='$nomTable',
             nomCol='$nomColonne', mode='$mode', methode='$methode', visuel='$visuel'";
             mysql_query($sql);
-            
+
             $code = "<iframe src=\'http://localhost/recherche/getSearchField.php?key=".$hash."\' width=\'100%\' height=\'500\'<p>Your browser does not support iframes.</p></iframe><br><br>";
-            
+
             echo "<script>prompt('Code :','".$code."');</script>";    
             mysql_select_db($nomBase); 
             //echo analyse();
@@ -62,9 +63,19 @@
                 if ($text!="" && existe($text)) suppression($text);  
             }                                                     
             break;
-        case 'index':
-            //echo "selec : ",$_POST[t_id];            
-            creeIndex();
+        case 'index':            
+            $col = $nomColonne;
+
+            $sql = "SHOW COLUMNS FROM ".$nomTable;
+            $result = mysql_query($sql) or die(mysql_error()."<br>".$sql);                                                                       
+
+            while ($ligne=mysql_fetch_array($result)){
+                $nomColonne = $ligne['Field'];                                                               
+                if (isset($_POST['t_'.$nomColonne])) creeTables(); 
+                if (isset($_POST['i_'.$nomColonne])) creeIndex(true); 
+                if (isset($_POST['j_'.$nomColonne])) creeIndex(false);                        
+            }
+            $nomColonne = $col;
             break;
     }
 

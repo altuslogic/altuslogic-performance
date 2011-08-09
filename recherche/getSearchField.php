@@ -1,11 +1,15 @@
 <?php 
-    error_reporting(15); 
-    $key=$_GET['key'];
+
     $nomBase="maitre";
 
     include "../proto2/config/db.php";
     include "../proto2/time_function.php"; 
     include "../proto2/controller.php";
+
+    error_reporting(15); 
+    if (isset($_GET['key'])) $key=$_GET['key'];
+    else $key="";
+
     initChamps();
     $sql = "SELECT * FROM champs_recherche WHERE hash='$key'";
     $result = mysql_query($sql) or die(mysql_error());
@@ -21,6 +25,12 @@
 
     $param = "\"".$base."\",\"".$table."\",\"".$colonne."\",\"".$mode."\",\"".$methode."\",\"".$visuel."\"";
 
+    $ok = "OK";
+    $t = "y_".$table."_".$colonne;
+    if ($visuel=='result' && !tableExiste($t."_stats") 
+    || $visuel=='suggest' && ($methode=='mot' && !tableExiste($t."_keyword") || $methode=='tout' && !tableExiste($t."_keyphrase"))){
+        $ok = "KO";
+    }
 ?> 
 
 <head> 
@@ -42,7 +52,7 @@
 
 <br><form>
     <input type='text' onkeyup='javascript:soumettre(this.value,<?php echo $param; ?>);' id='champ_<?php echo $key; ?>'>   
-    <?php echo(tableExiste("y_".$table."_".$colonne."_stats")? " OK": " KO"); ?>
+    <?php echo $ok; ?>
 </form>                    
 <div id='ajax'></div>  
 
