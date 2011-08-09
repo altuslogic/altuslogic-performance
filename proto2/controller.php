@@ -231,7 +231,7 @@
     * @param mixed $mode : le mode de recherche
     */
     function recherche($text, $mode, $methode, $visuel, $coord){             
-        
+
         global $nomTable, $nomColonne,$ordreMax;
         $temps = start_timer();
         $limit = 10;
@@ -248,9 +248,9 @@
             $tab = tailleMax($mot);
             $long = $tab['taille'];
             $nb = $tab['nombre'];
-            
+
             if ($long>=1){
-                                       
+
                 $table = $visuel=='result'?"": ($methode=='mot'?"keyword" :"keyphrase");
                 $truc = $long>$ordreMax?$ordreMax:$long;
                 while ($table=="" && $truc>0){
@@ -298,8 +298,8 @@
         updateLog("Recherche ".$text,$temps=end_timer($temps));
         return array("resultats" => $array, "temps" => $temps);
     }  
-    
-    
+
+
     /**
     * Renvoie la longueur maximale et le nombre de mots
     * qui composent un tableau de mots
@@ -436,8 +436,11 @@
                 $t = strtoupper($mot[$i]);
                 if ($t!=""){
                     $sql = "SELECT id FROM y_".$nomTable."_".$nomColonne."_".$key." WHERE $nomColonne='$t' LIMIT 1";
-                    $res = mysql_query($sql);                   
+                    $res = mysql_query($sql);
+                    $id;                   
                     if (mysql_num_rows($res)>0){
+                        $tab = mysql_fetch_array($res);
+                        $id = $tab['id'];
                         if ($motParMot){
                             $ligne = mysql_fetch_array($res);
                             $sql = "INSERT INTO y_".$nomTable."_".$nomColonne."_index SET id='$tab[id]', keyword='$ligne[id]'";
@@ -452,11 +455,11 @@
                             $sql = "INSERT INTO y_".$nomTable."_".$nomColonne."_index SET id='$tab[id]', keyword='$id'";
                             mysql_query($sql);
                         }
-                        else {
-                            //Modif dans la grande table ? (pas seulement là)
-                            //$sql = "INSERT INTO y_".$nomTable."_".$nomColonne."_index SET id='$tab[id]', keyword='$id'";
-                            //mysql_query($sql);
-                        }
+                    }
+                    if (!motParMot) {
+                        //Modif dans la grande table ? 
+                        //$sql = "INSERT INTO y_".$nomTable."_".$nomColonne."_index SET id='$tab[id]', keyword='$id'";
+                        //mysql_query($sql);
                     }
                 } 
             }

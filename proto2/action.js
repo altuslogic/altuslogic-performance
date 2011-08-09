@@ -37,6 +37,7 @@ function soumettre(){
                     print += t[0]+" ("+t[1]+" km)<br>";
                     createMarker(i,t[0],t[2],t[3]);
                 }
+                adaptMap();
             }
             print += "<br>Temps écoulé : "+tab[tab.length-1]+" seconde(s)";
 
@@ -121,7 +122,16 @@ function createMarker(i, nom, lat, lon){
 }
 
 function clearMarkers(){
-    for (i in markArray) {
-        markArray[i].setMap(null);
+    while (markArray.length>0){
+        markArray.pop().setMap(null);
     }
+}
+
+function adaptMap(){
+    var bounds = new google.maps.LatLngBounds();
+    for (var i in markArray){
+        bounds.extend(markArray[i].getPosition());
+    }
+    map.setCenter(bounds.getCenter());
+    map.fitBounds(bounds);
 }
