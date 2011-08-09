@@ -203,18 +203,24 @@
 
     function deleteStats(){
         global $nomTable,$nomColonne;
+        $temps = start_timer();
         $sql = "DROP TABLE y_".$nomTable."_".$nomColonne."_stats";
         mysql_query($sql);
+        updateLog("Suppression stats ".$nomColonne,end_timer($temps));
     }
 
     function deleteIndex(){
         global $nomTable,$nomColonne;
-        $sql = "DROP TABLE y_".$nomTable."_".$nomColonne."_index";
+        $temps = start_timer();
+        $sql = "DROP TABLE y_".$nomTable."_".$nomColonne."_indexword";
+        mysql_query($sql);
+        $sql = "DROP TABLE y_".$nomTable."_".$nomColonne."_indexphrase";
         mysql_query($sql);
         $sql = "DROP TABLE y_".$nomTable."_".$nomColonne."_keyword";
         mysql_query($sql);
         $sql = "DROP TABLE y_".$nomTable."_".$nomColonne."_keyphrase";
         mysql_query($sql);
+        updateLog("Suppression index ".$nomColonne,end_timer($temps));
     }
 
     function deleteLog(){
@@ -284,7 +290,7 @@
                     }
                 }                                     
 
-                $sql .= ($coord!=null?" ORDER BY distance":"")." LIMIT ".$limit;   
+                $sql .= ($coord!=null? " ORDER BY distance": ($visuel=='suggest'? " ORDER BY nombre DESC": ""))." LIMIT ".$limit;   
                 $result = mysql_query($sql) or die($sql."<br>".mysql_error());
 
             }
@@ -409,60 +415,62 @@
     function creeIndex($motParMot){
         global $nomTable,$nomColonne; 
         $temps = start_timer(); 
-        $key = $motParMot? "keyword": "keyphrase";
-        $sql = "CREATE TABLE IF NOT EXISTS y_".$nomTable."_".$nomColonne."_".$key." (
+        $key = $motParMot? "word": "phrase";
+        $sql = "CREATE TABLE IF NOT EXISTS y_".$nomTable."_".$nomColonne."_key".$key." (
         `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,    
         $nomColonne varchar(30) NOT NULL,
+        `nombre` int(11) UNSIGNED NOT NULL,
         PRIMARY KEY (`id`)
         ) ENGINE=MyISAM  DEFAULT CHARSET=latin1" ;
         mysql_query($sql); 
         // FOREIGN KEYS
-        if ($motParMot){
-            $sql = "CREATE TABLE IF NOT EXISTS y_".$nomTable."_".$nomColonne."_index (
-            `id` int(11) UNSIGNED NOT NULL,                                
-            `keyword` int(11) UNSIGNED NOT NULL,
-            PRIMARY KEY (`id`,`keyword`)
-            ) ENGINE=MyISAM  DEFAULT CHARSET=latin1" ;
-            mysql_query($sql); 
-            $sql = "TRUNCATE TABLE y_".$nomTable."_".$nomColonne."_index";
-            mysql_query($sql);               
-        }
+        $sql = "CREATE TABLE IF NOT EXISTS y_".$nomTable."_".$nomColonne."_index".$key." (
+        `id` int(11) UNSIGNED NOT NULL,                                
+        `keyword` int(11) UNSIGNED NOT NULL,
+        PRIMARY KEY (`id`,`keyword`)
+        ) ENGINE=MyISAM  DEFAULT CHARSET=latin1" ;
+        mysql_query($sql); 
+        $sql = "TRUNCATE TABLE y_".$nomTable."_".$nomColonne."_index".$key;
+        mysql_query($sql);               
 
         $sql = "SELECT id,$nomColonne FROM $nomTable";
         $result = mysql_query($sql);
+        $total = mysql_num_rows($result);
+        $cpt = 0; $progress = 0;
         while ($tab = mysql_fetch_array($result)){
             $mot = $motParMot? explode(" ",$tab[$nomColonne]): array($tab[$nomColonne]);
             for ($i=0; $i<sizeof($mot); $i++){
                 $t = strtoupper($mot[$i]);
                 if ($t!=""){
-                    $sql = "SELECT id FROM y_".$nomTable."_".$nomColonne."_".$key." WHERE $nomColonne='$t' LIMIT 1";
-                    $res = mysql_query($sql);
-                    $id;                   
+                    $sql = "SELECT id FROM y_".$nomTable."_".$nomColonne."_key".$key." WHERE $nomColonne='$t' LIMIT 1";
+                    $res = mysql_query($sql);                   
                     if (mysql_num_rows($res)>0){
-                        $tab = mysql_fetch_array($res);
-                        $id = $tab['id'];
-                        if ($motParMot){
-                            $ligne = mysql_fetch_array($res);
-                            $sql = "INSERT INTO y_".$nomTable."_".$nomColonne."_index SET id='$tab[id]', keyword='$ligne[id]'";
-                            mysql_query($sql);
-                        }
-                    }
-                    else {     
-                        $sql = "INSERT INTO y_".$nomTable."_".$nomColonne."_".$key." SET $nomColonne='$t'"; 
+                        // Le mot-clé est déjà présent dans la table     
+                        $ligne = mysql_fetch_array($res);
+                        $sql = "UPDATE y_".$nomTable."_".$nomColonne."_key".$key." SET nombre=nombre+1 WHERE id='$ligne[id]'";
+                        mysql_query($sql) or die($sql);
+                        $sql = "INSERT INTO y_".$nomTable."_".$nomColonne."_index".$key." SET id='$tab[id]', keyword='$ligne[id]'";
                         mysql_query($sql);
-                        $id = mysql_insert_id();
-                        if ($motParMot){
-                            $sql = "INSERT INTO y_".$nomTable."_".$nomColonne."_index SET id='$tab[id]', keyword='$id'";
-                            mysql_query($sql);
-                        }
                     }
-                    if (!motParMot) {
-                        //Modif dans la grande table ? 
-                        //$sql = "INSERT INTO y_".$nomTable."_".$nomColonne."_index SET id='$tab[id]', keyword='$id'";
-                        //mysql_query($sql);
+                    else {
+                        // Le mot-clé est absent     
+                        $sql = "INSERT INTO y_".$nomTable."_".$nomColonne."_key".$key." SET $nomColonne='$t', nombre='1'"; 
+                        mysql_query($sql) or die($sql);
+                        $id = mysql_insert_id();
+                        $sql = "INSERT INTO y_".$nomTable."_".$nomColonne."_index".$key." SET id='$tab[id]', keyword='$id'";
+                        mysql_query($sql);
                     }
                 } 
             }
+
+            //echo $tab[$nomColonne]," "; 
+            $cpt++; 
+            $pourcent = round(100*$cpt/$total);                      
+            if ($pourcent > $progress){
+                $progress = $pourcent;                         
+                progressBar("Création de l\'index ".$nomColonne,$progress);
+            }   
+
         } 
         updateLog("Index ".$nomColonne,end_timer($temps)); 
     }
@@ -565,7 +573,7 @@
         global $nomBase,$nomTable,$print_details,$temps_total;
 
         $sql = "SELECT table_name FROM information_schema.tables WHERE table_schema = '$nomBase'
-        AND table_name NOT LIKE 'y\_%' AND table_name NOT LIKE 'z\_%'";
+        AND (table_name NOT LIKE 'y\_%' OR table_name LIKE '%word' OR table_name LIKE '%phrase') AND table_name NOT LIKE 'z\_%'";
         $result = mysql_query($sql);
         $print = "";
 
@@ -593,9 +601,9 @@
             $sql = "SHOW TABLES LIKE 'z\_".$nomTable."\_".$nom."\_%'";
             $tables = mysql_num_rows(mysql_query($sql))>0? "disabled='disabled'" : "";    
             $sql = "SHOW TABLES LIKE 'y\_".$nomTable."\_".$nom."\_keyword'";
-            $mot = mysql_num_rows(mysql_query($sql))>0? "disabled='disabled'" : "";
+            $mot = mysql_num_rows(mysql_query($sql))>0 || strpos($nomTable,"y_")===0? "disabled='disabled'" : "";
             $sql = "SHOW TABLES LIKE 'y\_".$nomTable."\_".$nom."\_keyphrase'";
-            $phrase = mysql_num_rows(mysql_query($sql))>0? "disabled='disabled'" : "";
+            $phrase = mysql_num_rows(mysql_query($sql))>0 || strpos($nomTable,"y_")===0? "disabled='disabled'" : "";
 
             $print .= "<tr><td>";
             if ($nom==$nomColonne){

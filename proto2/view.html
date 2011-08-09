@@ -32,8 +32,8 @@
             <a href="?stage=initialize">Initialize</a> <br><br>
             <a href="?stage=performances">Performances</a> <br><br>
             <a href="?stage=details">Details</a><br><br>       
-            <a href="?stage=delete_tables">Delete tables</a>  -  
-            <a href="?stage=clear_tables">Clear tables</a> - 	        
+            <a href="?stage=delete_tables">Delete tables</a>  -
+            <a href="?stage=delete_index">Delete index</a> -  	        
             <a href="?stage=clear_cache">Clear cache</a>    
 
         </div>                                                    
@@ -59,20 +59,20 @@
                 <input type="text" size=25 name="search" id="search" value="<?php if (isset($_GET['search'])) echo $_GET['search']; ?>" onkeyup="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444;">
                 <input type="submit" value="save" name="stage"> 
                 <br><br><table> 
-                <tr><td>Mode de recherche</td><td><select id="mode" name="mode" onchange="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444; width: 120;">
-                    <option <?php if (isset($mode) && $mode=="tout") echo 'selected'; ?> value="tout">exactement</option>
-                    <option <?php if (isset($mode) && $mode=="debut") echo 'selected'; ?> value="debut">commence par</option>
-                    <option <?php if (!isset($mode) || $mode=="milieu") echo 'selected'; ?> value="milieu">contient</option>
-                    <option <?php if (isset($mode) && $mode=="fin") echo 'selected'; ?> value="fin">finit par</option>
-                </select></td></tr>   
-                <tr><td>Méthode d'indexation</td><td><select id="methode" name="methode" onchange="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444; width: 120;">
-                    <option <?php if (isset($methode) && $methode=="mot") echo 'selected'; ?> value="mot">mot par mot</option>
-                    <option <?php if (!isset($methode) || $methode=="tout") echo 'selected'; ?> value="tout">texte entier</option>
-                </select></td></tr>
-                <tr><td>Visuel</td><td><select id="visuel" name="visuel" onchange="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444; width: 120;">
-                    <option <?php if (isset($visuel) && $visuel=="suggest") echo 'selected'; ?> value="suggest">suggestion</option>
-                    <option <?php if (!isset($visuel) || $visuel=="result") echo 'selected'; ?> value="result">résultats</option> 
-                </select></td></tr> 
+                    <tr><td>Mode de recherche</td><td><select id="mode" name="mode" onchange="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444; width: 120;">
+                                <option <?php if (isset($mode) && $mode=="tout") echo 'selected'; ?> value="tout">exactement</option>
+                                <option <?php if (isset($mode) && $mode=="debut") echo 'selected'; ?> value="debut">commence par</option>
+                                <option <?php if (!isset($mode) || $mode=="milieu") echo 'selected'; ?> value="milieu">contient</option>
+                                <option <?php if (isset($mode) && $mode=="fin") echo 'selected'; ?> value="fin">finit par</option>
+                            </select></td></tr>   
+                    <tr><td>Méthode d'indexation</td><td><select id="methode" name="methode" onchange="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444; width: 120;">
+                                <option <?php if (isset($methode) && $methode=="mot") echo 'selected'; ?> value="mot">mot par mot</option>
+                                <option <?php if (!isset($methode) || $methode=="tout") echo 'selected'; ?> value="tout">texte entier</option>
+                            </select></td></tr>
+                    <tr><td>Visuel</td><td><select id="visuel" name="visuel" onchange="javascript:soumettre();" style="background-color: transparent; color: #444; border: 1px solid #444; width: 120;">
+                                <option <?php if (isset($visuel) && $visuel=="suggest") echo 'selected'; ?> value="suggest">suggestion</option>
+                                <option <?php if (!isset($visuel) || $visuel=="result") echo 'selected'; ?> value="result">résultats</option> 
+                            </select></td></tr> 
                 </table> 
             </form>
         </div>

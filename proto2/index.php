@@ -29,13 +29,10 @@
         case 'details':    
             $print_details = getDetails();  
             break;       
-        case 'clear_tables':
-            clearTables();
-            clearStats(); 
-            break;
         case 'delete_tables':
             deleteTables(); 
             deleteStats();
+        case 'delete_index':
             deleteIndex();
             break;
         case 'clear_cache':
