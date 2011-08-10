@@ -24,8 +24,13 @@
     $nomTable = readCookie("nomTable","");
     $nomColonne = readCookie("nomColonne","name");
     $mode = readCookie("mode","contient");     
-    $methode = readCookie("methode","tout");
+    $methode = readCookie("methode","direct");
     $visuel = readCookie("visuel","result");
+    $resume = readCookie("resume",1);
+    $limite = readCookie("limite",10);
+    $nomDiv = readCookie("nomDiv","ajax"); 
+    $containerAll = readCookie("containerAll","~~ALL~~"); 
+    $containerResult = readCookie("containerResult","<br>~~RES~~");  
     $thres = readCookie("threshold",5000);
     $ordreMax = readCookie("ordre",3);
 

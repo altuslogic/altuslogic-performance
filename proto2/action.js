@@ -2,10 +2,11 @@ function soumettre(){
     var search = escape(document.getElementById('search').value);
     if (search.length==0) return;                          
     var mode = document.getElementById('mode').value; 
+    var methode = document.getElementById('methode').value; 
     var lat = document.getElementById('latitude').value;
     var lon = document.getElementById('longitude').value;
 
-    var url = "ajax.php?search=" + search + "&mode=" + mode + "&lat=" + lat + "&lon=" + lon;
+    var url = "ajax.php?search="+search + "&mode="+mode + "&methode="+methode + "&lat="+lat + "&lon="+lon;
 
     // création d'un objet capable d'interagir avec le serveur
     try {

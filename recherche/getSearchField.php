@@ -7,30 +7,35 @@
     include "../proto2/controller.php";
 
     error_reporting(15); 
-    if (isset($_GET['key'])) $key=$_GET['key'];
-    else $key="";
+    if (isset($_GET['key'])) $hash=$_GET['key'];
+    else $hash="";
 
-    initChamps();
-    $sql = "SELECT * FROM champs_recherche WHERE hash='$key'";
+    $sql = "SELECT * FROM champs_recherche WHERE hash='$hash' LIMIT 1";
     $result = mysql_query($sql) or die(mysql_error());
-    $ligne = mysql_fetch_array($result);
-    $base = $ligne['nomBase'];
-    $table = $ligne['nomTable'];
-    $colonne = $ligne['nomCol'];
-    $mode = $ligne['mode'];
-    $methode = $ligne['methode'];
-    $visuel = $ligne['visuel'];
+    $ligne = mysql_fetch_assoc($result);
+                                
+    foreach ($ligne as $key => $val){    
+        $$key = $val;                                       
+    }                   
 
-    mysql_select_db($base);
+    if ($resume==1){
+        echo "<table border='1'>"; 
+        foreach ($ligne as $key => $val){    
+            echo "<tr><td>".$key."</td><td>".$val."</td></tr>";
+        }          
+        echo "</table>";
+    }
 
-    $param = "\"".$base."\",\"".$table."\",\"".$colonne."\",\"".$mode."\",\"".$methode."\",\"".$visuel."\"";
+    mysql_select_db($nomBase);
+
+    $param = "\"".$nomBase."\",\"".$nomTable."\",\"".$nomColonne."\",\"".$mode."\",\"".$methode."\",\"".$visuel."\",\"".$limite."\",\"".$containerAll."\",\"".$containerResult."\"";     
 
     $ok = "OK";
-    $t = "y_".$table."_".$colonne;
-    if ($visuel=='result' && !tableExiste($t."_stats") 
-    || $visuel=='suggest' && ($methode=='mot' && !tableExiste($t."_keyword") || $methode=='tout' && !tableExiste($t."_keyphrase"))){
+    $t = "y_".$nomTable."_".$nomColonne;
+    if ($methode=='tables' && !tableExiste($t."_stats") || $methode=='mot' && !tableExiste($t."_keyword") || $methode=='tout' && !tableExiste($t."_keyphrase")){
         $ok = "KO";
     }
+
 ?> 
 
 <head> 
@@ -40,40 +45,32 @@
     <script src="../jquery.ui/widget.js"></script> 
     <script src="../jquery.ui/position.js"></script> 
     <script src="../jquery.ui/autocomplete.js"></script>
-</head>
-
-<table border='1'><tr><td>base</td><td><?php echo $base; ?></td></tr>   
-    <tr><td>table</td><td><?php echo $table; ?></td></tr>
-    <tr><td>colonne</td><td><?php echo $colonne; ?></td></tr>
-    <tr><td>mode</td><td><?php echo $mode; ?></td></tr>
-    <tr><td>méthode</td><td><?php echo $methode; ?></td></tr> 
-    <tr><td>visuel</td><td><?php echo $visuel; ?></td></tr>
-</table>   
+</head> 
 
 <br><form>
-    <input type='text' onkeyup='javascript:soumettre(this.value,<?php echo $param; ?>);' id='champ_<?php echo $key; ?>'>   
+    <input type='text' onkeyup='javascript:soumettre(this.value,<?php echo $param; ?>);' id='champ_<?php echo $key; ?>' style="background-color: transparent; color: #444; border: 1px solid #444;">
     <?php echo $ok; ?>
 </form>                    
-<div id='ajax'></div>  
+<div id='resultats'></div>  
 
 <script> 
-    $("#champ_<?php echo $key; ?>").autocomplete({source: []}); 
+    $("#champ_<?php echo $hash; ?>").autocomplete({source: []}); 
 </script>
 
 <script>
     //ajax
-    function soumettre(search,base,table,colonne,mode,methode,visuel){  
-
+    function soumettre(search,base,table,colonne,mode,methode,visuel,limite,containerAll,containerResult){  
+                      
         search = escape(search);
 
         if (search.length==0){
-            document.getElementById('ajax').innerHTML=""; 
+            document.getElementById('resultats').innerHTML = ""; 
             return;
         }
 
         var url = "ajax.php?search="+search + "&base="+base + "&table="+table + "&colonne="+colonne
-        + "&mode="+mode + "&methode="+methode + "&visuel="+visuel;
-
+        + "&mode="+mode + "&methode="+methode + "&limite="+limite;    
+                                                    
         // création d'un objet capable d'interagir avec le serveur
         try {
             // Essayer IE
@@ -90,20 +87,25 @@
             if (xhr.readyState == 4) {
 
                 var result = xhr.responseText;
-                var tab = result.split('|');
+                var tab = result.split('|');           
 
-                if (visuel=="result"){
+                // debug                                                 
+                //alert(result);
 
-                    var print = "<b>Résultats de la recherche : "+search+"</b>"; 
-                    if (tab.length==1) print += "<br>Pas de résultats.";
+                if (visuel=="result"){                                              
+                    var res = ""; 
+                    if (tab.length==1) res = containerResult.replace("~RES~","Pas de résultats.");
                     else {
                         for (var i=0; i<tab.length-1; i++){
-                            print += "<br>"+tab[i];  
+                            res += containerResult.replace("~RES~",tab[i]);  
                         }
-                    }                                                             
-                    print += "<br><br>Temps écoulé : "+tab[tab.length-1]+" seconde(s)";
+                    }                                                               
 
-                    document.getElementById('ajax').innerHTML = print; 
+                    var print = containerAll.replace("~TITLE~","Résultats de la recherche : "+search);
+                    print = print.replace("~ALL~",res);
+                    print = print.replace("~TIME~","Temps écoulé : "+tab[tab.length-1]+" seconde(s)");
+                    
+                    document.getElementById('resultats').innerHTML = print; 
                 }
 
                 else {
@@ -114,8 +116,8 @@
                 }                 
             }
         };
-
-        // envoi de la requête
+                                     
+        // envoi de la requête       
         xhr.open("GET", url, true); 
         xhr.send(null);  
 

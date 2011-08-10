@@ -2,7 +2,8 @@
 
     header("Content-type: text/html; charset=ISO-8859-1");
     $search = $_GET['search'];
-    $mode = $_GET['mode'];                         
+    $mode = $_GET['mode'];
+    $methode = $_GET['methode'];                         
     $lat = $_GET['lat'];
     $lon = $_GET['lon'];
 
@@ -12,7 +13,7 @@
     include "controller.php";  
 
     // retourne les résultats de la recherche
-    $array = recherche($search, $mode, "tout", "result", array($lat,$lon)); 
+    $array = recherche($search, $mode, $methode, array($lat,$lon)); 
     $result = $array['resultats'];                                                 
     for ($i=0; $i<sizeof($result); $i++){
         echo $result[$i][0],",",round($result[$i]['distance']),",",$result[$i]['latitude'],",",$result[$i]['longitude'],"|";

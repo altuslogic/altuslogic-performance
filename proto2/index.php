@@ -10,13 +10,16 @@
     echo '<link rel="stylesheet" type="text/css" href="my.css"><body><br><br><br>';
     init(5,5,600,30,'#fff','#444','#006699');
 
+    mysql_select_db("maitre");
     creeLog(); 
-
+    initChamps();
+    mysql_select_db($nomBase);
+    
     $stage="";
     if (isset($_GET['stage'])) $stage = $_GET['stage'];                       
 
     $print_details = "";
-
+    $print_search = "";
 
     switch($stage){
         case 'initialize':
@@ -40,14 +43,13 @@
             break;
         case 'save':     
             mysql_select_db("maitre");
-            $hash = md5($nomBase.$nomTable.$nomColonne.$mode.$methode.$visuel);
-            $sql = "INSERT INTO champs_recherche SET hash='$hash', nomBase='$nomBase', nomTable='$nomTable',
-            nomCol='$nomColonne', mode='$mode', methode='$methode', visuel='$visuel'";
+            $hash = md5($nomBase.$nomTable.$nomColonne.$mode.$methode.$visuel.$resume.$limite.$nomDiv.$containerAll.$containerResult);
+            $sql = "INSERT INTO champs_recherche SET hash='$hash', nomBase='$nomBase', nomTable='$nomTable', nomColonne='$nomColonne',
+            mode='$mode', methode='$methode', visuel='$visuel', resume='$resume', limite='$limite', nomDiv='$nomDiv', containerAll='$containerAll', containerResult='$containerResult'";
             mysql_query($sql);
 
-            $code = "<iframe src=\'http://localhost/recherche/getSearchField.php?key=".$hash."\' width=\'100%\' height=\'500\'<p>Your browser does not support iframes.</p></iframe><br><br>";
-
-            echo "<script>prompt('Code :','".$code."');</script>";    
+            $print_search = "<iframe src='http://localhost/recherche/getSearchField.php?key=".$hash."' width='100%' height='500'>\n<p>Your browser does not support iframes.</p></iframe>";
+    
             mysql_select_db($nomBase); 
             //echo analyse();
             break;    

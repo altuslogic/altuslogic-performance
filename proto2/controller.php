@@ -5,10 +5,8 @@
         return mysql_query($sql);
     }
 
-    function creeLog(){
-        global $nomBase,$nomTable; 
-        $temps = start_timer();
-        mysql_select_db("maitre");    
+    function creeLog(){          
+        $temps = start_timer();    
         $sql = "CREATE TABLE log (
         `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
         `action` varchar(255) NOT NULL,
@@ -17,7 +15,6 @@
         PRIMARY KEY (`id`)
         ) ENGINE=MyISAM  DEFAULT CHARSET=latin1" ;
         $result = mysql_query($sql);
-        mysql_select_db($nomBase);
         if ($result) updateLog("Création du log",end_timer($temps));
     }
 
@@ -27,6 +24,25 @@
         $sql = "INSERT INTO log SET action='$action', heure=NOW(), temps='$temps'";
         mysql_query($sql); 
         mysql_select_db($nomBase);     
+    }
+
+    function initChamps(){
+        $sql = "CREATE TABLE IF NOT EXISTS champs_recherche (
+        `hash` char(32) NOT NULL,
+        `nomBase` char(20) NOT NULL,
+        `nomTable` char(20) NOT NULL,
+        `nomColonne` char(20) NOT NULL, 
+        `mode` enum('debut','milieu','fin','tout') NOT NULL,
+        `methode` enum('direct','tables','mot','tout') NOT NULL,
+        `visuel` enum('suggest','result') NOT NULL,
+        `resume` tinyint(1) NOT NULL,
+        `limite` smallint(5) UNSIGNED NOT NULL,
+        `nomDiv` char(20) NOT NULL,
+        `containerAll` text NOT NULL,
+        `containerResult` text NOT NULL,
+        PRIMARY KEY (`hash`)
+        ) ENGINE=MyISAM  DEFAULT CHARSET=latin1";
+        mysql_query($sql); 
     }
 
     function creeTables(){
@@ -130,7 +146,7 @@
             $table; 
             if (strlen($mot)==1) $table = $nomTable;
             else {
-                $table = "z_".$nomTable."_".$nomColonne."_".getTable($mot,strlen($mot)-1);
+                $table = "z_".$nomTable."_".$nomColonne."_".getSousTable($mot,strlen($mot)-1);
             }
 
             $sql = "SELECT $nomColonne,id FROM $table WHERE $nomColonne LIKE '%$mot%' LIMIT 1";
@@ -236,42 +252,43 @@
     * @param mixed $text : la chaîne à chercher
     * @param mixed $mode : le mode de recherche
     */
-    function recherche($text, $mode, $methode, $visuel, $coord){             
-
+    function recherche($text, $mode, $methode, $limite, $coord){             
+        
         global $nomTable, $nomColonne,$ordreMax;
         $temps = start_timer();
-        $limit = 10;
         $result;
 
         if ($mode=="tout"){
-            // mode expression régulière
-            $sql = "SELECT $nomColonne FROM $nomTable WHERE $nomColonne RLIKE '$text' LIMIT ".$limit;                                    
+            // mode expression régulière (à changer)
+            $sql = "SELECT $nomColonne FROM $nomTable WHERE $nomColonne RLIKE '$text' LIMIT ".$limite;                                    
             $result = mysql_query($sql) or die($sql."<br>".mysql_error());
         }
 
-        else {                        
+        else {       
+            $table = "";
             $mot = explode(" ",$text);
-            $tab = tailleMax($mot);
-            $long = $tab['taille'];
-            $nb = $tab['nombre'];
 
-            if ($long>=1){
-
-                $table = $visuel=='result'?"": ($methode=='mot'?"keyword" :"keyphrase");
+            if ($methode=='tables'){
+                $long = max(array_map("strlen",$mot));
                 $truc = $long>$ordreMax?$ordreMax:$long;
                 while ($table=="" && $truc>0){
-                    $table = getTable($text,$truc--);
-                }                            
+                    $table = getSousTable($text,$truc--);
+                }
+                if ($table!="") $table = "z_".$nomTable."_".$nomColonne."_".$table; 
+            }
+            else $table = getTable($methode);
 
-                $table = ($visuel=='result'?"z":"y")."_".$nomTable."_".$nomColonne."_".$table;  
+            if ($table!=""){ 
                 $sql;
 
                 if ($coord!=null){
+                    // dans le cas où méthode=mot/tout il faut passer par la table index pour récupérer l'id
                     $lat = $coord[0];
                     $lon = $coord[1];
                     $rayon = 6370;
                     $dist = "(ACOS( SIN($lat*PI()/180) * SIN(latitude*PI()/180) + COS($lat*PI()/180) * COS(latitude*PI()/180) * COS(($lon-longitude)*PI()/180)) * $rayon) AS distance";
-                    $sql = "SELECT $table.$nomColonne,latitude,longitude,".$dist." FROM $nomTable, $table WHERE $nomTable.id = $table.id AND latitude NOT LIKE '' AND";
+                    if ($table==$nomTable) $sql = "SELECT $nomColonne,latitude,longitude,".$dist." FROM $nomTable WHERE latitude NOT LIKE '' AND";
+                    else $sql = "SELECT $table.$nomColonne,latitude,longitude,".$dist." FROM $nomTable, $table WHERE $nomTable.id = $table.id AND latitude NOT LIKE '' AND";
                 }
                 else {
                     $sql = "SELECT $nomColonne FROM $table WHERE ";      
@@ -290,8 +307,8 @@
                     }
                 }                                     
 
-                $sql .= ($coord!=null? " ORDER BY distance": ($visuel=='suggest'? " ORDER BY nombre DESC": ""))." LIMIT ".$limit;   
-                $result = mysql_query($sql) or die($sql."<br>".mysql_error());
+                $sql .= ($coord!=null? " ORDER BY distance": (($methode=='mot'||$methode=='tout')? " ORDER BY nombre DESC": ""))." LIMIT ".$limite;   
+                $result = mysql_query($sql) or die($sql."<br>".mysql_error());  
 
             }
         }
@@ -306,14 +323,15 @@
     }  
 
 
-    /**
-    * Renvoie la longueur maximale et le nombre de mots
-    * qui composent un tableau de mots
-    * @param mixed $mot : le tableau
-    */
-    function tailleMax($mot){                             
-        $max = max(array_map("strlen",$mot));
-        return array("taille" => $max, "nombre" => count($mot));               
+    function getTable($methode){
+
+        global $nomTable,$nomColonne;
+
+        if ($methode=='direct') return $nomTable;
+        if ($methode=='mot') return "y_".$nomTable."_".$nomColonne."_keyword";
+        if ($methode=='tout') return "y_".$nomTable."_".$nomColonne."_keyphrase";
+        return; 
+
     }
 
     /**
@@ -322,7 +340,7 @@
     * @param mixed $text : la chaîne à chercher
     * @param mixed $long : l'ordre de la table
     */
-    function getTable($text,$long){
+    function getSousTable($text,$long){
 
         global $nomTable,$nomColonne;       
         $sql = "SELECT name,MIN(nombre) FROM y_".$nomTable."_".$nomColonne."_stats WHERE";   
@@ -350,7 +368,7 @@
         $table = "";
         $truc = $ordreMax;
         while ($table=="" && $truc>0){
-            $table = getTable($text,$truc--);
+            $table = getSousTable($text,$truc--);
         }
         if ($table == "") return false;
         $sql = "SELECT $nomColonne FROM z_".$nomTable."_".$nomColonne."_".$table." WHERE $nomColonne='$text' LIMIT 1";
@@ -598,12 +616,11 @@
         while ($ligne=mysql_fetch_array($result)){
             $nom = $ligne['Field'];
 
-            $sql = "SHOW TABLES LIKE 'z\_".$nomTable."\_".$nom."\_%'";
-            $tables = mysql_num_rows(mysql_query($sql))>0? "disabled='disabled'" : "";    
-            $sql = "SHOW TABLES LIKE 'y\_".$nomTable."\_".$nom."\_keyword'";
-            $mot = mysql_num_rows(mysql_query($sql))>0 || strpos($nomTable,"y_")===0? "disabled='disabled'" : "";
-            $sql = "SHOW TABLES LIKE 'y\_".$nomTable."\_".$nom."\_keyphrase'";
-            $phrase = mysql_num_rows(mysql_query($sql))>0 || strpos($nomTable,"y_")===0? "disabled='disabled'" : "";
+            $array = etatTables($nom);
+
+            $tables = $array['tables']? "disabled='disabled'" : "";
+            $mot = $array['mot'] || strpos($nomTable,"y_")===0? "disabled='disabled'" : "";   
+            $phrase = $array['phrase'] || strpos($nomTable,"y_")===0? "disabled='disabled'" : "";
 
             $print .= "<tr><td>";
             if ($nom==$nomColonne){
@@ -637,6 +654,19 @@
         return $print;  
     }
 
+
+    function etatTables($nom){
+        global $nomTable;
+        $sql = "SHOW TABLES LIKE 'z\_".$nomTable."\_".$nom."\_%'";
+        $tables = mysql_num_rows(mysql_query($sql))>0;    
+        $sql = "SHOW TABLES LIKE 'y\_".$nomTable."\_".$nom."\_keyword'";
+        $mot = mysql_num_rows(mysql_query($sql))>0;
+        $sql = "SHOW TABLES LIKE 'y\_".$nomTable."\_".$nom."\_keyphrase'";
+        $phrase = mysql_num_rows(mysql_query($sql))>0;
+        return array("tables"=>$tables, "mot"=>$mot, "phrase"=>$phrase);
+    }
+
+
     function analyse(){
         global $nomBase,$nomTable,$nomColonne;
 
@@ -648,20 +678,6 @@
         }
         mysql_select_db($nomBase);
         return $print."</table>";
-    }
-
-    function initChamps(){
-        $sql = "CREATE TABLE IF NOT EXISTS champs_recherche (
-        `hash` char(32) NOT NULL,
-        `nomBase` char(20) NOT NULL,
-        `nomTable` char(20) NOT NULL,
-        `nomCol` char(20) NOT NULL, 
-        `mode` enum('debut','milieu','fin','tout') NOT NULL,
-        `methode` enum('mot','tout') NOT NULL,
-        `visuel` enum('suggest','result') NOT NULL,
-        PRIMARY KEY (`hash`)
-        ) ENGINE=MyISAM  DEFAULT CHARSET=latin1";
-        mysql_query($sql); 
     }
 
 
