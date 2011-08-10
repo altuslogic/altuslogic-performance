@@ -28,9 +28,11 @@
     $visuel = readCookie("visuel","result");
     $resume = readCookie("resume",1);
     $limite = readCookie("limite",10);
-    $nomDiv = readCookie("nomDiv","ajax"); 
-    $containerAll = readCookie("containerAll","~~ALL~~"); 
-    $containerResult = readCookie("containerResult","<br>~~RES~~");  
+    $nomDiv = readCookie("nomDiv","ajax");
+    $afficheDiv = readCookie("afficheDiv",1);  
+    $containerAll = readCookie("containerAll","<b>~TITLE~</b><ul>~ALL~</ul>~TIME~"); 
+    $containerResult = readCookie("containerResult","<li>~RES~</li>");
+    $containerDetails = readCookie("containerDetails","");  
     $thres = readCookie("threshold",5000);
     $ordreMax = readCookie("ordre",3);
 

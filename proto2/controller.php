@@ -38,13 +38,18 @@
         `resume` tinyint(1) NOT NULL,
         `limite` smallint(5) UNSIGNED NOT NULL,
         `nomDiv` char(20) NOT NULL,
+        `afficheDiv` tinyint(1) NOT NULL,
         `containerAll` text NOT NULL,
         `containerResult` text NOT NULL,
+        `containerDetails` text NOT NULL,
         PRIMARY KEY (`hash`)
         ) ENGINE=MyISAM  DEFAULT CHARSET=latin1";
         mysql_query($sql); 
     }
 
+    /**
+    * Crée les sous-tables jusqu'à l'ordre max
+    */
     function creeTables(){
         global $nomTable, $nomColonne, $ordreMax, $thres;
         $temps = start_timer();
@@ -86,16 +91,6 @@
         PRIMARY KEY (`name`)
         ) ENGINE=MyISAM  DEFAULT CHARSET=latin1" ;
         mysql_query($sql); 
-    }
-
-    function phase1(){
-        mysql_query("RESET QUERY CACHE");           
-        operation("methode1","Méthode 1"); 
-    }
-
-    function phase2(){
-        mysql_query("RESET QUERY CACHE");            
-        operation("methode2","Méthode 2");
     }
 
     /***
@@ -250,7 +245,10 @@
     /***
     * Effectue la recherche d'une chaîne de caractères  
     * @param mixed $text : la chaîne à chercher
-    * @param mixed $mode : le mode de recherche
+    * @param mixed $mode : le mode de recherche (début,milieu,fin)
+    * @param mixed $methode : la méthode utilisée (directe,sous-tables,index)
+    * @param mixed $limite : le nombre de résultats à renvoyer
+    * @param mixed $coord : les coordonnées (latitude,longitude)
     */
     function recherche($text, $mode, $methode, $limite, $coord){             
         
@@ -291,6 +289,8 @@
                     else $sql = "SELECT $table.$nomColonne,latitude,longitude,".$dist." FROM $nomTable, $table WHERE $nomTable.id = $table.id AND latitude NOT LIKE '' AND";
                 }
                 else {
+                    // si suggest et index, select nombre
+                    // si result, select *
                     $sql = "SELECT $nomColonne FROM $table WHERE ";      
                 }
                 $debut = $mode=="debut"?"":"%";
@@ -322,7 +322,10 @@
         return array("resultats" => $array, "temps" => $temps);
     }  
 
-
+    /**
+    * Renvoie la table appropriée dans laquelle faire une recherche
+    * @param mixed $methode : la méthode de recherche
+    */
     function getTable($methode){
 
         global $nomTable,$nomColonne;
@@ -335,8 +338,8 @@
     }
 
     /**
-    * Renvoie la table appropriée dans laquelle chercher
-    * une chaîne de caractères (la sous-table la moins remplie)
+    * Renvoie la sous-table appropriée dans laquelle chercher
+    * une chaîne de caractères (la moins remplie)
     * @param mixed $text : la chaîne à chercher
     * @param mixed $long : l'ordre de la table
     */
@@ -361,6 +364,10 @@
         return $tab['name'];
     } 
 
+    /**
+    * Teste l'existence d'un mot
+    * @param mixed $text : le mot à chercher
+    */
     function existe($text){
 
         global $nomTable,$nomColonne,$ordreMax;
@@ -430,6 +437,10 @@
         updateLog("Suppression ".$text,$temps=end_timer($temps));
     }
 
+    /**
+    * Crée un index pour la colonne actuelle
+    * @param mixed $motParMot : détermine si la chaîne doit être découpée en mots
+    */
     function creeIndex($motParMot){
         global $nomTable,$nomColonne; 
         $temps = start_timer(); 
@@ -471,7 +482,7 @@
                         mysql_query($sql);
                     }
                     else {
-                        // Le mot-clé est absent     
+                        // Le mot-clé est absent de la table   
                         $sql = "INSERT INTO y_".$nomTable."_".$nomColonne."_key".$key." SET $nomColonne='$t', nombre='1'"; 
                         mysql_query($sql) or die($sql);
                         $id = mysql_insert_id();

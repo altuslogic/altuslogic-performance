@@ -13,7 +13,7 @@
     $sql = "SELECT * FROM champs_recherche WHERE hash='$hash' LIMIT 1";
     $result = mysql_query($sql) or die(mysql_error());
     $ligne = mysql_fetch_assoc($result);
-                                
+
     foreach ($ligne as $key => $val){    
         $$key = $val;                                       
     }                   
@@ -28,7 +28,7 @@
 
     mysql_select_db($nomBase);
 
-    $param = "\"".$nomBase."\",\"".$nomTable."\",\"".$nomColonne."\",\"".$mode."\",\"".$methode."\",\"".$visuel."\",\"".$limite."\",\"".$containerAll."\",\"".$containerResult."\"";     
+    $param = "\"".$nomBase."\",\"".$nomTable."\",\"".$nomColonne."\",\"".$mode."\",\"".$methode."\",\"".$visuel."\",\"".$limite."\",\"".$nomDiv."\",\"".$containerAll."\",\"".$containerResult."\",\"".$containerDetails."\"";     
 
     $ok = "OK";
     $t = "y_".$nomTable."_".$nomColonne;
@@ -50,8 +50,11 @@
 <br><form>
     <input type='text' onkeyup='javascript:soumettre(this.value,<?php echo $param; ?>);' id='champ_<?php echo $key; ?>' style="background-color: transparent; color: #444; border: 1px solid #444;">
     <?php echo $ok; ?>
-</form>                    
-<div id='resultats'></div>  
+</form>
+
+<?php if ($afficheDiv){ ?>                   
+<div id='<?php echo $nomDiv; ?>'></div>  
+<?php } ?>
 
 <script> 
     $("#champ_<?php echo $hash; ?>").autocomplete({source: []}); 
@@ -59,18 +62,19 @@
 
 <script>
     //ajax
-    function soumettre(search,base,table,colonne,mode,methode,visuel,limite,containerAll,containerResult){  
-                      
+    function soumettre(search,base,table,colonne,mode,methode,visuel,limite,nomDiv,containerAll,containerResult,containerDetails){  
+
         search = escape(search);
 
         if (search.length==0){
-            document.getElementById('resultats').innerHTML = ""; 
+            document.getElementById(nomDiv).innerHTML = ""; 
             return;
         }
 
         var url = "ajax.php?search="+search + "&base="+base + "&table="+table + "&colonne="+colonne
-        + "&mode="+mode + "&methode="+methode + "&limite="+limite;    
-                                                    
+        + "&mode="+mode + "&methode="+methode + "&visuel="+visuel + "&limite="+limite 
+        + "&containerAll="+containerAll + "&containerResult="+containerResult + "&containerDetails="+containerDetails;      
+
         // création d'un objet capable d'interagir avec le serveur
         try {
             // Essayer IE
@@ -86,29 +90,17 @@
             // instructions de traitement de la réponse  
             if (xhr.readyState == 4) {
 
-                var result = xhr.responseText;
-                var tab = result.split('|');           
+                var result = xhr.responseText;           
 
                 // debug                                                 
                 //alert(result);
 
-                if (visuel=="result"){                                              
-                    var res = ""; 
-                    if (tab.length==1) res = containerResult.replace("~RES~","Pas de résultats.");
-                    else {
-                        for (var i=0; i<tab.length-1; i++){
-                            res += containerResult.replace("~RES~",tab[i]);  
-                        }
-                    }                                                               
-
-                    var print = containerAll.replace("~TITLE~","Résultats de la recherche : "+search);
-                    print = print.replace("~ALL~",res);
-                    print = print.replace("~TIME~","Temps écoulé : "+tab[tab.length-1]+" seconde(s)");
-                    
-                    document.getElementById('resultats').innerHTML = print; 
+                if (visuel=="result"){                                                               
+                    document.getElementById(nomDiv).innerHTML = result; 
                 }
 
                 else {
+                    var tab = result.split('|');
                     tab.pop();
                     $("#champ_<?php echo $key; ?>").autocomplete({
                         source: tab
@@ -116,7 +108,7 @@
                 }                 
             }
         };
-                                     
+
         // envoi de la requête       
         xhr.open("GET", url, true); 
         xhr.send(null);  

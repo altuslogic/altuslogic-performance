@@ -83,10 +83,15 @@
                             </select></td></tr>
                     <tr><td>Nombre de résultats</td><td><input type="text" id="limite" name="limite" value="<?php echo $limite; ?>" style="color: #444; border: 1px solid #444; width: 100;"></td></tr>
                     <tr><td>Nom du cadre</td><td><input type="text" id="nomDiv" name="nomDiv" value="<?php echo $nomDiv; ?>" style="color: #444; border: 1px solid #444; width: 100;"></td></tr> 
-                    <tr><td>Format général</td><td><input type="text" id="containerAll" name="containerAll" value="<?php echo $containerAll; ?>" style="color: #444; border: 1px solid #444; width: 100;"></td></tr>
-                    <tr><td>Format résultat</td><td><input type="text" id="containerResult" name="containerResult" value="<?php echo $containerResult; ?>" style="color: #444; border: 1px solid #444; width: 100;"></td></tr>    
+                    <tr><td>Affichage du cadre</td><td><select id="afficheDiv" name="afficheDiv" style="color: #444; border: 1px solid #444; width: 100;">
+                                <option <?php if (!isset($afficheDiv) || $afficheDiv==1) echo 'selected'; ?> value=1>avec</option>
+                                <option <?php if (isset($afficheDiv) && $afficheDiv==0) echo 'selected'; ?> value=0>sans</option> 
+                            </select></td></tr>
+                    <tr><td>Format général</td><td><textarea id="containerAll" name="containerAll" spellcheck="false" style="color: #444; border: 1px solid #444; max-width: 205;"><?php echo $containerAll; ?></textarea></td></tr>
+                    <tr><td>Format résultat</td><td><textarea id="containerResult" name="containerResult" spellcheck="false" style="color: #444; border: 1px solid #444; max-width: 205;"><?php echo $containerResult; ?></textarea></td></tr>    
+                    <tr><td>Format détails</td><td><textarea id="containerDetails" name="containerDetails" spellcheck="false" style="color: #444; border: 1px solid #444; max-width: 205;"><?php echo $containerDetails; ?></textarea></td></tr>  
                 </table> 
-                <br><input type="submit" value="save" name="stage"> 
+                <p align="center"><input type="submit" value="save" name="stage"></p> 
             </form>
         </div>
         <div class="init">
@@ -121,7 +126,7 @@
         </div>
         <div class="init">
             <h2>Code</h2>
-            <textarea style="width:inherit; height:145;" readonly="readonly"><?php
+            <textarea style="width:inherit; height:145; resize: none;" readonly="readonly"><?php
                 echo $print_search;
                 ?></textarea>
         </div> 
