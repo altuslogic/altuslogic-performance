@@ -50,8 +50,8 @@
             mysql_query($sql);// or die($sql);
 
             $print_search = "<iframe src='http://localhost/recherche/getSearchField.php?key=".$hash."' width='100%' height='500'>\n<p>Your browser does not support iframes.</p></iframe>";
-    
-            mysql_select_db($nomBase); 
+            mysql_select_db($nomBase);
+             
             //echo analyse();
             break;    
         case 'modif':

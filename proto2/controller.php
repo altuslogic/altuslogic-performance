@@ -30,7 +30,7 @@
         $sql = "CREATE TABLE IF NOT EXISTS champs_recherche (
         `hash` char(32) NOT NULL,
         `nomBase` char(20) NOT NULL,
-        `nomTable` char(20) NOT NULL,
+        `nomTable` char(50) NOT NULL,
         `nomColonne` char(20) NOT NULL, 
         `mode` enum('debut','milieu','fin','tout') NOT NULL,
         `methode` enum('direct','tables','mot','tout') NOT NULL,
@@ -247,19 +247,20 @@
     * @param mixed $text : la chaîne à chercher
     * @param mixed $mode : le mode de recherche (début,milieu,fin)
     * @param mixed $methode : la méthode utilisée (directe,sous-tables,index)
+    * @param mixed $selecCol : les colonnes qui nous intéressent
     * @param mixed $limite : le nombre de résultats à renvoyer
     * @param mixed $coord : les coordonnées (latitude,longitude)
     */
-    function recherche($text, $mode, $methode, $limite, $coord){             
-        
+    function recherche($text, $mode, $methode, $selecCol, $limite, $coord){             
+
         global $nomTable, $nomColonne,$ordreMax;
         $temps = start_timer();
         $result;
 
         if ($mode=="tout"){
             // mode expression régulière (à changer)
-            $sql = "SELECT $nomColonne FROM $nomTable WHERE $nomColonne RLIKE '$text' LIMIT ".$limite;                                    
-            $result = mysql_query($sql) or die($sql."<br>".mysql_error());
+            //$sql = "SELECT $nomColonne FROM $nomTable WHERE $nomColonne RLIKE '$text' LIMIT ".$limite;                                    
+            //$result = mysql_query($sql) or die($sql."<br>".mysql_error());
         }
 
         else {       
@@ -276,22 +277,23 @@
             }
             else $table = getTable($methode);
 
-            if ($table!=""){ 
+            if ($table!=""){
+
+                $selecCol = str_replace($nomColonne,"$table.".$nomColonne,$selecCol);
+                $selecTables = "$table".($nomTable==$table?"":",$nomTable");
+                $jointure = ($nomTable==$table?" ":"$nomTable.id=$table.id AND ");
                 $sql;
 
                 if ($coord!=null){
-                    // dans le cas où méthode=mot/tout il faut passer par la table index pour récupérer l'id
-                    $lat = $coord[0];
+                    /*$lat = $coord[0];
                     $lon = $coord[1];
                     $rayon = 6370;
                     $dist = "(ACOS( SIN($lat*PI()/180) * SIN(latitude*PI()/180) + COS($lat*PI()/180) * COS(latitude*PI()/180) * COS(($lon-longitude)*PI()/180)) * $rayon) AS distance";
                     if ($table==$nomTable) $sql = "SELECT $nomColonne,latitude,longitude,".$dist." FROM $nomTable WHERE latitude NOT LIKE '' AND";
-                    else $sql = "SELECT $table.$nomColonne,latitude,longitude,".$dist." FROM $nomTable, $table WHERE $nomTable.id = $table.id AND latitude NOT LIKE '' AND";
+                    else $sql = "SELECT $table.$nomColonne,latitude,longitude,".$dist." FROM $nomTable, $table WHERE $nomTable.id = $table.id AND latitude NOT LIKE '' AND";*/
                 }
-                else {
-                    // si suggest et index, select nombre
-                    // si result, select *
-                    $sql = "SELECT $nomColonne FROM $table WHERE ";      
+                else {                                                                   
+                    $sql = "SELECT $selecCol FROM $selecTables WHERE $jointure";      
                 }
                 $debut = $mode=="debut"?"":"%";
                 $fin = $mode=="fin"?"":"%";
@@ -307,7 +309,7 @@
                     }
                 }                                     
 
-                $sql .= ($coord!=null? " ORDER BY distance": (($methode=='mot'||$methode=='tout')? " ORDER BY nombre DESC": ""))." LIMIT ".$limite;   
+                $sql .= ($coord!=null? " ORDER BY distance": ((strpos($selecCol,"nombre")!==false)? " ORDER BY nombre DESC": ""))." LIMIT ".$limite;   
                 $result = mysql_query($sql) or die($sql."<br>".mysql_error());  
 
             }

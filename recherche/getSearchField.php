@@ -48,7 +48,7 @@
 </head> 
 
 <br><form>
-    <input type='text' onkeyup='javascript:soumettre(this.value,<?php echo $param; ?>);' id='champ_<?php echo $key; ?>' style="background-color: transparent; color: #444; border: 1px solid #444;">
+    <input type='text' onkeyup='javascript:soumettre(this.value,<?php echo $param; ?>);' id='champ_<?php echo $hash; ?>' style="background-color: transparent; color: #444; border: 1px solid #444;">
     <?php echo $ok; ?>
 </form>
 
@@ -102,7 +102,7 @@
                 else {
                     var tab = result.split('|');
                     tab.pop();
-                    $("#champ_<?php echo $key; ?>").autocomplete({
+                    $("#champ_<?php echo $hash; ?>").autocomplete({
                         source: tab
                     });
                 }                 

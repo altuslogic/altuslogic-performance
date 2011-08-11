@@ -22,7 +22,7 @@
 
     $nomBase = readCookie("nomBase","");     
     $nomTable = readCookie("nomTable","");
-    $nomColonne = readCookie("nomColonne","name");
+    $nomColonne = readCookie("nomColonne","");
     $mode = readCookie("mode","contient");     
     $methode = readCookie("methode","direct");
     $visuel = readCookie("visuel","result");
