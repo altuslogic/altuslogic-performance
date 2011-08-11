@@ -9,7 +9,7 @@
             if (isset($_COOKIE[$token])){
                 $value = $_COOKIE[$token]; 
             }
-            else{
+            else {
                 $value = $default;
             } 
         }
@@ -20,19 +20,35 @@
         return $value;
     }     
 
+    function readCookieP($token,$default){
+        if (!isset($_POST[$token])){
+            if (isset($_COOKIE[$token])){
+                $value = $_COOKIE[$token]; 
+            }
+            else {
+                $value = $default;
+            } 
+        }
+        else {
+            saveCookie($token,$_POST[$token]);
+            $value = $_POST[$token];
+        }
+        return $value;
+    } 
+
     $nomBase = readCookie("nomBase","");     
     $nomTable = readCookie("nomTable","");
     $nomColonne = readCookie("nomColonne","");
-    $mode = readCookie("mode","contient");     
-    $methode = readCookie("methode","direct");
-    $visuel = readCookie("visuel","result");
-    $resume = readCookie("resume",1);
-    $limite = readCookie("limite",10);
-    $nomDiv = readCookie("nomDiv","ajax");
-    $afficheDiv = readCookie("afficheDiv",1);  
-    $containerAll = readCookie("containerAll","<b>~TITLE~</b><ul>~ALL~</ul>~TIME~"); 
-    $containerResult = readCookie("containerResult","<li>~RES~</li>");
-    $containerDetails = readCookie("containerDetails","");  
+    $mode = readCookieP("mode","contient");     
+    $methode = readCookieP("methode","direct");
+    $visuel = readCookieP("visuel","result");
+    $resume = readCookieP("resume",1);
+    $limite = readCookieP("limite",10);
+    $nomDiv = readCookieP("nomDiv","ajax");
+    $afficheDiv = readCookieP("afficheDiv",1);  
+    $containerAll = readCookieP("containerAll","<b>~TITLE~</b><ul>~ALL~</ul>~TIME~"); 
+    $containerResult = readCookieP("containerResult","<li>~RES~</li>");
+    $containerDetails = readCookieP("containerDetails","");  
     $thres = readCookie("threshold",5000);
     $ordreMax = readCookie("ordre",3);
 

@@ -22,8 +22,8 @@
             src="http://www.google.com/jsapi?key=ABQIAAAAuIowY22xd6M7t2fgVRJUZhTS00s8BpmtWZHzIF6WCUpWiuK3aRR3Kcl7kSKmyZnX6ao-QJp2Ptyj_w">
         </script>
     </head>
-    <body onload="initCoord()">
-        <script type="text/javascript" src="action.js"></script>
+    <!--- <body onload="initCoord()"> -->
+    <body>                                 
         <style></style>
         <br><br>
         <div class="init">
@@ -54,7 +54,7 @@
         </div>
         <div class="init">
             <h2>Paramètres de recherche</h2>
-            <form method="get" autocomplete="off">
+            <form action="?stage=save_param" method="post" autocomplete="off">
                 <table> 
                     <tr><td>Position</td><td><select id="mode" name="mode" style="color: #444; border: 1px solid #444; width: 100;">
                                 <option <?php if (isset($mode) && $mode=="tout") echo 'selected'; ?> value="tout">tout</option>
@@ -91,7 +91,7 @@
                     <tr><td>Format résultat</td><td><textarea id="containerResult" name="containerResult" spellcheck="false" style="color: #444; border: 1px solid #444; max-width: 205;"><?php echo $containerResult; ?></textarea></td></tr>    
                     <tr><td>Format détails</td><td><textarea id="containerDetails" name="containerDetails" spellcheck="false" style="color: #444; border: 1px solid #444; max-width: 205;"><?php echo $containerDetails; ?></textarea></td></tr>  
                 </table> 
-                <p align="center"><input type="submit" value="save" name="stage"></p> 
+                <p align="center"><input type="submit" value="save"></p> 
             </form>
         </div>
         <div class="init">
@@ -128,7 +128,7 @@
             <h2>Code</h2>
             <textarea style="width:inherit; height:145; resize: none;" readonly="readonly"><?php
                 echo $print_search;
-                ?></textarea>
+                ?></textarea>  
         </div> 
         <div id="geo">
             <h2>Géo</h2>

@@ -41,7 +41,7 @@
         case 'clear_cache':
             mysql_query("RESET QUERY CACHE");
             break;
-        case 'save':     
+        case 'save_param':     
             mysql_select_db("maitre");
             $hash = md5($nomBase.$nomTable.$nomColonne.$mode.$methode.$visuel.$resume.$limite.$nomDiv.$afficheDiv.$containerAll.$containerResult.$containerDetails);
             $sql = "INSERT INTO champs_recherche SET hash='$hash', nomBase='$nomBase', nomTable='$nomTable', nomColonne='$nomColonne',
@@ -49,7 +49,7 @@
             containerAll='$containerAll', containerResult='$containerResult', containerDetails='$containerDetails'";
             mysql_query($sql);// or die($sql);
 
-            $print_search = "<iframe src='http://localhost/recherche/getSearchField.php?key=".$hash."' width='100%' height='500'>\n<p>Your browser does not support iframes.</p></iframe>";
+            $print_search = "<script type='text/javascript'>var key='".$hash."';</script><script type='text/javascript' src='../recherche/getSearchField.js'></script><div id='search_zone'></div>";
             mysql_select_db($nomBase);
              
             //echo analyse();

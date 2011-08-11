@@ -29,7 +29,7 @@
     function initChamps(){
         $sql = "CREATE TABLE IF NOT EXISTS champs_recherche (
         `hash` char(32) NOT NULL,
-        `nomBase` char(20) NOT NULL,
+        `nomBase` char(30) NOT NULL,
         `nomTable` char(50) NOT NULL,
         `nomColonne` char(20) NOT NULL, 
         `mode` enum('debut','milieu','fin','tout') NOT NULL,
