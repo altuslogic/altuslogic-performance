@@ -1,6 +1,11 @@
-   url = "../recherche/getSearchField.php?key="+key;      
+url = "../recherche/getSearchField.php?key="+key;      
+                                         
+$.getScript("../jquery.ui/core.js");
+$.getScript("../jquery.ui/widget.js");  
+$.getScript("../jquery.ui/position.js");  
+$.getScript("../jquery.ui/autocomplete.js");  
 
-// création d'un objet capable d'interagir avec le serveur
+// création d'un objet capable d'interagir avec le serveur                                           
 try {
     // Essayer IE
     xhr = new ActiveXObject("Microsoft.XMLHTTP");             
@@ -13,18 +18,18 @@ catch(e){
 // attente du résultat
 xhr.onreadystatechange = function(){
     // instructions de traitement de la réponse  
-    if (xhr.readyState == 4){                 
-        document.getElementById('search_zone').innerHTML = xhr.responseText; 
-    }
+    if (xhr.readyState == 4){
+        document.getElementById('search_zone_'+key).innerHTML = xhr.responseText; 
+        ("#champ_"+key).autocomplete({source: []});                                
+    }                       
 };
+             
+// envoi de la requête (asynchrone : false)      
+xhr.open("GET", url, false); 
+xhr.send(null);                          
 
-// envoi de la requête       
-xhr.open("GET", url, true); 
-xhr.send(null);  
 
-
-
-function soumettre(search,base,table,colonne,mode,methode,visuel,limite,nomDiv,containerAll,containerResult,containerDetails){  
+function soumettre(search,key,base,table,colonne,mode,methode,visuel,limite,nomDiv,containerAll,containerResult,containerDetails){  
 
     search = escape(search);
     if (search.length==0){
@@ -60,10 +65,10 @@ function soumettre(search,base,table,colonne,mode,methode,visuel,limite,nomDiv,c
                 document.getElementById(nomDiv).innerHTML = result; 
             }
 
-            else {
+            else {           
                 var tab = result.split('|');
-                tab.pop();
-                $("#champ_<?php echo $hash; ?>").autocomplete({
+                tab.pop();  
+                $("#champ_"+key).autocomplete({
                     source: tab
                 });
             }                 

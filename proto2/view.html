@@ -21,6 +21,10 @@
         <script type="text/javascript"
             src="http://www.google.com/jsapi?key=ABQIAAAAuIowY22xd6M7t2fgVRJUZhTS00s8BpmtWZHzIF6WCUpWiuK3aRR3Kcl7kSKmyZnX6ao-QJp2Ptyj_w">
         </script>
+                                                             
+        <link rel="stylesheet" href="../jquery.ui/all.css">      
+        <script src="../jquery-1.5.1.js"></script> 
+
     </head>
     <!--- <body onload="initCoord()"> -->
     <body>                                 
@@ -33,7 +37,7 @@
             <a href="?stage=performances">Performances</a> <br><br>
             <a href="?stage=details">Details</a><br><br>       
             <a href="?stage=delete_tables">Delete tables</a>  -
-            <a href="?stage=delete_index">Delete index</a> -  	        
+            <a href="?stage=delete_index">Delete index</a> -              
             <a href="?stage=clear_cache">Clear cache</a>     
         </div>                                                    
         <div class="init">
@@ -118,12 +122,12 @@
             echo list_log();    
             ?>
         </div>
-        <div class="init">
+        <div class="init">  
             <h2>Recherche</h2>
             <?php
             echo $print_search;
             ?>
-        </div>
+        </div>  
         <div class="init">
             <h2>Code</h2>
             <textarea style="width:inherit; height:145; resize: none;" readonly="readonly"><?php
@@ -140,5 +144,6 @@
             <div id="map_canvas" style="width:100%; height:100%"></div> 
         </div>  
 
-    </body>
+    </body>   
+   
 </html>

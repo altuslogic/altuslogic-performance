@@ -36,10 +36,11 @@
         return $value;
     } 
 
-    $nomBase = readCookie("nomBase","");     
+    $nomBase = readCookie("nomBase",""); 
+   // echo $nomBase;    
     $nomTable = readCookie("nomTable","");
     $nomColonne = readCookie("nomColonne","");
-    $mode = readCookieP("mode","contient");     
+    $mode = readCookieP("mode","milieu");     
     $methode = readCookieP("methode","direct");
     $visuel = readCookieP("visuel","result");
     $resume = readCookieP("resume",1);

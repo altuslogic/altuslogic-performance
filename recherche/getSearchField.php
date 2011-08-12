@@ -1,7 +1,6 @@
 <?php 
 
-    $nomBase="maitre";
-
+    include "../proto2/config/config.php";
     include "../proto2/config/db.php";
     include "../proto2/time_function.php"; 
     include "../proto2/controller.php";
@@ -28,7 +27,7 @@
 
     mysql_select_db($nomBase);
 
-    $param = "\"".$nomBase."\",\"".$nomTable."\",\"".$nomColonne."\",\"".$mode."\",\"".$methode."\",\"".$visuel."\",\"".$limite."\",\"".$nomDiv."\",\"".$containerAll."\",\"".$containerResult."\",\"".$containerDetails."\"";     
+    $param = "\"".$hash."\",\"".$nomBase."\",\"".$nomTable."\",\"".$nomColonne."\",\"".$mode."\",\"".$methode."\",\"".$visuel."\",\"".$limite."\",\"".$nomDiv."\",\"".$containerAll."\",\"".$containerResult."\",\"".$containerDetails."\"";     
 
     $ok = "OK";
     $t = "y_".$nomTable."_".$nomColonne;
@@ -38,24 +37,11 @@
 
 ?> 
 
-<head> 
-    <link rel="stylesheet" href="../jquery.ui/all.css"> 
-    <script src="../jquery-1.5.1.js"></script> 
-    <script src="../jquery.ui/core.js"></script> 
-    <script src="../jquery.ui/widget.js"></script> 
-    <script src="../jquery.ui/position.js"></script> 
-    <script src="../jquery.ui/autocomplete.js"></script>
-</head> 
-
 <br><form>
     <input type='text' onkeyup='javascript:soumettre(this.value,<?php echo $param; ?>);' id='champ_<?php echo $hash; ?>' style="background-color: transparent; color: #444; border: 1px solid #444;">
     <?php echo $ok; ?>
 </form>
 
 <?php if ($afficheDiv){ ?>                   
-<div id='<?php echo $nomDiv; ?>'></div>  
+    <div id='<?php echo $nomDiv; ?>'></div>  
 <?php } ?>
-
-<script> 
-    $("#champ_<?php echo $hash; ?>").autocomplete({source: []}); 
-</script>

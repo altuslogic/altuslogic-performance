@@ -14,7 +14,9 @@
     $containerDetails = $_GET['containerDetails']; 
     $ordreMax=3; // à changer : recherche dans stats
 
+    $nomMaitre = $nomBase;
     include "../proto2/config/db.php";
+    include "../proto2/config/config.php";
     include "../proto2/time_function.php";
     include "../proto2/controller.php";                 
 
@@ -25,7 +27,7 @@
         array_push($tabCol,$tabDetails[$i]);
     }
     $tabCol = array_unique($tabCol);                     
-    $selecCol = strtolower(implode(",",$tabCol));
+    $selecCol = strtolower(implode(", ",$tabCol));
 
     // Recherche proprement dite
     $tab = recherche($search,$mode,$methode,$selecCol,$limite,null); 

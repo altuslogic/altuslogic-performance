@@ -13,7 +13,7 @@
     {
         $NOTCONNECTED = TRUE;
     }
-    if(!mysql_select_db($nomBase))
+    if(!mysql_select_db($nomMaitre))
     {
         $NOTCONNECTED = TRUE;
     }

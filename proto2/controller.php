@@ -19,8 +19,8 @@
     }
 
     function updateLog($action,$temps){
-        global $nomBase,$nomTable;  
-        mysql_select_db("maitre");  
+        global $nomMaitre,$nomBase,$nomTable;  
+        mysql_select_db($nomMaitre);  
         $sql = "INSERT INTO log SET action='$action', heure=NOW(), temps='$temps'";
         mysql_query($sql); 
         mysql_select_db($nomBase);     
@@ -235,8 +235,8 @@
     }
 
     function deleteLog(){
-        global $nomBase;
-        mysql_select_db("maitre"); 
+        global $nomMaitre,$nomBase;      
+        mysql_select_db($nomMaitre); 
         $sql = "DROP TABLE log";
         mysql_query($sql);
         mysql_select_db($nomBase); 
@@ -280,7 +280,8 @@
             if ($table!=""){
 
                 $selecCol = str_replace($nomColonne,"$table.".$nomColonne,$selecCol);
-                $selecTables = "$table".($nomTable==$table?"":",$nomTable");
+                // cas où mode=index ???
+                $selecTables = "$table".($nomTable==$table?"":", $nomTable");
                 $jointure = ($nomTable==$table?" ":"$nomTable.id=$table.id AND ");
                 $sql;
 
@@ -653,9 +654,9 @@
 
 
     function list_log(){
-        global $nomBase;
+        global $nomMaitre,$nomBase;
 
-        mysql_select_db("maitre");
+        mysql_select_db($nomMaitre);
         $sql = "SELECT action,temps,heure FROM log ORDER BY id DESC LIMIT 10";
         $result = mysql_query($sql) or die(mysql_error());
         $print = "";

@@ -1,12 +1,21 @@
 <?php
-    $nomBase = "maitre";
-    include "../proto2/config/db.php";
+    include "../proto2/config/config.php";
+    include "../proto2/config/db.php"; 
+?>
+
+<head> 
+    <link rel="stylesheet" href="../jquery.ui/all.css">      
+    <script src="../jquery-1.5.1.js"></script>
+</head>   
+
+<?php  
     $sql = "SELECT hash FROM champs_recherche";
     $result = mysql_query($sql);
-    $print = "";
-    while ($tab = mysql_fetch_array($result)){
-        $print .= "<iframe src='getSearchField.php?key=".$tab[hash]."' width='100%' height='500'";
-        $print .= "<p>Your browser does not support iframes.</p></iframe><br><br>";
-    } 
+    $print = "";                    
+    while ($tab = mysql_fetch_array($result)){                                     
+            $print .= "<div id='search_zone_".$tab['hash']."' style='border:1px solid #444;'></div>
+            <script type='text/javascript'>var key='".$tab['hash']."';</script>
+            <script type='text/javascript' src='../recherche/getSearchField.js'></script><br><br>"; 
+    }
     echo $print;
-?>      
+?>

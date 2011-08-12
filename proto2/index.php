@@ -1,16 +1,16 @@
 <?php             
 
-    include "cookie.php";  
+    include "config/config.php";  
     include "config/db.php";
+    include "cookie.php"; 
     include "time_function.php";
     include "controller.php"; 
     include "progressbar.php";
     error_reporting(15);
     $temps_total = start_timer();
-    echo '<link rel="stylesheet" type="text/css" href="my.css"><body><br><br><br>';
+  //  echo '<link rel="stylesheet" type="text/css" href="my.css"><body><br><br><br>';
     init(5,5,600,30,'#fff','#444','#006699');
 
-    mysql_select_db("maitre");
     creeLog(); 
     initChamps();
     mysql_select_db($nomBase);
@@ -42,14 +42,14 @@
             mysql_query("RESET QUERY CACHE");
             break;
         case 'save_param':     
-            mysql_select_db("maitre");
+            mysql_select_db($nomMaitre);
             $hash = md5($nomBase.$nomTable.$nomColonne.$mode.$methode.$visuel.$resume.$limite.$nomDiv.$afficheDiv.$containerAll.$containerResult.$containerDetails);
             $sql = "INSERT INTO champs_recherche SET hash='$hash', nomBase='$nomBase', nomTable='$nomTable', nomColonne='$nomColonne',
             mode='$mode', methode='$methode', visuel='$visuel', resume='$resume', limite='$limite', nomDiv='$nomDiv', afficheDiv='$afficheDiv',
             containerAll='$containerAll', containerResult='$containerResult', containerDetails='$containerDetails'";
             mysql_query($sql);// or die($sql);
 
-            $print_search = "<script type='text/javascript'>var key='".$hash."';</script><script type='text/javascript' src='../recherche/getSearchField.js'></script><div id='search_zone'></div>";
+            $print_search = "<div id='search_zone_".$hash."'></div>\n<script type='text/javascript'>var key='".$hash."';</script>\n<script type='text/javascript' src='../recherche/getSearchField.js'></script>";
             mysql_select_db($nomBase);
              
             //echo analyse();
