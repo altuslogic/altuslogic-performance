@@ -107,7 +107,7 @@ if (isset($Submit)) {
 	} else {
 		$fhandle=fopen("../settings/conf.php","wb");
 		fwrite($fhandle,"<?php \n");
-		fwrite($fhandle,"/***********************\n Sphider configuration file\n***********************/");
+		fwrite($fhandle,"/***********************\n CRAWL configuration file\n***********************/");
 		fwrite($fhandle,"\n\n\n/*********************** \nGeneral settings \n***********************/");
 		fwrite($fhandle, "\n\n// CRAWL VERSION version \n");
 		fwrite($fhandle,"$"."version_nr			= '".$_version_nr. "';");
@@ -197,7 +197,7 @@ if (isset($Submit)) {
 		fwrite($fhandle,"$"."merge_site_results		= ".$_merge_site_results. ";");
 		fwrite($fhandle, "\n\n// Enable spelling suggestions (Did you mean...)\n");
 		fwrite($fhandle,"$"."did_you_mean_enabled	= ".$_did_you_mean_enabled. ";");
-		fwrite($fhandle, "\n\n// Enable Sphider Suggest \n");
+		fwrite($fhandle, "\n\n// Enable CRAWL Suggest \n");
 		fwrite($fhandle,"$"."suggest_enabled		= ".$_suggest_enabled. ";");		
 		fwrite($fhandle, "\n\n// Search for suggestions in query log \n");
 		fwrite($fhandle,"$"."suggest_history		= ".$_suggest_history. ";");		
@@ -588,7 +588,7 @@ if ($merge_site_results==1) echo "checked";?>> </td>
 <td class="left1"> <input
 name="_suggest_enabled" type="checkbox" value="1" id="_suggest_enabled" <?php 
 if ($suggest_enabled==1) echo "checked";?>> </td>
-<td> Enable Sphider Suggest </td>
+<td> Enable Crawl Suggest </td>
 </tr>
 
 <tr>
