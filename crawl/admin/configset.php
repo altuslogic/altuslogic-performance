@@ -109,7 +109,7 @@ if (isset($Submit)) {
 		fwrite($fhandle,"<?php \n");
 		fwrite($fhandle,"/***********************\n Sphider configuration file\n***********************/");
 		fwrite($fhandle,"\n\n\n/*********************** \nGeneral settings \n***********************/");
-		fwrite($fhandle, "\n\n// Sphider version \n");
+		fwrite($fhandle, "\n\n// CRAWL VERSION version \n");
 		fwrite($fhandle,"$"."version_nr			= '".$_version_nr. "';");
 		fwrite($fhandle, "\n\n//Language of the search page \n");
 		fwrite($fhandle,"$"."language			= '".$_language. "';");
@@ -248,7 +248,7 @@ include "../settings/conf.php";
 <td class="left1"><input name="_version_nr" value="<?php print $version_nr;?>" type="hidden"> 
 <?php print $version_nr;?>
 </td>
-<td> Sphider version</td>
+<td> CRAWL version</td>
 </tr>
 
 <tr>

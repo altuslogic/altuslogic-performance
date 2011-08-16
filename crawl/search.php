@@ -2,6 +2,29 @@
 
 //error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING); 
 error_reporting(E_ALL); 
+include "../proto2/cookie.php";
+include "../proto2/controller.php";
+
+	$nomBase=$nomBase;
+	$DbUser = "root";
+	$DbPassword = "d3f4ult"; 
+	$DbHost = "localhost";
+	$mysql_table_prefix = "";
+	
+$settings_dir = "settings";
+include "$settings_dir/conf.php";     		
+
+			$success = mysql_pconnect ($DbHost, $DbUser, $DbPassword);
+			if (!$success)
+				die ("<b>Cannot connect to database, check if username, password and host are correct.</b>");
+		    $success = mysql_select_db ($nomBase);
+			if (!$success) {
+				print "<b>Cannot choose database, check if database name is correct.<br>".list_db();
+				die();
+			}
+			$success = mysql_select_db ($nomBase); 
+			
+			
 $include_dir = "./include"; 
 include ("$include_dir/commonfuncs.php");
 //extract(getHttpVars());

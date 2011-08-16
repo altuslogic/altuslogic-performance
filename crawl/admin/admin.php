@@ -23,10 +23,10 @@ set_time_limit (0);
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Spider admin</title>
+<title>CRAWL admin</title>
 <link rel="stylesheet" href="admin.css" type="text/css" />
 </head>
-<body><a href="install.php">install</a><br />
+<body>
 <?php 
 if (!isset($f)) {
 	$f=2;
@@ -39,10 +39,12 @@ $index_funcs = Array ("index" => "default");
 $clean_funcs = Array ("clean" => "default", 15=>"default", 16=>"default", 17=>"default", 23=>"default");
 $cat_funcs = Array (11=> "default", 10=> "default", "categories" => "default", "edit_cat"=>"default", "delete_cat"=>"default", "add_cat" => "default", 7=> "default");
 $database_funcs = Array ("database" => "default");
+$database_funcs = Array ("database" => "default");
+$choosedatabase_funcs = Array ("choosedatabase" => "default");
+$prototype_funcs = Array ("prototype" => "default");
 ?>
-<div style="border:1px solid #556644">
 		<?php 
-        echo list_db(); 
+        
 			  //die ("a;:$DbHost, $DbUser, $DbPassword");
               $success = mysql_pconnect ($DbHost, $DbUser, $DbPassword);
             
@@ -50,12 +52,12 @@ $database_funcs = Array ("database" => "default");
 				die ("<b>Cannot connect to database, check if username, password and host are correct.</b>");
 		    $success = mysql_select_db ($nomBase);
 			if (!$success) {
-				print "<b>Cannot choose database, check if database name is correct.";
+				print "<b>Cannot choose database, check if database name is correct.<br>".list_db();
 				die();
 			}
 			$success = mysql_select_db ($nomBase); 
 		?>
-</div>
+
 <div id="admin"> 
 	<div id="tabs">
 		<ul>
@@ -101,21 +103,82 @@ $database_funcs = Array ("database" => "default");
 		} else {
 			$database_funcs[$f] = "default";
 		} 
+		if ($choosedatabase_funcs[$f] ) {
+			$choosedatabase_funcs[$f]  = "selected";
+		} else {
+			$choosedatabase_funcs[$f] = "default";
+		} 
+		if ($prototype_funcs[$f] ) {
+			$prototype_funcs[$f]  = "selected";
+		} else {
+			$prototype_funcs[$f] = "default";
+		} 
 		?>
 			
 		<li><a href="admin.php?f=2" id="<?php print $site_funcs[$f]?>">Sites</a>  </li>
 		<li><a href="admin.php?f=categories" id="<?php print $cat_funcs[$f]?>">Categories</a></li> 
-		<li><a href="admin.php?f=index" id="<?php print $index_funcs[$f]?>">Index</a></li>
-		<li><a href="admin.php?f=clean" id="<?php print $clean_funcs[$f]?>">Clean tables</a> </li>
+		<li><a href="admin.php?f=index" id="<?php print $index_funcs[$f]?>">Crawl</a></li>
+		<li><a href="admin.php?f=clean" id="<?php print $clean_funcs[$f]?>">Clean</a> </li>
 		<li><a href="admin.php?f=settings" id="<?php print $settings_funcs[$f]?>">Settings</a></li>
 		<li><a href="admin.php?f=statistics" id="<?php print $stat_funcs[$f]?>">Statistics</a> </li>
 		<li><a href="admin.php?f=database" id="<?php print $database_funcs[$f]?>">Database</a></li>
+		<li><a href="admin.php?f=choosedatabase" id="<?php print $choosedatabase_funcs[$f]?>">Choose db</a></li>
+		<li><a href="admin.php?f=prototype" id="<?php print $prototype_funcs[$f]?>">Prototype</a></li>
 		<li><a href="admin.php?f=24" id="default">Log out</a></li>
 		</ul>
 	</div>
 	<div id="main">
 
 <?php 
+
+function list_db_spider(){
+
+        global $DbUser,$DbPassword,$DbHost,$nomBase;
+
+        $link = mysql_connect($DbHost, $DbUser, $DbPassword);
+        $db_list = mysql_list_dbs($link);
+        $out_print = "";
+  		$out_print.="<table width=\"100%\">";
+          $table=array("keywords","links","temp","sites","domains");
+             $x=0;
+           $out_print.="<tr><td>Table names</td>";
+        
+             while ($table[$x]) {   
+                 $out_print .= "<td><b>".$table[$x]."</b></td>";
+                 $x++;
+                   } 
+           $out_print.="<tr>";
+                
+                   
+                     
+        while ($row = mysql_fetch_object($db_list)) {
+            if ($row->Database==$nomBase){
+                $out_print .= "<tr><td colspan=\"5\">".$row->Database."</b></td></tr>";  
+                $success = mysql_select_db ($row->Database);
+                
+            }
+            else {
+            	$out_print.= "<tr><td><a href=\"?nomBase=".$row->Database."\">".$row->Database."</a></td>";
+                $success = mysql_select_db ($row->Database);
+                //$tables_crawl= new array();
+                $x=0;
+             while ($table[$x]) {   
+                $list_key=mysql_query("SELECT COUNT(*) as compte FROM ".$row->Database.".".$table[$x]."");
+                 $row_key = mysql_fetch_array($list_key);
+                 $out_print .= "<td>".$row_key[compte]."</td>";
+                 $x++;
+                   } 
+            }
+
+            $out_print.="</tr>";      
+        } 
+          $out_print.="</table>";
+               
+        return $out_print;
+
+    } 
+
+
 	function list_cats($parent, $lev, $color, $message) {
 		global $mysql_table_prefix;
 		if ($lev == 0) {
@@ -733,13 +796,17 @@ function addcatform($parent) {
 		<?php if ($reindex==1) $check="checked"?>
 		<input type="checkbox" name="reindex" value="1" <?php print $check;?>> Reindex<br/>
 		</td></tr>
+		<tr><td></td><td><input type="checkbox" name="domaincb" value="1" <?php print $checkcan;?>> CRAWLER can leave domain <!--a href="javascript:;" onClick="window.open('hmm','newWindow','width=300,height=300,left=600,top=200,resizable');" >?</a--><br/></td></tr>
+			<tr><td><b>URL must include:</b></td><td><textarea name=in cols=35 rows=2 wrap="virtual"><?php print $must;?></textarea></td></tr>
+			<tr><td><b>URL must not include:</b></td><td><textarea name=out cols=35 rows=2 wrap="virtual"><?php print $mustnot;?></textarea></td></tr>
+			
 		<?php 
 		if ($_SESSION['index_advanced']==1){
 			?>
 			<?php if ($canleave==1) {$checkcan="checked" ;} ?>
-			<tr><td></td><td><input type="checkbox" name="domaincb" value="1" <?php print $checkcan;?>> Spider can leave domain <!--a href="javascript:;" onClick="window.open('hmm','newWindow','width=300,height=300,left=600,top=200,resizable');" >?</a--><br/></td></tr>
-			<tr><td><b>URL must include:</b></td><td><textarea name=in cols=35 rows=2 wrap="virtual"><?php print $must;?></textarea></td></tr>
-			<tr><td><b>URL must not include:</b></td><td><textarea name=out cols=35 rows=2 wrap="virtual"><?php print $mustnot;?></textarea></td></tr>
+			<tr><td></td><td><input type="checkbox" name="domaincb" value="1" <?php print $checkcan;?>> ZONE TAG TO SAVE <!--a href="javascript:;" onClick="window.open('hmm','newWindow','width=300,height=300,left=600,top=200,resizable');" >?</a--><br/></td></tr>
+			<tr><td><b>HTML Container:</b></td><td><textarea name=in cols=35 rows=2 wrap="virtual"><?php print $must;?></textarea></td></tr>
+			<tr><td><b>Column to save in:</b></td><td><textarea name=out cols=35 rows=2 wrap="virtual"><?php print $mustnot;?></textarea></td></tr>
 			<?php 
 		}
 		?>
@@ -1294,6 +1361,20 @@ function addcatform($parent) {
 		break;
 		case database;
 			include "db_main.php";
+		break;
+		case choosedatabase;
+			echo "<div style=\"margin:50px;line-height:20pt;\">
+					<form action=\"\">
+					<input type=\"text\" size=\"10\" id=\"host\">
+					<input type=\"text\" size=\"10\" id=\"userdb\">
+					<input type=\"password\" size=\"10\" id=\"passdb\">
+					<input type=\"submit\" value=\"Create Database\">
+					</form>
+					<a href=\"install.php\">install</a><br />".list_db_spider()."</div>";
+					$success = mysql_select_db ($nomBase);  
+		break;
+		case prototype;
+			echo "<iframe src=\"../../proto2/\" width=\"100%\" height=\"800\"><p>Your browser does not support iframes.</p></iframe><div style=\"margin:50px;line-height:20pt;\"></div>"; 
 		break;
 		case settings;
 			include('configset.php');

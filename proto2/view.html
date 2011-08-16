@@ -30,32 +30,7 @@
     <body>                                 
         <style></style>
         <br><br>
-        <div class="init">
-            <h2>Menu action </h2>
-            <a href="?stage=">Home</a> |
-            <a href="?stage=initialize">Initialize</a> <br><br>
-            <a href="?stage=performances">Performances</a> <br><br>
-            <a href="?stage=details">Details</a><br><br>       
-            <a href="?stage=delete_tables">Delete tables</a>  -
-            <a href="?stage=delete_index">Delete index</a> -              
-            <a href="?stage=clear_cache">Clear cache</a>     
-        </div>                                                    
-        <div class="init">
-            <h2>Insert / Delete</h2>
-            <form action="?stage=modif" method="post" autocomplete="off">
-                <input type="text" size=25 name="modif" id="modif" value="<?php if (isset($_POST['modif'])) echo $_POST['modif']; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
-                <br><br><input type="submit" value="insert" name="insert" id="insert"> 
-                <input type="submit" value="delete" name="delete" id="delete">   
-            </form>
-        </div>
-        <div class="init">
-            <form method="get" autocomplete="off">
-                <h2>Indexation (création des sous-tables)</h2>
-                Threshold (nb items / sous-table)<br><input type="text" size=8 id="threshold" name="threshold" value="<?php echo $thres; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
-                <br>Ordre d'indexation<br> <input type="text" size=8 name="ordre" id="ordre" value="<?php echo $ordreMax; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
-                <br><br><input type="submit" value="validate" id="initialize"> 
-            </form>
-        </div>
+       
         <div class="init">
             <h2>Paramètres de recherche</h2>
             <form action="?stage=save_param" method="post" autocomplete="off">
@@ -97,7 +72,45 @@
                 </table> 
                 <p align="center"><input type="submit" value="save"></p> 
             </form>
+        </div> 
+        <div class="init">  
+            <h2>Recherche</h2>
+            <?php
+            echo $print_search;
+            ?>
+        </div> 
+        <div class="init">
+            <h2>Menu action </h2>
+            <a href="?stage=">Home</a> |
+            <a href="?stage=initialize">Initialize</a> <br><br>
+            <a href="?stage=performances">Performances</a> <br><br>
+            <a href="?stage=details">Details</a><br><br>       
+            <a href="?stage=delete_tables">Delete tables</a>  -
+            <a href="?stage=delete_index">Delete index</a> -              
+            <a href="?stage=clear_cache">Clear cache</a>     
+        </div>                                                    
+        <div class="init">
+            <h2>Insert / Delete</h2>
+            <form action="?stage=modif" method="post" autocomplete="off">
+                <input type="text" size=25 name="modif" id="modif" value="<?php if (isset($_POST['modif'])) echo $_POST['modif']; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
+                <br><br><input type="submit" value="insert" name="insert" id="insert"> 
+                <input type="submit" value="delete" name="delete" id="delete">   
+            </form>
         </div>
+        <div class="init">
+            <form method="get" autocomplete="off">
+                <h2>Indexation (création des sous-tables)</h2>
+                Threshold (nb items / sous-table)<br><input type="text" size=8 id="threshold" name="threshold" value="<?php echo $thres; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
+                <br>Ordre d'indexation<br> <input type="text" size=8 name="ordre" id="ordre" value="<?php echo $ordreMax; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
+                <br><br><input type="submit" value="validate" id="initialize"> 
+            </form>
+        </div>  
+        <div class="init">
+            <h2>Code</h2>
+            <textarea style="width:inherit; height:145; resize: none;" readonly="readonly"><?php
+                echo $print_search;
+                ?></textarea>  
+        </div> 
         <div class="init">
             <h2>Sélection de la db</h2> 
             <?php          
@@ -122,18 +135,7 @@
             echo list_log();    
             ?>
         </div>
-        <div class="init">  
-            <h2>Recherche</h2>
-            <?php
-            echo $print_search;
-            ?>
-        </div>  
-        <div class="init">
-            <h2>Code</h2>
-            <textarea style="width:inherit; height:145; resize: none;" readonly="readonly"><?php
-                echo $print_search;
-                ?></textarea>  
-        </div> 
+       
         <div id="geo">
             <h2>Géo</h2>
             <form method="get" autocomplete="off">

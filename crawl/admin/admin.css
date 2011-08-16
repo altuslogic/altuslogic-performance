@@ -2,7 +2,7 @@
 html { height: 100%; margin-bottom: 1px; }
 body {font-size: 12px; font-family: Verdana, Arial; }
 
-TD {font-size: 12px; font-family: Verdana, Arial}
+TD {font-size: 12px; font-family: Verdana, Arial;height:26px;}
 a:visited{color:#000066}
 a:hover{text-decoration: underline}
 a {text-decoration: underline; color:#000090}
@@ -66,7 +66,7 @@ div.clear{clear:both;}
 .tableSubSubHeading {
 	background: #F2F2F2; 
 	font-weight:bold; 
-	padding:1px;
+	padding:5px;
 }
 
 
@@ -79,7 +79,7 @@ div#settings{
 	width:80%;
 	border:1px solid #202020;
 	background:#ffffff;
-	padding:1px;
+	padding:20px;
 	margin:0 auto;
 }
 
@@ -140,7 +140,7 @@ background: #e5ecf9;
 
 #tabs li { 
 	float: left; 
-	height: 26px;
+	height: 41px;
 }
 
 #tabs a { 
@@ -150,30 +150,30 @@ background: #e5ecf9;
 #tabs a#selected {
 	position: relative;
 	top: 0px;
-	margin: 0 2px 0 0;
+	margin: 2px 8px 0 0;
 	float: left;
 	background: #eee;
-	border-right: 1px solid #666;
-	border-top: 1px solid #666;
-	border-left: 1px solid #666;
-	padding: 6px 4px 6px 10px;
+	border-right: 2px solid #333;
+	border-top: 2px solid #333;
+	border-left: 2px solid #333;
+	padding: 9px 4px 5px 10px;
 	text-decoration: none;
 	font-weight: bold;
-	color: #333;
+	color: #333;height: 24px;
 }
 
 #tabs a#default {
 	position: relative;
 	top: 0;
-	margin: 2px 2px 0 0;
+	margin: 2px 8px 0 0;
 	float: left;
 	border-right: 1px solid #AAA;
 	border-top: 1px solid #AAA;
 	border-left: 1px solid #AAA;
-	padding: 5px 4px 5px 10px;
+	padding: 9px 4px 5px 10px;
 	text-decoration: none;
 	font-weight: bold;
-	color: #333;
+	color: #333;height: 24px;
 }
 
 #tabs a:hover {
@@ -228,11 +228,12 @@ background: #e5ecf9;
 
 #submenu li {
 	float: left;
-	padding: 0 8px 0 8px;
+	padding: 12px 15px 0 15px;
 	margin-left:-1px;
 	border-left: 1px solid #333;
 	border-right: 1px solid #333;
 	white-space: nowrap;
+	height: 30px;
 }
 #submenu li a{
 	color: #00B;
@@ -245,7 +246,6 @@ background: #e5ecf9;
 
 
 #submenu li a:hover{
-
 	text-decoration:underline;
 }
 
@@ -259,6 +259,7 @@ background: #e5ecf9;
 	background: #eee;
 	color: #666;
 	border-bottom:1px solid #666;
+	height: 38px;
 //	padding: 5px 7px 7px 7px; /* for All other Browsers */
 }
 
