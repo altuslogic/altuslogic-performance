@@ -240,105 +240,7 @@
         $sql = "DROP TABLE log";
         mysql_query($sql);
         mysql_select_db($nomBase); 
-    }
-
-    /***
-    * Effectue la recherche d'une chaîne de caractères  
-    * @param mixed $text : la chaîne à chercher
-    * @param mixed $mode : le mode de recherche (début,milieu,fin)
-    * @param mixed $methode : la méthode utilisée (directe,sous-tables,index)
-    * @param mixed $selecCol : les colonnes qui nous intéressent
-    * @param mixed $limite : le nombre de résultats à renvoyer
-    * @param mixed $coord : les coordonnées (latitude,longitude)
-    */
-    function recherche($text, $mode, $methode, $selecCol, $limite, $coord){             
-
-        global $nomTable, $nomColonne,$ordreMax;
-        $temps = start_timer();
-        $result;
-
-        if ($mode=="tout"){
-            // mode expression régulière (à changer)
-            //$sql = "SELECT $nomColonne FROM $nomTable WHERE $nomColonne RLIKE '$text' LIMIT ".$limite;                                    
-            //$result = mysql_query($sql) or die($sql."<br>".mysql_error());
-        }
-
-        else {       
-            $table = "";
-            $mot = explode(" ",$text);
-
-            if ($methode=='tables'){
-                $long = max(array_map("strlen",$mot));
-                $truc = $long>$ordreMax?$ordreMax:$long;
-                while ($table=="" && $truc>0){
-                    $table = getSousTable($text,$truc--);
-                }
-                if ($table!="") $table = "z_".$nomTable."_".$nomColonne."_".$table; 
-            }
-            else $table = getTable($methode);
-
-            if ($table!=""){
-
-                $selecCol = str_replace($nomColonne,"$table.".$nomColonne,$selecCol);
-                // cas où mode=index ???
-                $selecTables = "$table".($nomTable==$table?"":", $nomTable");
-                $jointure = ($nomTable==$table?" ":"$nomTable.id=$table.id AND ");
-                $sql;
-
-                if ($coord!=null){
-                    /*$lat = $coord[0];
-                    $lon = $coord[1];
-                    $rayon = 6370;
-                    $dist = "(ACOS( SIN($lat*PI()/180) * SIN(latitude*PI()/180) + COS($lat*PI()/180) * COS(latitude*PI()/180) * COS(($lon-longitude)*PI()/180)) * $rayon) AS distance";
-                    if ($table==$nomTable) $sql = "SELECT $nomColonne,latitude,longitude,".$dist." FROM $nomTable WHERE latitude NOT LIKE '' AND";
-                    else $sql = "SELECT $table.$nomColonne,latitude,longitude,".$dist." FROM $nomTable, $table WHERE $nomTable.id = $table.id AND latitude NOT LIKE '' AND";*/
-                }
-                else {                                                                   
-                    $sql = "SELECT $selecCol FROM $selecTables WHERE $jointure";      
-                }
-                $debut = $mode=="debut"?"":"%";
-                $fin = $mode=="fin"?"":"%";
-                $and = "";
-
-                for ($i=0; $i<sizeof($mot); $i++){
-                    if (strlen($mot[$i])>0){
-                        $sql .= $and." $table.$nomColonne LIKE '".$debut."$mot[$i]".$fin."'";
-                        $and = " AND"; 
-                        if ($i==0){
-                            $debut = $fin = "%";
-                        }
-                    }
-                }                                     
-
-                $sql .= ($coord!=null? " ORDER BY distance": ((strpos($selecCol,"nombre")!==false)? " ORDER BY nombre DESC": ""))." LIMIT ".$limite;   
-                $result = mysql_query($sql) or die($sql."<br>".mysql_error());  
-
-            }
-        }
-
-        $array=array(); 
-        while ($tab = mysql_fetch_array($result)){ 
-            array_push($array,$tab);                                                                     
-        }                
-
-        updateLog("Recherche ".$text,$temps=end_timer($temps));
-        return array("resultats" => $array, "temps" => $temps);
-    }  
-
-    /**
-    * Renvoie la table appropriée dans laquelle faire une recherche
-    * @param mixed $methode : la méthode de recherche
-    */
-    function getTable($methode){
-
-        global $nomTable,$nomColonne;
-
-        if ($methode=='direct') return $nomTable;
-        if ($methode=='mot') return "y_".$nomTable."_".$nomColonne."_keyword";
-        if ($methode=='tout') return "y_".$nomTable."_".$nomColonne."_keyphrase";
-        return; 
-
-    }
+    } 
 
     /**
     * Renvoie la sous-table appropriée dans laquelle chercher
@@ -602,7 +504,7 @@
 
 
     function list_tables(){
-        global $nomBase,$nomTable,$print_details,$temps_total;
+        global $nomBase,$nomTable,$print_details;
 
         $sql = "SELECT table_name FROM information_schema.tables WHERE table_schema = '$nomBase'
         AND (table_name NOT LIKE 'y\_%' OR table_name LIKE '%word' OR table_name LIKE '%phrase') AND table_name NOT LIKE 'z\_%'";
@@ -615,14 +517,32 @@
             }
             else $print .= "<a href='?nomTable=".$ligne[0]."'>".$ligne[0]."</a><br>";
         }                                                            
-        $print .= "<br>Temps total : ".end_timer($temps_total)." secondes.<br>".$print_details;
-        return $print; 
+        return $print.$print_details; 
     }
 
 
     function list_colonnes(){
-        global $nomTable,$nomColonne;
+        global $nomBase,$nomTable,$nomColonne;
 
+        mysql_select_db($nomBase);
+        $sql = "SHOW COLUMNS FROM ".$nomTable;
+        $result = mysql_query($sql) or die(mysql_error()."<br>".$sql);                                                                                      
+        $print = "";
+
+        while ($ligne=mysql_fetch_array($result)){
+            if ($ligne['Field']==$nomColonne){
+                $print .= "<b>".$ligne['Field']."</b><br>";  
+            }
+            else $print .= "<a href='?nomColonne=".$ligne['Field']."'>".$ligne['Field']."</a><br>";
+        }                                                                                                     
+        return $print;
+    }
+
+
+    function info_colonnes(){
+        global $nomBase,$nomTable,$nomColonne;
+
+        mysql_select_db($nomBase);
         $sql = "SHOW COLUMNS FROM ".$nomTable;
         $result = mysql_query($sql) or die(mysql_error()."<br>".$sql);
         $print = "<form action='?stage=index' method='post'><table><tr><td>Nom</td><td>Type</td><td>Nombre</td><td>Tables</td><td>Mot</td><td>Phrase</td>";
@@ -643,7 +563,7 @@
             else $print .= "<a href='?nomColonne=".$nom."'>".$nom."</a>";
             $print .= "</td><td>".$ligne['Type']."</td>";
             $sql = "SELECT COUNT(DISTINCT $nom) FROM ".$nomTable;
-            $nb = mysql_result(mysql_query($sql),0);
+            $nb = "X";//mysql_result(mysql_query($sql),0);
             $print .= "<td>".$nb."</td><td><p align='center'><input type='checkbox' ".$tables." id='t_".$nom."' name='t_".$nom."'></p></td>
             <td><p align='center'><input type='checkbox' ".$mot." id='i_".$nom."' name='i_".$nom."'></p></td>
             <td><p align='center'><input type='checkbox' ".$phrase." id='j_".$nom."' name='j_".$nom."'></p></td></tr>";    
@@ -692,6 +612,31 @@
         }
         mysql_select_db($nomBase);
         return $print."</table>";
+    }
+
+
+    function stats(){                     
+        global $nomTable,$nomColonne;                                                                
+        
+        $print = "<table><tr>";
+        for ($i=ord("A"); $i<=ord("Z"); $i++){ 
+            $lettre = chr($i);                
+            if ($lettre=="N") $print .= "</tr></table><table><tr>";              
+            $print .= "<td><table><tr><td><b>".$lettre."</b></td></tr>";
+
+            $table = "y_".$nomTable."_".$nomColonne."_keyword";                                                               
+            $sql = "SELECT $nomColonne,nombre FROM $table WHERE $nomColonne LIKE '$lettre%' ORDER BY nombre DESC LIMIT 25";   
+            $result = mysql_query($sql) or die($sql."<br>".mysql_error());  
+
+            while ($tab = mysql_fetch_array($result)){
+                $print .= "<tr><td><a href='' title='$tab[nombre]'>".$tab[$nomColonne]."</a></td></tr>";
+            }
+            
+            $print .= "</table></td>";
+        }
+        
+        $print .= "</tr></table>";
+        return $print;
     }
 
 

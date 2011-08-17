@@ -1,6 +1,6 @@
 <?php
-    include "../proto2/config/config.php";
-    include "../proto2/config/db.php"; 
+    include "config/config.inc.php";
+    include "config/db.inc.php";  
 ?>
 
 <head> 

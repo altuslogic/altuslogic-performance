@@ -1,9 +1,8 @@
 <?php 
 
-    include "../proto2/config/config.php";
-    include "../proto2/config/db.php";
-    include "../proto2/time_function.php"; 
-    include "../proto2/controller.php";
+    include "config/config.inc.php";
+    include "config/db.inc.php";
+    include "search_funcs.php";
 
     error_reporting(15); 
     if (isset($_GET['key'])) $hash=$_GET['key'];
@@ -44,4 +43,4 @@
 
 <?php if ($afficheDiv){ ?>                   
     <div id='<?php echo $nomDiv; ?>'></div>  
-<?php } ?>
+    <?php } ?>

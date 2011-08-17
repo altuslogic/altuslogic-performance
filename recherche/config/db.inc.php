@@ -6,8 +6,8 @@
     $MD5_PREFIX = "astrochew_is_king_of_security";
 
     $DbHost     = "localhost"; 	 
-    $DbUser     = "root";
-    $DbPassword = "d3f4ult"; 
+    $DbUser     = "antoine";
+    $DbPassword = "klm417al"; 
 
     if(!mysql_connect($DbHost,$DbUser,$DbPassword))
     {

@@ -1,26 +1,23 @@
-<?php             
+<?php
 
-    include "config/config.php";  
-    include "config/db.php";
-    include "cookie.php"; 
-    include "time_function.php";
-    include "controller.php"; 
-    include "progressbar.php";
-    error_reporting(15);
+    $nomMaitre = "antoine_maitre";
+    include "configSearch/time_function.php";
+    include "configSearch/progressbar.php";
+    error_reporting(15);                    
     $temps_total = start_timer();
   //  echo '<link rel="stylesheet" type="text/css" href="my.css"><body><br><br><br>';
     init(5,5,600,30,'#fff','#444','#006699');
-
+    
     creeLog(); 
     initChamps();
     mysql_select_db($nomBase);
-    
+
     $stage="";
     if (isset($_GET['stage'])) $stage = $_GET['stage'];                       
 
     $print_details = "";
-    $print_search = "";
-
+    $print_search = "";   
+            
     switch($stage){
         case 'initialize':
             creeLog();
@@ -49,7 +46,7 @@
             containerAll='$containerAll', containerResult='$containerResult', containerDetails='$containerDetails'";
             mysql_query($sql);// or die($sql);
 
-            $print_search = "<div id='search_zone_".$hash."'></div>\n<script type='text/javascript'>var key='".$hash."';</script>\n<script type='text/javascript' src='../recherche/getSearchField.js'></script>";
+            $print_search = "<div id='search_zone_".$hash."'></div>\n<script type='text/javascript'>var key='".$hash."';</script>\n<script type='text/javascript' src='../../recherche/getSearchField.js'></script>";
             mysql_select_db($nomBase);
              
             //echo analyse();
@@ -78,7 +75,7 @@
             $nomColonne = $col;
             break;
     }
-
-    include "view.html";   
+    
+    include "configSearch/view.html";   
 
 ?>

@@ -1,6 +1,6 @@
 <?php 
 /***********************
- Sphider configuration file
+ CRAWL configuration file
 ***********************/
 
 
@@ -80,16 +80,16 @@ $index_xls	= 0;
 $index_ppt	= 0;
 
 //executable path to pdf converter
-$pdftotext_path	= 'c:\\temp\\pdftotext.exe';
+$pdftotext_path	= 'c:\temp\pdftotext.exe';
 
 //executable path to doc converter
-$catdoc_path	= 'c:\\temp\\catdoc.exe';
+$catdoc_path	= 'c:\temp\catdoc.exe';
 
 //executable path to xls converter
-$xls2csv_path	= 'c:\\temp\\xls2csv';
+$xls2csv_path	= 'c:\temp\xls2csv';
 
 //executable path to ppt converter
-$catppt_path	= 'c:\\temp\\catppt';
+$catppt_path	= 'c:\temp\catppt';
 
 // User agent string 
 $user_agent			 = 'Sphider';
@@ -109,7 +109,7 @@ Search settings
 ***********************/
 
 // default for number of results per page
-$results_per_page	= 10;
+$results_per_page	= 20;
 
 // Number of columns for categories. If you increase this, you might also want to increase the category table with in the css file
 $cat_columns		= 2;
@@ -146,7 +146,7 @@ $merge_site_results		= 0;
 // Enable spelling suggestions (Did you mean...)
 $did_you_mean_enabled	= 1;
 
-// Enable Sphider Suggest 
+// Enable CRAWL Suggest 
 $suggest_enabled		= 1;
 
 // Search for suggestions in query log 

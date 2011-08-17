@@ -15,10 +15,9 @@
     $ordreMax=3; // à changer : recherche dans stats
 
     $nomMaitre = $nomBase;
-    include "../proto2/config/db.php";
-    include "../proto2/config/config.php";
-    include "../proto2/time_function.php";
-    include "../proto2/controller.php";                 
+    include "config/db.inc.php";
+    include "config/config.inc.php";
+    include "search_funcs.php";                  
 
     // Détermination des colonnes nécessaires
     $tabDetails = explode("~",$containerDetails);

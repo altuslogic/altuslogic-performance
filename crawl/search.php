@@ -6,8 +6,8 @@ include "../proto2/cookie.php";
 include "../proto2/controller.php";
 
 	$nomBase=$nomBase;
-	$DbUser = "root";
-	$DbPassword = "d3f4ult"; 
+	$DbUser = "antoine";
+	$DbPassword = "klm417al"; 
 	$DbHost = "localhost";
 	$mysql_table_prefix = "";
 	

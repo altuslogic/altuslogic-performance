@@ -1,0 +1,147 @@
+<?php if ($show=='search' || $show=='all'){ ?>  
+<div class="init">
+    <h2>Paramètres de recherche</h2>
+    <form action="?stage=save_param" method="post" autocomplete="off">
+        <table> 
+            <tr><td>Position</td><td><select id="mode" name="mode" style="color: #444; border: 1px solid #444; width: 100;">
+                        <option <?php if (isset($mode) && $mode=="tout") echo 'selected'; ?> value="tout">tout</option>
+                        <option <?php if (isset($mode) && $mode=="debut") echo 'selected'; ?> value="debut">début</option>
+                        <option <?php if (!isset($mode) || $mode=="milieu") echo 'selected'; ?> value="milieu">milieu</option>
+                        <option <?php if (isset($mode) && $mode=="fin") echo 'selected'; ?> value="fin">fin</option>
+                    </select></td></tr>   
+            <tr><td>Méthode de recherche</td><td><select id="methode" name="methode" style="color: #444; border: 1px solid #444; width: 100;">
+                        <option <?php if (!isset($methode) || $methode=="direct") echo 'selected'; ?> value="direct">directe</option>
+                        <?php $array = etatTables($nomColonne);
+                        if ($array['tables']){ ?>
+                        <option <?php if (!isset($methode) || $methode=="tables") echo 'selected'; ?> value="tables">sous-tables</option>
+                        <?php } if ($array['mot']){ ?>
+                        <option <?php if (isset($methode) && $methode=="mot") echo 'selected'; ?> value="mot">index(mot)</option>
+                        <?php } if ($array['phrase']){ ?>
+                        <option <?php if (isset($methode) && $methode=="tout") echo 'selected'; ?> value="tout">index(texte)</option>
+                        <?php } ?>
+                    </select></td></tr>
+            <tr><td>Visuel</td><td><select id="visuel" name="visuel" style="color: #444; border: 1px solid #444; width: 100;">
+                        <option <?php if (isset($visuel) && $visuel=="suggest") echo 'selected'; ?> value="suggest">suggestion</option>
+                        <option <?php if (!isset($visuel) || $visuel=="result") echo 'selected'; ?> value="result">résultats</option> 
+                    </select></td></tr>
+            <tr><td>Résumé</td><td><select id="resume" name="resume" style="color: #444; border: 1px solid #444; width: 100;">
+                        <option <?php if (!isset($resume) || $resume==1) echo 'selected'; ?> value=1>avec</option>
+                        <option <?php if (isset($resume) && $resume==0) echo 'selected'; ?> value=0>sans</option> 
+                    </select></td></tr>
+            <tr><td>Nombre de résultats</td><td><input type="text" id="limite" name="limite" value="<?php echo $limite; ?>" style="color: #444; border: 1px solid #444; width: 100;"></td></tr>
+            <tr><td>Nom du cadre</td><td><input type="text" id="nomDiv" name="nomDiv" value="<?php echo $nomDiv; ?>" style="color: #444; border: 1px solid #444; width: 100;"></td></tr> 
+            <tr><td>Affichage du cadre</td><td><select id="afficheDiv" name="afficheDiv" style="color: #444; border: 1px solid #444; width: 100;">
+                        <option <?php if (!isset($afficheDiv) || $afficheDiv==1) echo 'selected'; ?> value=1>avec</option>
+                        <option <?php if (isset($afficheDiv) && $afficheDiv==0) echo 'selected'; ?> value=0>sans</option> 
+                    </select></td></tr>
+            <tr><td>Format général</td><td><textarea id="containerAll" name="containerAll" spellcheck="false" style="color: #444; border: 1px solid #444; max-width: 205;"><?php echo $containerAll; ?></textarea></td></tr>
+            <tr><td>Format résultat</td><td><textarea id="containerResult" name="containerResult" spellcheck="false" style="color: #444; border: 1px solid #444; max-width: 205;"><?php echo $containerResult; ?></textarea></td></tr>    
+            <tr><td>Format détails</td><td><textarea id="containerDetails" name="containerDetails" spellcheck="false" style="color: #444; border: 1px solid #444; max-width: 205;"><?php echo $containerDetails; ?></textarea></td></tr>  
+        </table> 
+        <p align="center"><input type="submit" value="save"></p> 
+    </form>
+</div> 
+<div class="init">  
+    <h2>Recherche</h2>
+    <?php
+    echo $print_search;
+    ?>
+</div>
+<div class="init">
+    <h2>Code</h2>
+    <textarea style="width:inherit; height:145; resize: none;" readonly="readonly"><?php
+        echo $print_search;
+        ?></textarea>  
+</div>
+
+<?php }
+if ($show=='index' || $show=='all'){ ?>  
+
+<div class="init">
+    <h2>Menu action </h2>
+    <a href="?stage=">Home</a> |
+    <a href="?stage=initialize">Initialize</a> <br><br>
+    <a href="?stage=performances">Performances</a> <br><br>
+    <a href="?stage=details">Details</a><br><br>       
+    <a href="?stage=delete_tables">Delete tables</a>  -
+    <a href="?stage=delete_index">Delete index</a> -              
+    <a href="?stage=clear_cache">Clear cache</a>     
+</div>                                                    
+<div class="init">
+    <h2>Insert / Delete</h2>
+    <form action="?stage=modif" method="post" autocomplete="off">
+        <input type="text" size=25 name="modif" id="modif" value="<?php if (isset($_POST['modif'])) echo $_POST['modif']; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
+        <br><br><input type="submit" value="insert" name="insert" id="insert"> 
+        <input type="submit" value="delete" name="delete" id="delete">   
+    </form>
+</div>
+<div class="init">
+    <form method="get" autocomplete="off">
+        <h2>Paramètres d'indexation (sous-tables)</h2>
+        Threshold (nb items / sous-table)<br><input type="text" size=8 id="threshold" name="threshold" value="<?php echo $thres; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
+        <br>Ordre d'indexation<br> <input type="text" size=8 name="ordre" id="ordre" value="<?php echo $ordreMax; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
+        <br><br><input type="submit" value="validate" id="initialize"> 
+    </form>
+</div>
+<div class="init">
+    <h2>Indexation</h2>
+    <?php          
+    if ($nomBase && $nomTable) echo info_colonnes();    
+    ?>
+</div>
+
+<?php }         
+if ($show=='selection' || $show=='all'){ ?>
+
+<div class="init">
+    <h2>Sélection de la db</h2> 
+    <?php          
+    echo list_db();    
+    ?>
+</div>
+<div class="init">
+    <h2>Sélection de la table</h2> 
+    <?php          
+    if ($nomBase) echo list_tables();    
+    ?>
+</div>
+<div class="init">
+    <h2>Sélection de la colonne</h2>
+    <?php          
+    if ($nomBase && $nomTable) echo list_colonnes();    
+    ?>
+</div>
+
+<?php }          
+if ($show=='stats' || $show=='all'){ ?> 
+
+<div class="init">
+    <h2>Stats</h2>
+    <?php          
+    if ($nomBase && $nomTable && $nomColonne) echo stats();    
+    ?>
+</div>
+
+<?php }          
+if ($show=='geo' || $show=='all'){ ?> 
+
+<div id="geo">
+    <h2>Géo</h2>
+    <form method="get" autocomplete="off">
+        Latitude<br><input type="text" size=25 name="latitude" id="latitude" style="background-color: transparent; color: #444; border: 1px solid #444;"> 
+        <br><br>Longitude<br><input type="text" size=25 name="longitude" id="longitude" style="background-color: transparent; color: #444; border: 1px solid #444;">
+        <br><br><input type="button" value="goto" id="goto" onclick="javascript:gotoCoord();"><input type="button" value="reset" id="reset" onclick="javascript:resetCoord();">       
+    </form>    
+    <div id="map_canvas" style="width:100%; height:100%"></div> 
+</div>  
+
+<?php }
+if ($show=='log' || $show=='all'){ ?>
+
+<div class="init">
+    <h2>Log</h2>
+    <?php          
+    echo list_log();    
+    ?>
+</div>
+<?php } ?> 

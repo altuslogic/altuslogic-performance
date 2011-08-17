@@ -1,5 +1,5 @@
-url = "../recherche/getSearchField.php?key="+key;      
-                                         
+url = "../../recherche/getSearchField.php?key="+key;      
+                                        
 $.getScript("../jquery.ui/core.js");
 $.getScript("../jquery.ui/widget.js");  
 $.getScript("../jquery.ui/position.js");  
@@ -37,7 +37,7 @@ function soumettre(search,key,base,table,colonne,mode,methode,visuel,limite,nomD
         return;
     }
 
-    var url = "../recherche/ajax.php?search="+search + "&base="+base + "&table="+table + "&colonne="+colonne
+    var url = "../../recherche/ajax.php?search="+search + "&base="+base + "&table="+table + "&colonne="+colonne
     + "&mode="+mode + "&methode="+methode + "&visuel="+visuel + "&limite="+limite 
     + "&containerAll="+containerAll + "&containerResult="+containerResult + "&containerDetails="+containerDetails;      
 

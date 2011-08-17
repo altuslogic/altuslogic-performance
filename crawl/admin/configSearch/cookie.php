@@ -37,7 +37,7 @@
     } 
 
     $nomBase = readCookie("nomBase",""); 
-   // echo $nomBase;    
+    //echo "base : $nomBase";    
     $nomTable = readCookie("nomTable","");
     $nomColonne = readCookie("nomColonne","");
     $mode = readCookieP("mode","milieu");     
@@ -50,7 +50,9 @@
     $containerAll = readCookieP("containerAll","<b>~TITLE~</b><ul>~ALL~</ul>~TIME~"); 
     $containerResult = readCookieP("containerResult","<li>~RES~</li>");
     $containerDetails = readCookieP("containerDetails","");  
+    $f = readCookie("f",2); 
+    $type = readCookie("type",""); 
     $thres = readCookie("threshold",5000);
     $ordreMax = readCookie("ordre",3);
-
+ 
 ?>
