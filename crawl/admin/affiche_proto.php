@@ -7,7 +7,7 @@
 </script>                                                      
 <link rel="stylesheet" href="../../jquery.ui/all.css">      
 <script src="../../jquery-1.5.1.js"></script>
-<script src="../jquery.simpletooltip.js"></script> 
+<script src="getWordStats.js"></script> 
 
 <div id='submenu'>
     <ul>
@@ -15,7 +15,8 @@
         <li><a href="admin.php?f=prototype&type=index">Indexation</a></li>
         <li><a href="admin.php?f=prototype&type=search">Search</a></li>
         <li><a href="admin.php?f=prototype&type=geo">Geo</a></li>
-        <li><a href="admin.php?f=prototype&type=stats">Stats</a></li> 
+        <li><a href="admin.php?f=prototype&type=stats1">Top keywords</a></li> 
+        <li><a href="admin.php?f=prototype&type=stats2">Expressions</a></li>  
         <li><a href="admin.php?f=prototype&type=log">Log</a></li>         
     </ul>
 </div>

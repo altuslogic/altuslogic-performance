@@ -5,9 +5,9 @@
     include "configSearch/progressbar.php";
     error_reporting(15);                    
     $temps_total = start_timer();
-  //  echo '<link rel="stylesheet" type="text/css" href="my.css"><body><br><br><br>';
+    //  echo '<link rel="stylesheet" type="text/css" href="my.css"><body><br><br><br>';
     init(5,5,600,30,'#fff','#444','#006699');
-    
+
     creeLog(); 
     initChamps();
     mysql_select_db($nomBase);
@@ -17,7 +17,7 @@
 
     $print_details = "";
     $print_search = "";   
-            
+
     switch($stage){
         case 'initialize':
             creeLog();
@@ -48,7 +48,7 @@
 
             $print_search = "<div id='search_zone_".$hash."'></div>\n<script type='text/javascript'>var key='".$hash."';</script>\n<script type='text/javascript' src='../../recherche/getSearchField.js'></script>";
             mysql_select_db($nomBase);
-             
+
             //echo analyse();
             break;    
         case 'modif':
@@ -74,8 +74,17 @@
             }
             $nomColonne = $col;
             break;
+        case 'keyword':
+            $id = $_POST['id'];
+            if (isset($_POST['ignore']) && $_POST['ignore']=="ignore"){
+                $table = "y_".$nomTable."_".$nomColonne."_keyword";
+                $sql = "UPDATE $table SET ignored=1-ignored WHERE id='$id'";
+                $result = mysql_query($sql) or die($sql."<br>".mysql_error());
+            }
+            else if (isset($_POST['rename']) && $_POST['rename']=="rename") die("rename");
+            break;
     }
-    
+
     include "configSearch/view.html";   
 
 ?>

@@ -1,3 +1,4 @@
 
-config.php
+*.inc.php
+conf.php
 database.php

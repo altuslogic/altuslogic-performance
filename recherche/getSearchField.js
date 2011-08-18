@@ -19,8 +19,7 @@ catch(e){
 xhr.onreadystatechange = function(){
     // instructions de traitement de la réponse  
     if (xhr.readyState == 4){
-        document.getElementById('search_zone_'+key).innerHTML = xhr.responseText; 
-        ("#champ_"+key).autocomplete({source: []});                                
+        document.getElementById('search_zone_'+key).innerHTML = xhr.responseText;                              
     }                       
 };
              

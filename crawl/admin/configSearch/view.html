@@ -59,7 +59,7 @@ if ($show=='index' || $show=='all'){ ?>
 
 <div class="init">
     <h2>Menu action </h2>
-    <a href="?stage=">Home</a> |
+    <a href="?stage">Home</a> |
     <a href="?stage=initialize">Initialize</a> <br><br>
     <a href="?stage=performances">Performances</a> <br><br>
     <a href="?stage=details">Details</a><br><br>       
@@ -113,14 +113,27 @@ if ($show=='selection' || $show=='all'){ ?>
 </div>
 
 <?php }          
-if ($show=='stats' || $show=='all'){ ?> 
+if ($show=='stats1' || $show=='all'){ ?> 
 
-<div class="init">
-    <h2>Stats</h2>
+<div id="stats" style="float: left">
+    <h2>Top keywords</h2>
     <?php          
     if ($nomBase && $nomTable && $nomColonne) echo stats();    
     ?>
 </div>
+<div id="stats_zone" style="float: left">
+    <h2>Keyword</h2>
+</div>
+
+<?php }          
+if ($show=='stats2' || $show=='all'){ ?> 
+
+<div id="stats" style="float: left">
+    <h2>Expressions</h2>
+    <?php          
+    if ($nomBase && $nomTable && $nomColonne) echo expressions();    
+    ?>
+</div> 
 
 <?php }          
 if ($show=='geo' || $show=='all'){ ?> 

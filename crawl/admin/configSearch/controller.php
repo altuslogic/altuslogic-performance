@@ -352,8 +352,9 @@
         $key = $motParMot? "word": "phrase";
         $sql = "CREATE TABLE IF NOT EXISTS y_".$nomTable."_".$nomColonne."_key".$key." (
         `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,    
-        $nomColonne varchar(30) NOT NULL,
+        $nomColonne varchar(".($motParMot?30:100).") NOT NULL,
         `nombre` int(11) UNSIGNED NOT NULL,
+        `ignored` tinyint(1) NOT NULL,
         PRIMARY KEY (`id`)
         ) ENGINE=MyISAM  DEFAULT CHARSET=latin1" ;
         mysql_query($sql); 
@@ -616,27 +617,95 @@
 
 
     function stats(){                     
-        global $nomTable,$nomColonne;                                                                
-        
+        global $nomBase,$nomTable,$nomColonne;                                                                
+
         $print = "<table><tr>";
         for ($i=ord("A"); $i<=ord("Z"); $i++){ 
-            $lettre = chr($i);                
-            if ($lettre=="N") $print .= "</tr></table><table><tr>";              
+            $lettre = chr($i);                                               
             $print .= "<td><table><tr><td><b>".$lettre."</b></td></tr>";
 
             $table = "y_".$nomTable."_".$nomColonne."_keyword";                                                               
-            $sql = "SELECT $nomColonne,nombre FROM $table WHERE $nomColonne LIKE '$lettre%' ORDER BY nombre DESC LIMIT 25";   
+            $sql = "SELECT $nomColonne,id,nombre,ignored FROM $table WHERE $nomColonne LIKE '$lettre%' ORDER BY nombre DESC LIMIT 25";   
             $result = mysql_query($sql) or die($sql."<br>".mysql_error());  
 
             while ($tab = mysql_fetch_array($result)){
-                $print .= "<tr><td><a href='' title='$tab[nombre]'>".$tab[$nomColonne]."</a></td></tr>";
+                $word = $tab['ignored']==0? $tab[$nomColonne]: "<i>".$tab[$nomColonne]."</i>";
+                $print .= "<tr><td><a href=\"javascript:getStats('$tab[id]','$nomBase','$nomTable','$nomColonne');\" title='$tab[nombre]'>".$word."</a></td></tr>";
             }
-            
+
             $print .= "</table></td>";
         }
-        
+
         $print .= "</tr></table>";
         return $print;
+    }
+
+    function expressions(){                     
+        global $nomTable,$nomColonne;   
+
+        $table = "y_".$nomTable."_".$nomColonne."_keyword"; 
+        $sql = "SELECT $nomColonne,nombre FROM $table ORDER BY nombre DESC LIMIT 50"; 
+        $result = mysql_query($sql) or die($sql."<br>".mysql_error());  
+        $print = "";
+
+        while ($tab = mysql_fetch_array($result)){ 
+            $tout = find_expression($tab[$nomColonne],$tab['nombre'],1);
+            $print .= "<tr><td><b>$tab[$nomColonne]</b> <font class='chiffres'>($tab[nombre])</font></td>".$tout['affiche']."</tr>";    
+        }
+
+        return "<table border='1'>$print</table>";
+    }
+
+    function find_expression($expr,$freq,$nbMots){
+        global $nomTable,$nomColonne;   
+
+        $avant = array();
+        $apres = array();
+
+        $table = "y_".$nomTable."_".$nomColonne."_keyphrase";
+        $sql = "SELECT $nomColonne,nombre FROM $table WHERE $nomColonne RLIKE '(^| )$expr(\$| )'";                     
+        $result = mysql_query($sql) or die($sql."<br>".mysql_error());                                            
+
+        while ($tab = mysql_fetch_array($result)){ 
+            $mot = explode(" ",$tab[$nomColonne]);
+            for ($i=0; $i<sizeof($mot)-$nbMots+1; $i++){
+                $sequence = array_slice($mot,$i,$nbMots);
+                if (implode(" ",$sequence)==$expr){
+                    $key = $i>0? $mot[$i-1]: "~";                                      
+                    if (array_key_exists($key,$avant)) $avant[$key]+=$tab['nombre'];
+                    else $avant[$key]=$tab['nombre'];
+                    $key = $i<sizeof($mot)-$nbMots? $mot[$i+$nbMots]: "~";      
+                    if (array_key_exists($key,$apres)) $apres[$key]+=$tab['nombre'];
+                    else $apres[$key]=$tab['nombre']; 
+                }
+            } 
+        }
+
+        arsort($avant);
+        arsort($apres);
+
+        $print1 = affiche_expr($avant,"~KEY~ ".$expr,$freq,$nbMots);
+        $print2 = affiche_expr($apres,$expr." ~KEY~",$freq,$nbMots);
+
+        return array("affiche"=>$print1.$print2, "entier"=>(sizeof($avant)==1&&!array_key_exists("~",$avant) || sizeof($apres)==1&&!array_key_exists("~",$apres)));
+    }
+
+    function affiche_expr($liste,$truc,$freq,$nbMots){
+        $print = "<td>";
+        foreach ($liste as $key=>$val){
+            $pourcent = round(100*$val/$freq);
+            if ($pourcent>5){
+                $blabla = str_replace("~KEY~",$key,$truc);
+                $txt = "$blabla<font class='chiffres'> (".$pourcent."%)</font><br>";
+                if ($pourcent>20 && $key!="~"){
+                    $res = find_expression($blabla,$freq,$nbMots+1);
+                    $txt = ($res['entier']?"":"<b>$txt</b>")."<table border='1'><tr>".$res['affiche']."</tr></table>";
+                }
+                $print .= $txt;
+            }
+            else break;
+        }
+        return $print."</td>";
     }
 
 
