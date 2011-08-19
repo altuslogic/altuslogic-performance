@@ -141,7 +141,7 @@
             $table; 
             if (strlen($mot)==1) $table = $nomTable;
             else {
-                $table = "z_".$nomTable."_".$nomColonne."_".getSousTable($mot,strlen($mot)-1);
+                $table = "z_".$nomTable."_".$nomColonne."_".getSousTableLong($nomTable,$mot,strlen($mot)-1);
             }
 
             $sql = "SELECT $nomColonne,id FROM $table WHERE $nomColonne LIKE '%$mot%' LIMIT 1";
@@ -242,15 +242,31 @@
         mysql_select_db($nomBase); 
     } 
 
+    function getSousTable($nomTable,$text){
+        global $ordreMax;
+
+        $table = "";
+        $mot = explode(" ",$text);
+        $long = max(array_map("strlen",$mot));
+        $truc = $long>$ordreMax?$ordreMax:$long;
+        while ($table=="" && $truc>0){
+            $table = getSousTableLong($nomTable,$text,$truc--);
+        }
+
+        return $table;
+
+    }
+
     /**
     * Renvoie la sous-table appropriée dans laquelle chercher
     * une chaîne de caractères (la moins remplie)
+    * @param mixed $nomTable : la table principale ou d'index 
     * @param mixed $text : la chaîne à chercher
     * @param mixed $long : l'ordre de la table
     */
-    function getSousTable($text,$long){
+    function getSousTableLong($nomTable,$text,$long){
 
-        global $nomTable,$nomColonne;       
+        global $nomColonne;       
         $sql = "SELECT name,MIN(nombre) FROM y_".$nomTable."_".$nomColonne."_stats WHERE";   
         $liste = array();   
         $or="";
@@ -280,7 +296,7 @@
         $table = "";
         $truc = $ordreMax;
         while ($table=="" && $truc>0){
-            $table = getSousTable($text,$truc--);
+            $table = getSousTableLong($nomTable,$text,$truc--);
         }
         if ($table == "") return false;
         $sql = "SELECT $nomColonne FROM z_".$nomTable."_".$nomColonne."_".$table." WHERE $nomColonne='$text' LIMIT 1";
@@ -375,7 +391,7 @@
         while ($tab = mysql_fetch_array($result)){
             $mot = $motParMot? explode(" ",$tab[$nomColonne]): array($tab[$nomColonne]);
             for ($i=0; $i<sizeof($mot); $i++){
-                $t = strtoupper($mot[$i]);
+                $t = addslashes(strtoupper(str_replace(array("(",")"),array("",""),$mot[$i])));
                 if ($t!=""){
                     $sql = "SELECT id FROM y_".$nomTable."_".$nomColonne."_key".$key." WHERE $nomColonne='$t' LIMIT 1";
                     $res = mysql_query($sql);                   
@@ -640,11 +656,17 @@
         return $print;
     }
 
+    /**
+    * Fonction qui affiche des propositions d'expressions (suites de mots) à insérer dans l'index
+    */
     function expressions(){                     
-        global $nomTable,$nomColonne;   
+        global $nomTable,$nomColonne,$listeExpr;
+
+        // tableau qui contient les expressions avec leur occurrence
+        $listeExpr=array();   
 
         $table = "y_".$nomTable."_".$nomColonne."_keyword"; 
-        $sql = "SELECT $nomColonne,nombre FROM $table ORDER BY nombre DESC LIMIT 50"; 
+        $sql = "SELECT $nomColonne,nombre FROM $table ORDER BY nombre DESC LIMIT 100"; 
         $result = mysql_query($sql) or die($sql."<br>".mysql_error());  
         $print = "";
 
@@ -653,17 +675,64 @@
             $print .= "<tr><td><b>$tab[$nomColonne]</b> <font class='chiffres'>($tab[nombre])</font></td>".$tout['affiche']."</tr>";    
         }
 
-        return "<table border='1'>$print</table>";
+        // tableau qui contient les expressions avec leur taille
+        $listeExpr2 = array();
+        foreach ($listeExpr as $key=>$val){
+            $listeExpr2[$key] = sizeof(explode(" ",$key));
+        }  
+        arsort($listeExpr);  
+        arsort($listeExpr2);
+
+        $printListe = "";
+
+        // script pour simuler un menu déroulant
+        echo "<script>function openclose(divid){
+        if (document.getElementById(divid).style.display=='none')    
+        document.getElementById(divid).style.display = 'block';
+        else document.getElementById(divid).style.display = 'none'; 
+        }</script>";
+
+        // on parcourt les expressions (primaires) par taille décroissante
+        foreach ($listeExpr2 as $key=>&$val){
+            $printListe .= "<br><input type='checkbox' name='$key'>$key<font class='chiffres'> ($listeExpr[$key])</font>";
+            $sousliste = "";
+            foreach ($listeExpr as $k=>$v){   
+                // si une expression (secondaire) est contenue dans l'expression (primaire) courante, on l'ajoute dans une sous-liste...
+                if ($k!=$key && preg_match("/\b$k\b/",$key)){
+                    $sousliste .= ($sousliste==""?"":"<br>")."&nbsp;&nbsp;<input type='checkbox' name='$k'>$k<font class='chiffres'> ($v)</font>";
+                    // ... et on la supprime des expressions primaires             
+                    unset($listeExpr2[$k]);                             
+                }
+            }
+            if ($sousliste!="") $printListe .= "<input type='button' value='+' onclick='openclose(\"deroule_$key\")'><div id='deroule_$key' style='display:none;'>$sousliste</div>";
+        }
+
+        return "<form action='?type=stats1' method='post'>$printListe<br><input type='submit' value='add'></form><br><table border='1'>$print</table>";
     }
 
+    /**
+    * Fonction qui étend une expression vers avant ou après (<--expr-->)
+    * @param mixed $expr : l'expression à étendre
+    * @param mixed $freq : le nombre d'occurrences du mot d'origine
+    * @param mixed $nbMots : la taille de l'expression
+    */
     function find_expression($expr,$freq,$nbMots){
-        global $nomTable,$nomColonne;   
+        global $nomTable,$nomColonne,$ordreMax;   
 
         $avant = array();
         $apres = array();
+        $expr = addslashes(str_replace(array("(",")"),"",$expr));
+        $tablePhrase = "y_".$nomTable."_".$nomColonne."_keyphrase";
 
-        $table = "y_".$nomTable."_".$nomColonne."_keyphrase";
-        $sql = "SELECT $nomColonne,nombre FROM $table WHERE $nomColonne RLIKE '(^| )$expr(\$| )'";                     
+        $table = getSousTable($tablePhrase,$expr);
+        if ($table==""){
+            $table = $tablePhrase; echo $expr."<br>";
+        }
+        else $table = "z_".$tablePhrase."_".$nomColonne."_".$table; 
+
+        $sql;
+        if ($table!=$tablePhrase) $sql = "SELECT $table.$nomColonne,nombre FROM $table,$tablePhrase WHERE $table.id=$tablePhrase.id AND $table.$nomColonne RLIKE '(^| )$expr(\$| )'";
+        else $sql = "SELECT $nomColonne,nombre FROM $table WHERE $nomColonne RLIKE '(^| )$expr(\$| )'";                          
         $result = mysql_query($sql) or die($sql."<br>".mysql_error());                                            
 
         while ($tab = mysql_fetch_array($result)){ 
@@ -671,10 +740,12 @@
             for ($i=0; $i<sizeof($mot)-$nbMots+1; $i++){
                 $sequence = array_slice($mot,$i,$nbMots);
                 if (implode(" ",$sequence)==$expr){
-                    $key = $i>0? $mot[$i-1]: "~";                                      
+                    $key = $i>0? $mot[$i-1]: "~";
+                    $key = str_replace(array("(",")"),"",$key);                                      
                     if (array_key_exists($key,$avant)) $avant[$key]+=$tab['nombre'];
                     else $avant[$key]=$tab['nombre'];
-                    $key = $i<sizeof($mot)-$nbMots? $mot[$i+$nbMots]: "~";      
+                    $key = $i<sizeof($mot)-$nbMots? $mot[$i+$nbMots]: "~";  
+                    $key = str_replace(array("(",")"),"",$key);    
                     if (array_key_exists($key,$apres)) $apres[$key]+=$tab['nombre'];
                     else $apres[$key]=$tab['nombre']; 
                 }
@@ -691,15 +762,28 @@
     }
 
     function affiche_expr($liste,$truc,$freq,$nbMots){
+        global $listeExpr;
+
         $print = "<td>";
         foreach ($liste as $key=>$val){
             $pourcent = round(100*$val/$freq);
+            // Seuil de 5% au-dessous duquel on n'affiche plus l'expression
             if ($pourcent>5){
                 $blabla = str_replace("~KEY~",$key,$truc);
                 $txt = "$blabla<font class='chiffres'> (".$pourcent."%)</font><br>";
-                if ($pourcent>20 && $key!="~"){
-                    $res = find_expression($blabla,$freq,$nbMots+1);
-                    $txt = ($res['entier']?"":"<b>$txt</b>")."<table border='1'><tr>".$res['affiche']."</tr></table>";
+                if ($key!="~"){
+                    // Seuil de 20% au-dessous duquel on ne cherche plus à étendre l'expression 
+                    if ($pourcent>20){
+                        $res = find_expression($blabla,$freq,$nbMots+1);
+                        if (!$res['entier']){
+                            $txt = ($res['entier']?"":"<b>$txt</b>")."<table border='1'><tr>".$res['affiche']."</tr></table>"; 
+                            $listeExpr[$blabla]=$val;
+                        }              
+                    }
+                    // Seuil de 15% au-dessous duquel on ne propose plus l'expression 
+                    else if ($pourcent>15){
+                            $listeExpr[$blabla]=$val;
+                        }
                 }
                 $print .= $txt;
             }

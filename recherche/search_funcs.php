@@ -37,15 +37,10 @@
         }
 
         else {       
-            $table = "";
-            $mot = explode(" ",$text);
+            $table;
 
             if ($methode=='tables'){
-                $long = max(array_map("strlen",$mot));
-                $truc = $long>$ordreMax?$ordreMax:$long;
-                while ($table=="" && $truc>0){
-                    $table = getSousTable($text,$truc--);
-                }
+                $table = getSousTable($text);
                 if ($table!="") $table = "z_".$nomTable."_".$nomColonne."_".$table; 
             }
             else $table = getTable($methode);
@@ -73,6 +68,7 @@
                 $fin = $mode=="fin"?"":"%";
                 $and = "";
 
+                $mot = explode(" ",$text);
                 for ($i=0; $i<sizeof($mot); $i++){
                     if (strlen($mot[$i])>0){
                         $sql .= $and." $table.$nomColonne LIKE '".$debut."$mot[$i]".$fin."'";
@@ -113,13 +109,28 @@
 
     }
 
+    function getSousTable($text){
+        global $ordreMax;
+
+        $table = "";
+        $mot = explode(" ",$text);
+        $long = max(array_map("strlen",$mot));
+        $truc = $long>$ordreMax?$ordreMax:$long;
+        while ($table=="" && $truc>0){
+            $table = getSousTableLong($text,$truc--);
+        }
+        
+        return $table;
+
+    }
+
     /**
     * Renvoie la sous-table appropriée dans laquelle chercher
     * une chaîne de caractères (la moins remplie)
     * @param mixed $text : la chaîne à chercher
     * @param mixed $long : l'ordre de la table
     */
-    function getSousTable($text,$long){
+    function getSousTableLong($text,$long){
 
         global $nomTable,$nomColonne;       
         $sql = "SELECT name,MIN(nombre) FROM y_".$nomTable."_".$nomColonne."_stats WHERE";   

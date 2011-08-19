@@ -17,7 +17,7 @@
 
     $print_details = "";
     $print_search = "";   
-
+                                                                                                                                                                          
     switch($stage){
         case 'initialize':
             creeLog();
