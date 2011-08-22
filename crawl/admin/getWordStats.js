@@ -16,7 +16,7 @@ function getStats(id,base,table,colonne){
     xhr.onreadystatechange = function(){
         // instructions de traitement de la réponse  
         if (xhr.readyState == 4){
-            document.getElementById('stats_zone').innerHTML = xhr.responseText;                                  
+            document.getElementById('stats_keywords').innerHTML = xhr.responseText;                                  
         }                       
     };
 

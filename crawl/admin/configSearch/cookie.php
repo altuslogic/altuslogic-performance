@@ -36,8 +36,7 @@
         return $value;
     } 
 
-    $nomBase = readCookie("nomBase",""); 
-    //echo "base : $nomBase";    
+    $nomBase = readCookie("nomBase","");    
     $nomTable = readCookie("nomTable","");
     $nomColonne = readCookie("nomColonne","");
     $mode = readCookieP("mode","milieu");     
@@ -54,5 +53,6 @@
     $type = readCookie("type",""); 
     $thres = readCookie("threshold",5000);
     $ordreMax = readCookie("ordre",3);
+    echo "base : $nomBase<br>table : $nomTable<br>colonne : $nomColonne";
  
 ?>

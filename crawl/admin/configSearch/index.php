@@ -8,7 +8,9 @@
     //  echo '<link rel="stylesheet" type="text/css" href="my.css"><body><br><br><br>';
     init(5,5,600,30,'#fff','#444','#006699');
 
-    creeLog(); 
+    mysql_select_db($nomMaitre);
+    creeLog();
+    creeCorrec(); 
     initChamps();
     mysql_select_db($nomBase);
 

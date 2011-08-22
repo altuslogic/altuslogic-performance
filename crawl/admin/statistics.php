@@ -184,6 +184,7 @@
             $char = dechex($i);
             $result = mysql_query("select count(link_id) from ".$mysql_table_prefix."link_keyword$char");
             echo mysql_error();
+            $stats['index'] = 0;
             if ($row=mysql_fetch_array($result)) {
                 $stats['index']+=$row[0];
             }

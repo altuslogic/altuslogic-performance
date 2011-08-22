@@ -113,27 +113,55 @@ if ($show=='selection' || $show=='all'){ ?>
 </div>
 
 <?php }          
-if ($show=='stats1' || $show=='all'){ ?> 
+if ($show=='keywords' || $show=='all'){
+$print = "";
+if ($nomBase && $nomTable && $nomColonne) $print = stats(); ?> 
 
-<div id="stats" style="float: left">
+<table><tr><td>
+<div class="stats">
     <h2>Top keywords</h2>
-    <?php          
-    if ($nomBase && $nomTable && $nomColonne) echo stats();    
-    ?>
+        <?php echo $print;?> 
 </div>
-<div id="stats_zone" style="float: left">
+</td><td valign="top">
+<div id="stats_keywords" class="stats_zone">
     <h2>Keyword</h2>
 </div>
+</td></tr></table>
 
 <?php }          
-if ($show=='stats2' || $show=='all'){ ?> 
+if ($show=='expr' || $show=='all'){
+$print = "";
+if ($nomBase && $nomTable && $nomColonne) $print = expressions(10); ?> 
 
-<div id="stats" style="float: left">
-    <h2>Expressions</h2>
-    <?php          
-    if ($nomBase && $nomTable && $nomColonne) echo expressions();    
-    ?>
+<table><tr><td>    
+<div class="stats">
+    <h2>Top expressions</h2>
+    <form method="get">
+    Limite : <input type="text" name="limit"><input type="submit" value="ok">
+    </form>  
+       <?php echo $print;?> 
 </div> 
+</td><td valign="top">
+<div id="stats_expr" class="stats_zone">
+    <h2>Expression</h2>
+</div>
+</td></tr></table>
+
+<?php }          
+if ($show=='correct' || $show=='all'){
+$print = "";
+if ($nomBase && $nomTable && $nomColonne) $print = corrections(100); ?> 
+
+<table><tr><td>    
+<div class="stats">
+    <h2>Top corrections</h2>
+    <?php echo $print;?>
+</div>
+</td><td valign="top">
+<div id="stats_correc" class="stats_zone">
+    <h2>Correction</h2>
+</div>
+</td></tr></table>
 
 <?php }          
 if ($show=='geo' || $show=='all'){ ?> 

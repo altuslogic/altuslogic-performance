@@ -19,8 +19,10 @@
     $result = mysql_query($sql) or die($sql."<br>".mysql_error());         
       
     echo "<h2>$word</h2><ul>";                
-    while ($tab = mysql_fetch_array($result)){ 
-        echo "<li>".$tab[$nomColonne]."</li>";
+    while ($tab = mysql_fetch_array($result)){
+        $t = $tab[$nomColonne];
+        if (mb_detect_encoding($t)=="UTF-8") $t = utf8_decode($t);
+        echo "<li>$t</li>";
     } 
 
 ?>

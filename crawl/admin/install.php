@@ -1,6 +1,5 @@
 <?php  
-$proto_dir = "../../proto2";  
-include "$proto_dir/cookie.php"; 
+include "configSearch/cookie.php"; 
 ?>
 <html>
 	<head>		
@@ -152,10 +151,10 @@ if (mysql_errno() > 0) {
 
 mysql_query("create table `".$mysql_table_prefix."query_log` (
 	query varchar(255),
-	time timestamp(14),
+	time timestamp,
 	elapsed float(2),
 	results int, 
-	key query_key(query))");
+	primary key (query))");
 
 if (mysql_errno() > 0) {
 	print "Error: ";

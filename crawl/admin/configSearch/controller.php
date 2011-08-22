@@ -19,7 +19,7 @@
     }
 
     function updateLog($action,$temps){
-        global $nomMaitre,$nomBase,$nomTable;  
+        global $nomMaitre,$nomBase;  
         mysql_select_db($nomMaitre);  
         $sql = "INSERT INTO log SET action='$action', heure=NOW(), temps='$temps'";
         mysql_query($sql); 
@@ -45,6 +45,22 @@
         PRIMARY KEY (`hash`)
         ) ENGINE=MyISAM  DEFAULT CHARSET=latin1";
         mysql_query($sql); 
+    }
+
+    function creeCorrec(){
+        $sql = "CREATE TABLE IF NOT EXISTS corrections (
+        `old` char(30) NOT NULL PRIMARY KEY,
+        `new` char(30) NOT NULL
+        ) ENGINE=MyISAM  DEFAULT CHARSET=latin1";
+        mysql_query($sql); 
+    }
+
+    function updateCorrec($old,$new){
+        global $nomMaitre,$nomBase;  
+        mysql_select_db($nomMaitre);
+        $sql = "INSERT INTO corrections SET old='$old', new='$new'";    
+        mysql_query($sql); 
+        mysql_select_db($nomBase);  
     }
 
     /**
@@ -144,7 +160,8 @@
                 $table = "z_".$nomTable."_".$nomColonne."_".getSousTableLong($nomTable,$mot,strlen($mot)-1);
             }
 
-            $sql = "SELECT $nomColonne,id FROM $table WHERE $nomColonne LIKE '%$mot%' LIMIT 1";
+            $id = getPrimaryKey($table);
+            $sql = "SELECT $nomColonne,$id FROM $table WHERE $nomColonne LIKE '%$mot%' LIMIT 1";
             $result = mysql_query($sql) or die(mysql_error());
             $estVide = mysql_num_rows($result)==0;
 
@@ -156,7 +173,7 @@
                 `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
                 $nomColonne varchar(255) NOT NULL
                 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1";
-                $sql2 = "INSERT INTO z_".$nomTable."_".$nomColonne."_".$mot." (SELECT id,$nomColonne FROM $table WHERE $nomColonne LIKE '%$mot%')";
+                $sql2 = "INSERT INTO z_".$nomTable."_".$nomColonne."_".$mot." (SELECT $id,$nomColonne FROM $table WHERE $nomColonne LIKE '%$mot%')";
                 mysql_query($sql1);   
                 mysql_query($sql2); 
                 initStat($mot);       
@@ -266,7 +283,8 @@
     */
     function getSousTableLong($nomTable,$text,$long){
 
-        global $nomColonne;       
+        global $nomColonne;
+
         $sql = "SELECT name,MIN(nombre) FROM y_".$nomTable."_".$nomColonne."_stats WHERE";   
         $liste = array();   
         $or="";
@@ -275,15 +293,22 @@
             // ignore les suites de caractères contenant un espace
             if (strpos($t," ")===FALSE && array_search($t,$liste)===FALSE){
                 array_unshift($liste,$t);
-                $sql .=  $or." name = '".$t."'";
+                $sql .=  $or." name = '".addslashes($t)."'";
                 $or = " OR";
             }
         }                                     
         //echo $sql,"<br>";   
-        $result = mysql_query($sql) or die(mysql_error());
+        $result = mysql_query($sql) or die($sql."<br>".mysql_error());
         $tab = mysql_fetch_array($result);   
         return $tab['name'];
     } 
+
+    function getPrimaryKey($table){
+        $sql = "SHOW KEYS FROM $table WHERE Key_name = 'PRIMARY'";
+        $result = mysql_query($sql);
+        $tab = mysql_fetch_array($result);
+        return $tab['Column_name'];
+    }
 
     /**
     * Teste l'existence d'un mot
@@ -312,7 +337,7 @@
         $sql = "INSERT INTO ".$nomTable." SET name='$text'";
         echo "Insertion du mot ",$text," dans la table ".$nomTable."<br>"; 
         mysql_query($sql);
-        $id = mysql_insert_id(); 
+        $last_id = mysql_insert_id(); 
         // mise à jour des sous-tables et de la table Stats
         $liste = array();
         for ($long=2; $long<=3; $long++){   
@@ -320,7 +345,7 @@
                 $t = strtoupper(substr($text,$i,$long));
                 if (array_search($t,$liste)===FALSE){
                     array_unshift($liste,$t);  
-                    $sql = "INSERT INTO z_".$nomTable."_".$nomColonne."_".$t." SET name='$text', id='$id'";
+                    $sql = "INSERT INTO z_".$nomTable."_".$nomColonne."_".$t." SET name='$text', id='$last_id'";
                     mysql_query($sql);
                     $sql = "UPDATE y_".$nomTable."_".$nomColonne."_stats SET nombre=nombre+1 WHERE name='$t'";
                     echo "Insertion du mot ",$text," dans la sous-table ".$t."<br>";
@@ -366,9 +391,11 @@
         global $nomTable,$nomColonne; 
         $temps = start_timer(); 
         $key = $motParMot? "word": "phrase";
+        $type = "varchar(".($motParMot?30:100).")";
+        $type = "mediumtext"; 
         $sql = "CREATE TABLE IF NOT EXISTS y_".$nomTable."_".$nomColonne."_key".$key." (
         `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,    
-        $nomColonne varchar(".($motParMot?30:100).") NOT NULL,
+        $nomColonne $type NOT NULL,
         `nombre` int(11) UNSIGNED NOT NULL,
         `ignored` tinyint(1) NOT NULL,
         PRIMARY KEY (`id`)
@@ -384,14 +411,24 @@
         $sql = "TRUNCATE TABLE y_".$nomTable."_".$nomColonne."_index".$key;
         mysql_query($sql);               
 
-        $sql = "SELECT id,$nomColonne FROM $nomTable";
-        $result = mysql_query($sql);
+        $id = getPrimaryKey($nomTable);
+        $sql = "SELECT $id,$nomColonne FROM $nomTable";
+        $result = mysql_query($sql) or die($sql);
         $total = mysql_num_rows($result);
         $cpt = 0; $progress = 0;
         while ($tab = mysql_fetch_array($result)){
             $mot = $motParMot? explode(" ",$tab[$nomColonne]): array($tab[$nomColonne]);
             for ($i=0; $i<sizeof($mot); $i++){
-                $t = addslashes(strtoupper(str_replace(array("(",")"),array("",""),$mot[$i])));
+                $t = $mot[$i];
+                if (mb_detect_encoding($t)=="UTF-8") $t = utf8_decode($t);
+                if ($key=="word"){
+                    $t = strtr("()&\"?:!«,;.","           ",$t);
+                }
+                else {
+                    $t = preg_replace("/\([^\)]+\)/","",$t);
+                }
+                $t = addslashes(strtoupper(trim($t)));
+                $t = str_replace("  "," ",$t); 
                 if ($t!=""){
                     $sql = "SELECT id FROM y_".$nomTable."_".$nomColonne."_key".$key." WHERE $nomColonne='$t' LIMIT 1";
                     $res = mysql_query($sql);                   
@@ -400,16 +437,16 @@
                         $ligne = mysql_fetch_array($res);
                         $sql = "UPDATE y_".$nomTable."_".$nomColonne."_key".$key." SET nombre=nombre+1 WHERE id='$ligne[id]'";
                         mysql_query($sql) or die($sql);
-                        $sql = "INSERT INTO y_".$nomTable."_".$nomColonne."_index".$key." SET id='$tab[id]', keyword='$ligne[id]'";
+                        $sql = "INSERT INTO y_".$nomTable."_".$nomColonne."_index".$key." SET id='$tab[$id]', keyword='$ligne[id]'";
                         mysql_query($sql);
                     }
                     else {
                         // Le mot-clé est absent de la table   
                         $sql = "INSERT INTO y_".$nomTable."_".$nomColonne."_key".$key." SET $nomColonne='$t', nombre='1'"; 
                         mysql_query($sql) or die($sql);
-                        $id = mysql_insert_id();
-                        $sql = "INSERT INTO y_".$nomTable."_".$nomColonne."_index".$key." SET id='$tab[id]', keyword='$id'";
-                        mysql_query($sql);
+                        $last_id = mysql_insert_id();
+                        $sql = "INSERT INTO y_".$nomTable."_".$nomColonne."_index".$key." SET id='$tab[$id]', keyword='$last_id'";
+                        mysql_query($sql) or die(mysql_error()."<br>$sql");
                     }
                 } 
             }
@@ -658,21 +695,24 @@
 
     /**
     * Fonction qui affiche des propositions d'expressions (suites de mots) à insérer dans l'index
+    * @param mixed $limite : limite du nombre de mots à étendre (0 si tous)
     */
-    function expressions(){                     
+    function expressions($limite){                     
         global $nomTable,$nomColonne,$listeExpr;
 
         // tableau qui contient les expressions avec leur occurrence
         $listeExpr=array();   
 
         $table = "y_".$nomTable."_".$nomColonne."_keyword"; 
-        $sql = "SELECT $nomColonne,nombre FROM $table ORDER BY nombre DESC LIMIT 100"; 
+        $sql = "SELECT $nomColonne,nombre FROM $table ORDER BY nombre DESC".($limite>0?" LIMIT $limite":""); 
         $result = mysql_query($sql) or die($sql."<br>".mysql_error());  
         $print = "";
+        $cpt = 0;
 
         while ($tab = mysql_fetch_array($result)){ 
             $tout = find_expression($tab[$nomColonne],$tab['nombre'],1);
-            $print .= "<tr><td><b>$tab[$nomColonne]</b> <font class='chiffres'>($tab[nombre])</font></td>".$tout['affiche']."</tr>";    
+            $print .= "<tr><td><b>$tab[$nomColonne]</b> <font class='chiffres'>($tab[nombre])</font></td>".$tout['affiche']."</tr>"; 
+            progressBar("Expressions",round(++$cpt*100/$limite)); 
         }
 
         // tableau qui contient les expressions avec leur taille
@@ -707,7 +747,7 @@
             if ($sousliste!="") $printListe .= "<input type='button' value='+' onclick='openclose(\"deroule_$key\")'><div id='deroule_$key' style='display:none;'>$sousliste</div>";
         }
 
-        return "<form action='?type=stats1' method='post'>$printListe<br><input type='submit' value='add'></form><br><table border='1'>$print</table>";
+        return "<form action='?type=validate&stage=expr' method='post'>$printListe<br><input type='submit' value='add'></form><br><table border='1'>$print</table>";
     }
 
     /**
@@ -720,8 +760,7 @@
         global $nomTable,$nomColonne,$ordreMax;   
 
         $avant = array();
-        $apres = array();
-        $expr = addslashes(str_replace(array("(",")"),"",$expr));
+        $apres = array();                                            
         $tablePhrase = "y_".$nomTable."_".$nomColonne."_keyphrase";
 
         $table = getSousTable($tablePhrase,$expr);
@@ -731,6 +770,7 @@
         else $table = "z_".$tablePhrase."_".$nomColonne."_".$table; 
 
         $sql;
+        $expr = addslashes($expr);
         if ($table!=$tablePhrase) $sql = "SELECT $table.$nomColonne,nombre FROM $table,$tablePhrase WHERE $table.id=$tablePhrase.id AND $table.$nomColonne RLIKE '(^| )$expr(\$| )'";
         else $sql = "SELECT $nomColonne,nombre FROM $table WHERE $nomColonne RLIKE '(^| )$expr(\$| )'";                          
         $result = mysql_query($sql) or die($sql."<br>".mysql_error());                                            
@@ -740,12 +780,10 @@
             for ($i=0; $i<sizeof($mot)-$nbMots+1; $i++){
                 $sequence = array_slice($mot,$i,$nbMots);
                 if (implode(" ",$sequence)==$expr){
-                    $key = $i>0? $mot[$i-1]: "~";
-                    $key = str_replace(array("(",")"),"",$key);                                      
+                    $key = $i>0? $mot[$i-1]: "~";                                                     
                     if (array_key_exists($key,$avant)) $avant[$key]+=$tab['nombre'];
                     else $avant[$key]=$tab['nombre'];
-                    $key = $i<sizeof($mot)-$nbMots? $mot[$i+$nbMots]: "~";  
-                    $key = str_replace(array("(",")"),"",$key);    
+                    $key = $i<sizeof($mot)-$nbMots? $mot[$i+$nbMots]: "~";          
                     if (array_key_exists($key,$apres)) $apres[$key]+=$tab['nombre'];
                     else $apres[$key]=$tab['nombre']; 
                 }
@@ -790,6 +828,38 @@
             else break;
         }
         return $print."</td>";
+    }       
+
+
+    function corrections($limite){
+        global $nomTable,$nomColonne;
+        $print = "";
+        $tableMot = "y_".$nomTable."_".$nomColonne."_keyword"; 
+        $sql = "SELECT $nomColonne FROM $tableMot ORDER BY nombre DESC LIMIT $limite";
+        $result = mysql_query($sql);
+        $cpt = 0; $progress = 0;
+
+        while ($tab = mysql_fetch_array($result)){
+            $mot1 = $tab[$nomColonne];
+            $sql = "SELECT $nomColonne FROM $tableMot";
+            $result2 = mysql_query($sql);
+            while ($tab2 = mysql_fetch_array($result2)){
+                $mot2 = $tab2[$nomColonne];
+                if (strlen($mot1)>4 && strlen($mot2)>4 && $mot1!=$mot2 && $mot1!=$mot2."S" && $mot2!=$mot1."S"){
+                    $dist = levenshtein($mot1,$mot2);
+                    if ($dist>0 && $dist<2){
+                        if ($cpt==0) $print .= "<tr>";
+                        $print .= "<td><input type='checkbox' name='$mot1|$mot2'>$mot1/$mot2</td>";
+                        if (++$cpt==5){
+                            $cpt=0;
+                            $print .= "</tr>";
+                        }
+                    } 
+                }     
+            }
+            progressBar("Corrections",round(++$progress*100/$limite));
+        }
+        return "<form action='?type=validate&stage=correc' method='post'><table>$print</table><p align='center'><input type='submit' value='correct'></form>";
     }
 
 
