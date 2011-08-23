@@ -4,6 +4,17 @@
         $sql = "SELECT COUNT(*) FROM $table";
         return mysql_query($sql);
     }
+    
+    function tableSize($table){
+        $sql = "SELECT COUNT(*) FROM $table";
+        return mysql_result(mysql_query($sql),0);
+    }
+    
+    function colonneExiste($colonne){
+        global $nomTable;
+        $sql = "SELECT $colonne FROM $nomTable";
+        return mysql_query($sql);
+    }
 
     function creeLog(){          
         $temps = start_timer();    
@@ -69,6 +80,7 @@
     function creeTables(){
         global $nomTable, $nomColonne, $ordreMax, $thres;
         $temps = start_timer();
+        creeStats(); 
         creeSousTables("");    
         for ($i=2; $i<=$ordreMax; $i++){
             $sql = "SELECT name FROM y_".$nomTable."_".$nomColonne."_stats WHERE ordre='$i'-1 AND nombre>'$thres'";
@@ -202,8 +214,7 @@
     function initStat($mot){
         global $nomTable,$nomColonne; 
         $ordre = strlen($mot);
-        $sql = "SELECT COUNT(*) FROM z_".$nomTable."_".$nomColonne."_".$mot;
-        $taille = mysql_result(mysql_query($sql),0);                         
+        $taille = tableSize("z_".$nomTable."_".$nomColonne."_".$mot);                         
         $sql = "INSERT INTO y_".$nomTable."_".$nomColonne."_stats SET ordre='$ordre', name='$mot', nombre='$taille'";
         mysql_query($sql);
     }
@@ -417,19 +428,22 @@
         $total = mysql_num_rows($result);
         $cpt = 0; $progress = 0;
         while ($tab = mysql_fetch_array($result)){
-            $mot = $motParMot? explode(" ",$tab[$nomColonne]): array($tab[$nomColonne]);
+
+            $phrase = $tab[$nomColonne]; $mot;  //echo "<br>".$phrase; 
+            if (mb_detect_encoding($phrase,"UTF-8",true)) $phrase = utf8_decode($phrase); 
+            $phrase = addslashes(strtoupper(trim($phrase)));
+            if ($motParMot){               
+                $phrase = preg_replace("/[^A-Z¿¬«»… ÀŒœ‘Ÿ€‹\'\-]+/"," ",$phrase);
+                $mot = explode(" ",$phrase);
+            }
+            else {
+                $mot = array(preg_replace("/\([^\)]+\)/","",$phrase));
+            }
+            
             for ($i=0; $i<sizeof($mot); $i++){
-                $t = $mot[$i];
-                if (mb_detect_encoding($t)=="UTF-8") $t = utf8_decode($t);
-                if ($key=="word"){
-                    $t = strtr("()&\"?:!´,;.","           ",$t);
-                }
-                else {
-                    $t = preg_replace("/\([^\)]+\)/","",$t);
-                }
-                $t = addslashes(strtoupper(trim($t)));
-                $t = str_replace("  "," ",$t); 
-                if ($t!=""){
+                $t = addslashes($mot[$i]);                                             
+                if (strlen($t)>1){
+                    //echo " - ".$t;  
                     $sql = "SELECT id FROM y_".$nomTable."_".$nomColonne."_key".$key." WHERE $nomColonne='$t' LIMIT 1";
                     $res = mysql_query($sql);                   
                     if (mysql_num_rows($res)>0){
@@ -470,9 +484,7 @@
         global $nomTable,$nomColonne;  
         $tableStats = "y_".$nomTable."_".$nomColonne."_stats";
 
-        $sql = "SELECT COUNT(*) FROM $tableStats";     
-        $result = mysql_query($sql);
-        $taille = mysql_result($result,0);
+        $taille = tableSize($tableStats);
         $print = "Nombre de sous-tables : ".$taille."<br>";
         $i=1;
         while ($i<10){
@@ -496,9 +508,8 @@
             $result = mysql_query($sql);
             $print .= "<table><tr><td>Nom</td><td>Nombre</td><td>Proportion</td></tr>";
             while ($tab = mysql_fetch_array($result)){
-                if ($i==1){
-                    $sql = "SELECT COUNT(*) FROM $nomTable";
-                    $prop = mysql_result(mysql_query($sql),0);
+                if ($i==1){                         
+                    $prop = tableSize($nomTable);
                     $txt = round(100*$tab['nombre']/$prop)."%"; 
                 }
                 else {                
@@ -669,24 +680,24 @@
     }
 
 
-    function stats(){                     
+    function stats($limite){                     
         global $nomBase,$nomTable,$nomColonne;                                                                
 
         $print = "<table><tr>";
         for ($i=ord("A"); $i<=ord("Z"); $i++){ 
             $lettre = chr($i);                                               
-            $print .= "<td><table><tr><td><b>".$lettre."</b></td></tr>";
+            $print .= "<td valign='top'><b>".$lettre."</b>";
 
             $table = "y_".$nomTable."_".$nomColonne."_keyword";                                                               
-            $sql = "SELECT $nomColonne,id,nombre,ignored FROM $table WHERE $nomColonne LIKE '$lettre%' ORDER BY nombre DESC LIMIT 25";   
+            $sql = "SELECT $nomColonne,id,nombre,ignored FROM $table WHERE $nomColonne LIKE '$lettre%' ORDER BY nombre DESC LIMIT $limite";   
             $result = mysql_query($sql) or die($sql."<br>".mysql_error());  
 
             while ($tab = mysql_fetch_array($result)){
                 $word = $tab['ignored']==0? $tab[$nomColonne]: "<i>".$tab[$nomColonne]."</i>";
-                $print .= "<tr><td><a href=\"javascript:getStats('$tab[id]','$nomBase','$nomTable','$nomColonne');\" title='$tab[nombre]'>".$word."</a></td></tr>";
+                $print .= "<p><a href=\"javascript:getStats('stats_keywords','$tab[id]','$nomBase','$nomTable','$nomColonne');\" title='$tab[nombre]'>".$word."</a></p>";
             }
 
-            $print .= "</table></td>";
+            $print .= "</td>";
         }
 
         $print .= "</tr></table>";
@@ -724,13 +735,6 @@
         arsort($listeExpr2);
 
         $printListe = "";
-
-        // script pour simuler un menu dÈroulant
-        echo "<script>function openclose(divid){
-        if (document.getElementById(divid).style.display=='none')    
-        document.getElementById(divid).style.display = 'block';
-        else document.getElementById(divid).style.display = 'none'; 
-        }</script>";
 
         // on parcourt les expressions (primaires) par taille dÈcroissante
         foreach ($listeExpr2 as $key=>&$val){
@@ -831,36 +835,48 @@
     }       
 
 
-    function corrections($limite){
-        global $nomTable,$nomColonne;
+    function corrections($meth,$limite,$tauxMin){
+        global $nomBase,$nomTable,$nomColonne;
         $print = "";
-        $tableMot = "y_".$nomTable."_".$nomColonne."_keyword"; 
+        $tableMot = "y_".$nomTable."_".$nomColonne."_key".$meth; 
         $sql = "SELECT $nomColonne FROM $tableMot ORDER BY nombre DESC LIMIT $limite";
         $result = mysql_query($sql);
-        $cpt = 0; $progress = 0;
+        $progress = 0;
 
         while ($tab = mysql_fetch_array($result)){
             $mot1 = $tab[$nomColonne];
-            $sql = "SELECT $nomColonne FROM $tableMot";
-            $result2 = mysql_query($sql);
+            $sql = "SELECT $nomColonne,id,nombre FROM $tableMot";
+            $result2 = mysql_query($sql);       
+            $sousliste = array();
+
             while ($tab2 = mysql_fetch_array($result2)){
                 $mot2 = $tab2[$nomColonne];
-                if (strlen($mot1)>4 && strlen($mot2)>4 && $mot1!=$mot2 && $mot1!=$mot2."S" && $mot2!=$mot1."S"){
+                if ($mot1!=$mot2 && $mot1!=$mot2."S" && $mot2!=$mot1."S"){
                     $dist = levenshtein($mot1,$mot2);
-                    if ($dist>0 && $dist<2){
-                        if ($cpt==0) $print .= "<tr>";
-                        $print .= "<td><input type='checkbox' name='$mot1|$mot2'>$mot1/$mot2</td>";
-                        if (++$cpt==5){
-                            $cpt=0;
-                            $print .= "</tr>";
-                        }
+                    $taux = 1-$dist/max(strlen($mot1),strlen($mot2));
+                    if ($taux>$tauxMin){         
+                        $sousliste[$mot2."|".$tab2['id']."|".$tab2['nombre']] = $taux;     
                     } 
                 }     
             }
+            $taille = sizeof($sousliste);
+            if ($taille>0){                
+                $print .= "<li>$mot1<font class='chiffres'> ($taille)</font><input type='button' value='+' onclick='openclose(\"deroule_$mot1\")'>
+                <div id='deroule_$mot1' style='display:none;'>";
+                arsort($sousliste);
+                foreach ($sousliste as $key=>$val){
+                    $t = explode("|",$key);
+                    $pourcent = round(100*$val);
+                    $print .= "<input type='checkbox' name='$mot1|$t[0]'>
+                    <a href=\"javascript:getStats('stats_correc','$meth','$t[1]','$nomBase','$nomTable','$nomColonne');\" title='$t[2]'>$t[0]</a>
+                    <font class='chiffres'> ($pourcent%)</font><br>";
+                }
+                $print .= "</div></li>";
+            }
             progressBar("Corrections",round(++$progress*100/$limite));
         }
-        return "<form action='?type=validate&stage=correc' method='post'><table>$print</table><p align='center'><input type='submit' value='correct'></form>";
+        return "<form action='?type=validate&stage=correc' method='post'><ul>$print</ul><p align='center'><input type='submit' value='correct'></form>";
     }
 
 
-?>
+?>                                                                                                                                               

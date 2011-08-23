@@ -1,9 +1,9 @@
 url = "../../recherche/getSearchField.php?key="+key;      
                                         
-$.getScript("../jquery.ui/core.js");
-$.getScript("../jquery.ui/widget.js");  
-$.getScript("../jquery.ui/position.js");  
-$.getScript("../jquery.ui/autocomplete.js");  
+$.getScript("http://localhost/jquery.ui/core.js");
+$.getScript("http://localhost/jquery.ui/widget.js");  
+$.getScript("http://localhost/jquery.ui/position.js");  
+$.getScript("http://localhost/jquery.ui/autocomplete.js");  
 
 // création d'un objet capable d'interagir avec le serveur                                           
 try {
@@ -39,7 +39,7 @@ function soumettre(search,key,base,table,colonne,mode,methode,visuel,limite,nomD
     var url = "../../recherche/ajax.php?search="+search + "&base="+base + "&table="+table + "&colonne="+colonne
     + "&mode="+mode + "&methode="+methode + "&visuel="+visuel + "&limite="+limite 
     + "&containerAll="+containerAll + "&containerResult="+containerResult + "&containerDetails="+containerDetails;      
-
+                 
     // création d'un objet capable d'interagir avec le serveur
     try {
         // Essayer IE
@@ -55,7 +55,7 @@ function soumettre(search,key,base,table,colonne,mode,methode,visuel,limite,nomD
         // instructions de traitement de la réponse  
         if (xhr.readyState == 4) {
 
-            var result = xhr.responseText;           
+            var result = xhr.responseText;  
 
             // debug                                                 
             // alert(result);

@@ -22,8 +22,6 @@
                                                                                                                                                                           
     switch($stage){
         case 'initialize':
-            creeLog();
-            creeStats();
             creeTables(); 
             break;
         case 'performances': 
@@ -76,14 +74,19 @@
             }
             $nomColonne = $col;
             break;
-        case 'keyword':
+        case 'stats_keywords':
             $id = $_POST['id'];
             if (isset($_POST['ignore']) && $_POST['ignore']=="ignore"){
                 $table = "y_".$nomTable."_".$nomColonne."_keyword";
                 $sql = "UPDATE $table SET ignored=1-ignored WHERE id='$id'";
                 $result = mysql_query($sql) or die($sql."<br>".mysql_error());
+            }                                                                               
+            break;
+        case 'correc':     
+            foreach ($_POST as $key=>$val){
+                $mot = explode("|",$key);
+                updateCorrec($mot[1],$mot[0]);
             }
-            else if (isset($_POST['rename']) && $_POST['rename']=="rename") die("rename");
             break;
     }
 

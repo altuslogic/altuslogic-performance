@@ -1,5 +1,5 @@
 <?php 
-
+                  
     include "config/config.inc.php";
     include "config/db.inc.php";
     include "search_funcs.php";

@@ -3,7 +3,7 @@
     include "config/db.inc.php";  
 ?>
 
-<head> 
+<head>                                                  
     <link rel="stylesheet" href="../jquery.ui/all.css">      
     <script src="../jquery-1.5.1.js"></script>
 </head>   

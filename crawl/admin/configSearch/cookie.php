@@ -4,8 +4,8 @@
         setcookie($token,$value);
     }
 
-    function readCookie($token,$default){
-        if (!isset($_GET[$token])){
+    function readCookie($methode,$token,$default){
+        if (!isset($methode[$token])){
             if (isset($_COOKIE[$token])){
                 $value = $_COOKIE[$token]; 
             }
@@ -14,45 +14,28 @@
             } 
         }
         else {
-            saveCookie($token,$_GET[$token]);
-            $value = $_GET[$token];
+            saveCookie($token,$methode[$token]);
+            $value = $methode[$token];
         }
         return $value;
-    }     
+    }      
 
-    function readCookieP($token,$default){
-        if (!isset($_POST[$token])){
-            if (isset($_COOKIE[$token])){
-                $value = $_COOKIE[$token]; 
-            }
-            else {
-                $value = $default;
-            } 
-        }
-        else {
-            saveCookie($token,$_POST[$token]);
-            $value = $_POST[$token];
-        }
-        return $value;
-    } 
+    $nomBase = readCookie($_GET,"nomBase","");    
+    $nomTable = readCookie($_GET,"nomTable","");
+    $nomColonne = readCookie($_GET,"nomColonne","");
+    $mode = readCookie($_POST,"mode","milieu");     
+    $methode = readCookie($_POST,"methode","direct");
+    $visuel = readCookie($_POST,"visuel","result");
+    $resume = readCookie($_POST,"resume",1);
+    $limite = readCookie($_POST,"limite",10);
+    $nomDiv = readCookie($_POST,"nomDiv","ajax");
+    $afficheDiv = readCookie($_POST,"afficheDiv",1);  
+    $containerAll = readCookie($_POST,"containerAll","<b>~TITLE~</b><ul>~ALL~</ul>~TIME~"); 
+    $containerResult = readCookie($_POST,"containerResult","<li>~RES~</li>");
+    $containerDetails = readCookie($_POST,"containerDetails","");  
+    $f = readCookie($_GET,"f",2); 
+    $type = readCookie($_GET,"type",""); 
+    $thres = readCookie($_GET,"threshold",5000);
+    $ordreMax = readCookie($_GET,"ordre",3);
 
-    $nomBase = readCookie("nomBase","");    
-    $nomTable = readCookie("nomTable","");
-    $nomColonne = readCookie("nomColonne","");
-    $mode = readCookieP("mode","milieu");     
-    $methode = readCookieP("methode","direct");
-    $visuel = readCookieP("visuel","result");
-    $resume = readCookieP("resume",1);
-    $limite = readCookieP("limite",10);
-    $nomDiv = readCookieP("nomDiv","ajax");
-    $afficheDiv = readCookieP("afficheDiv",1);  
-    $containerAll = readCookieP("containerAll","<b>~TITLE~</b><ul>~ALL~</ul>~TIME~"); 
-    $containerResult = readCookieP("containerResult","<li>~RES~</li>");
-    $containerDetails = readCookieP("containerDetails","");  
-    $f = readCookie("f",2); 
-    $type = readCookie("type",""); 
-    $thres = readCookie("threshold",5000);
-    $ordreMax = readCookie("ordre",3);
-    echo "base : $nomBase<br>table : $nomTable<br>colonne : $nomColonne";
- 
 ?>

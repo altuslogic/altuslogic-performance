@@ -1,6 +1,6 @@
-function getStats(id,base,table,colonne){
+function getStats(zone,methode,id,base,table,colonne){
 
-    url = "getWordStats.php?id="+id + "&base="+base + "&table="+table + "&colonne="+colonne;
+    url = "getWordStats.php?zone="+zone + "&methode="+methode + "&id="+id + "&base="+base + "&table="+table + "&colonne="+colonne;
 
     // création d'un objet capable d'interagir avec le serveur                                           
     try {
@@ -16,7 +16,7 @@ function getStats(id,base,table,colonne){
     xhr.onreadystatechange = function(){
         // instructions de traitement de la réponse  
         if (xhr.readyState == 4){
-            document.getElementById('stats_keywords').innerHTML = xhr.responseText;                                  
+            document.getElementById(zone).innerHTML = xhr.responseText;                                  
         }                       
     };
 
@@ -24,4 +24,11 @@ function getStats(id,base,table,colonne){
     xhr.open("GET", url, false); 
     xhr.send(null);                          
 
+}
+
+// script pour simuler un menu déroulant  
+function openclose(divid){
+    if (document.getElementById(divid).style.display=='none')    
+        document.getElementById(divid).style.display = 'block';
+    else document.getElementById(divid).style.display = 'none'; 
 }

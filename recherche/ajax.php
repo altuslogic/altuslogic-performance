@@ -1,5 +1,5 @@
 <?php
-
+                                      
     header("Content-type: text/html; charset=ISO-8859-1");
     $search = $_GET['search']; 
     $nomBase = $_GET['base'];

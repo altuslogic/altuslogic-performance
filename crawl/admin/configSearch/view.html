@@ -1,4 +1,5 @@
-<?php if ($show=='search' || $show=='all'){ ?>  
+<?php if ($show=='search' || $show=='all'){ ?>
+<table><tr><td valign="top">  
 <div class="init">
     <h2>Paramètres de recherche</h2>
     <form action="?stage=save_param" method="post" autocomplete="off">
@@ -41,22 +42,26 @@
         <p align="center"><input type="submit" value="save"></p> 
     </form>
 </div> 
+</td><td valign="top">  
 <div class="init">  
     <h2>Recherche</h2>
     <?php
     echo $print_search;
     ?>
 </div>
+</td><td valign="top">  
 <div class="init">
     <h2>Code</h2>
     <textarea style="width:inherit; height:145; resize: none;" readonly="readonly"><?php
         echo $print_search;
         ?></textarea>  
 </div>
+</td></tr></table> 
 
 <?php }
 if ($show=='index' || $show=='all'){ ?>  
 
+<table><tr><td valign="top">
 <div class="init">
     <h2>Menu action </h2>
     <a href="?stage">Home</a> |
@@ -66,7 +71,8 @@ if ($show=='index' || $show=='all'){ ?>
     <a href="?stage=delete_tables">Delete tables</a>  -
     <a href="?stage=delete_index">Delete index</a> -              
     <a href="?stage=clear_cache">Clear cache</a>     
-</div>                                                    
+</div>               
+</td><td valign="top">                                      
 <div class="init">
     <h2>Insert / Delete</h2>
     <form action="?stage=modif" method="post" autocomplete="off">
@@ -75,6 +81,7 @@ if ($show=='index' || $show=='all'){ ?>
         <input type="submit" value="delete" name="delete" id="delete">   
     </form>
 </div>
+</td><td valign="top"> 
 <div class="init">
     <form method="get" autocomplete="off">
         <h2>Paramètres d'indexation (sous-tables)</h2>
@@ -83,39 +90,45 @@ if ($show=='index' || $show=='all'){ ?>
         <br><br><input type="submit" value="validate" id="initialize"> 
     </form>
 </div>
+</td><td valign="top"> 
 <div class="init">
     <h2>Indexation</h2>
     <?php          
     if ($nomBase && $nomTable) echo info_colonnes();    
     ?>
 </div>
+</td></tr></table>  
 
 <?php }         
 if ($show=='selection' || $show=='all'){ ?>
 
+<table><tr><td valign="top">
 <div class="init">
     <h2>Sélection de la db</h2> 
     <?php          
     echo list_db();    
     ?>
 </div>
+</td><td valign="top">
 <div class="init">
     <h2>Sélection de la table</h2> 
     <?php          
     if ($nomBase) echo list_tables();    
     ?>
 </div>
+</td><td valign="top">
 <div class="init">
     <h2>Sélection de la colonne</h2>
     <?php          
     if ($nomBase && $nomTable) echo list_colonnes();    
     ?>
 </div>
+</td></tr></table> 
 
 <?php }          
 if ($show=='keywords' || $show=='all'){
 $print = "";
-if ($nomBase && $nomTable && $nomColonne) $print = stats(); ?> 
+if ($nomBase && $nomTable && $nomColonne) $print = stats(20); ?> 
 
 <table><tr><td>
 <div class="stats">
@@ -131,13 +144,14 @@ if ($nomBase && $nomTable && $nomColonne) $print = stats(); ?>
 <?php }          
 if ($show=='expr' || $show=='all'){
 $print = "";
-if ($nomBase && $nomTable && $nomColonne) $print = expressions(10); ?> 
+$lim = isset($_GET['limit'])? $_GET['limit']: 50;
+if ($nomBase && $nomTable && $nomColonne) $print = expressions($lim); ?> 
 
 <table><tr><td>    
 <div class="stats">
     <h2>Top expressions</h2>
-    <form method="get">
-    Limite : <input type="text" name="limit"><input type="submit" value="ok">
+    <form method="get" autocomplete="off">
+    Limite : <input type="text" name="limit" value="<?php echo $lim;?>"><input type="submit" value="ok">
     </form>  
        <?php echo $print;?> 
 </div> 
@@ -150,11 +164,19 @@ if ($nomBase && $nomTable && $nomColonne) $print = expressions(10); ?>
 <?php }          
 if ($show=='correct' || $show=='all'){
 $print = "";
-if ($nomBase && $nomTable && $nomColonne) $print = corrections(100); ?> 
+$meth = isset($_GET['methode'])? $_GET['methode']: "word";
+$lim = isset($_GET['limit'])? $_GET['limit']: 50;  
+$seuil = isset($_GET['seuil'])? $_GET['seuil']: 75;  
+if ($nomBase && $nomTable && $nomColonne && isset($_GET['limit'])) $print = corrections($meth,$lim,$seuil/100); ?> 
 
 <table><tr><td>    
 <div class="stats">
     <h2>Top corrections</h2>
+    <form method="get" autocomplete="off">
+    Indexation : <input type="radio" name="methode" value="word" checked>mot<input type="radio" name="methode" value="phrase">phrase
+    <br><br><table><tr><td>Limite : </td><td><input type="text" name="limit" value="<?php echo $lim;?>"></td></tr>
+    <tr><td>Seuil(%) : </td><td><input type="text" name="seuil" value="<?php echo $seuil;?>"><input type="submit" value="ok"></td></tr></table>
+    </form>  
     <?php echo $print;?>
 </div>
 </td><td valign="top">
