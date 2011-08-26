@@ -36,7 +36,7 @@ function soumettre(search,key,base,table,colonne,mode,methode,visuel,limite,nomD
         return;
     }
 
-    var url = "../../recherche/ajax.php?search="+search + "&base="+base + "&table="+table + "&colonne="+colonne
+    var url = "../../recherche/ajax.php?search="+search + "&hash="+key + "&nomBase="+base + "&nomTable="+table + "&nomColonne="+colonne
     + "&mode="+mode + "&methode="+methode + "&visuel="+visuel + "&limite="+limite 
     + "&containerAll="+containerAll + "&containerResult="+containerResult + "&containerDetails="+containerDetails;      
                  

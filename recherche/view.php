@@ -13,9 +13,9 @@
     $result = mysql_query($sql);
     $print = "";                    
     while ($tab = mysql_fetch_array($result)){                                     
-            $print .= "<div id='search_zone_".$tab['hash']."' style='border:1px solid #444;'></div>
-            <script type='text/javascript'>var key='".$tab['hash']."';</script>
-            <script type='text/javascript' src='../recherche/getSearchField.js'></script><br><br>"; 
+        $print .= "<div id='search_zone_".$tab['hash']."' style='border:1px solid #444;'></div>
+        <script type='text/javascript'>var key='".$tab['hash']."';</script>
+        <script type='text/javascript' src='../recherche/getSearchField.js'></script><br><br>"; 
     }
     echo $print;
 ?>

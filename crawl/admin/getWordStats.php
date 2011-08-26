@@ -37,7 +37,7 @@
 <?php
 switch($zone){
     case 'stats_keywords':
-        echo "<input type='submit' name='ignore' id='ignore' value='ignore'>";
+        echo "<input type='submit' name='action' value='ignore'>";
         break;
    /* case 'stats_correc':
         echo "<input type='submit' name='merge' id='merge' value='merge'>";

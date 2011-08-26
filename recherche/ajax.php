@@ -1,17 +1,9 @@
 <?php
-                                      
+
     header("Content-type: text/html; charset=ISO-8859-1");
-    $search = $_GET['search']; 
-    $nomBase = $_GET['base'];
-    $nomTable = $_GET['table'];
-    $nomColonne = $_GET['colonne'];                        
-    $mode = $_GET['mode'];
-    $methode = $_GET['methode'];
-    $visuel = $_GET['visuel']; 
-    $limite = $_GET['limite'];
-    $containerAll = $_GET['containerAll'];
-    $containerResult = $_GET['containerResult']; 
-    $containerDetails = $_GET['containerDetails']; 
+    foreach ($_GET as $key=>$val){
+        $$key = $val;
+    } 
     $ordreMax=3; // à changer : recherche dans stats
 
     $nomMaitre = $nomBase;
@@ -29,7 +21,7 @@
     $selecCol = strtolower(implode(", ",$tabCol));
 
     // Recherche proprement dite
-    $tab = recherche($search,$mode,$methode,$selecCol,$limite,null); 
+    $tab = recherche($search,$hash,$mode,$methode,$selecCol,$limite,null); 
     $result = $tab['resultats'];
 
     if ($visuel=="result"){                                              

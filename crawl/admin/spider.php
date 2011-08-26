@@ -1,7 +1,7 @@
 <?php 
 
-include "../../proto2/cookie.php";
-
+include "configSearch/cookie.php";
+                                  
 	set_time_limit (0);
 	$include_dir = "../include";
 	include "auth.php";
@@ -14,23 +14,22 @@ include "../../proto2/cookie.php";
 	include "messages.php";
 	include "spiderfuncs.php";
 	error_reporting (E_ALL ^ E_NOTICE ^ E_WARNING);
-
+                                                        
 
 
 $success = mysql_pconnect ($DbHost, $DbUser, $DbPassword);
 			if (!$success)
-				die ("<b>Cannot connect to database, check if username, password and host are correct.</b>");
+				die ("<b>Cannot connect to database, check if username, password and host are correct.</b>"); 
 		    $success = mysql_select_db ($nomBase);
 			if (!$success) {
 				print "<b>Cannot choose database, check if database name is correct.";
 				die();
-			}
-			$success = mysql_select_db ($nomBase); 
+			}                 
 			
 			
 	$delay_time = 0;
 
-	
+	                              
 	$command_line = 0;
 
 	if (isset($_SERVER['argv']) && $_SERVER['argc'] >= 2) {
@@ -71,7 +70,7 @@ $success = mysql_pconnect ($DbHost, $DbUser, $DbPassword);
 		
 		}
 	}
-
+                   
 	
 	if (isset($soption) && $soption == 'full') {
 		$maxlevel = -1;
@@ -103,12 +102,12 @@ $success = mysql_pconnect ($DbHost, $DbUser, $DbPassword);
 			die ("Logging option is set, but cannot open file for logging.");
 		}
 	}
-	
-	if ($all ==  1) {
+	                            
+	if ($all ==  1) {          
 		index_all();
 	} else {
-
-		if ($reindex == 1 && $command_line == 1) {
+                                                               
+		if ($reindex == 1 && $command_line == 1) {               
 			$result=mysql_query("select url, spider_depth, required, disallowed, can_leave_domain from ".$mysql_table_prefix."sites where url='$url'");
 			echo mysql_error();
 			if($row=mysql_fetch_row($result)) {
@@ -133,7 +132,7 @@ $success = mysql_pconnect ($DbHost, $DbUser, $DbPassword);
 		}
 		if (!isset($out)) {
 			$out = "";
-		}
+		}                                 
 
 		index_site($url, $reindex, $maxlevel, $soption, $in, $out, $domaincb);
 
@@ -148,7 +147,7 @@ $success = mysql_pconnect ($DbHost, $DbUser, $DbPassword);
 	}
 
 	
-	function index_url($url, $level, $site_id, $md5sum, $domain, $indexdate, $sessid, $can_leave_domain, $reindex) {
+	function index_url($url, $level, $site_id, $md5sum, $domain, $indexdate, $sessid, $can_leave_domain, $reindex) {                
 		global $entities, $min_delay;
 		global $command_line;
 		global $min_words_per_page;
@@ -175,7 +174,7 @@ $success = mysql_pconnect ($DbHost, $DbUser, $DbPassword);
 
 			$url_status['state'] == "redirected";
 		}
-
+                                     
 		/*
 		if ($indexdate <> '' && $url_status['date'] <> '') {
 			if ($indexdate > $url_status['date']) {
@@ -212,8 +211,7 @@ $success = mysql_pconnect ($DbHost, $DbUser, $DbPassword);
 			if ($file_read_error) {
 				$contents = getFileContents($url);
 				$file = $contents['file'];
-			}
-			
+			}                           
 
 			$pageSize = number_format(strlen($file)/1024, 2, ".", "");
 			printPageSizeReport($pageSize);
@@ -222,7 +220,7 @@ $success = mysql_pconnect ($DbHost, $DbUser, $DbPassword);
 				$file = extract_text($file, $url_status['content']);
 			}
 
-			printStandardReport('starting', $command_line);
+			printStandardReport('starting', $command_line);                
 		
 
 			$newmd5sum = md5($file);
@@ -253,7 +251,7 @@ $success = mysql_pconnect ($DbHost, $DbUser, $DbPassword);
 
 				// remove link to css file
 				//get all links from file
-				$data = clean_file($file, $url, $url_status['content']);
+				$data = clean_file($file, $url, $url_status['content']); 
 
 				if ($data['noindex'] == 1) {
 					$OKtoIndex = 0;
@@ -288,9 +286,10 @@ $success = mysql_pconnect ($DbHost, $DbUser, $DbPassword);
 				
 				if ($OKtoIndex == 1) {
 					
-					$title = $data['title'];
+					$title = $data['title'];            
 					$host = $data['host'];
 					$path = $data['path'];
+                    $fullhtml = $data['fullhtml'];
 					$fulltxt = $data['fulltext'];
 					$desc = substr($data['description'], 0,254);
 					$url_parts = parse_url($url);
@@ -309,7 +308,7 @@ $success = mysql_pconnect ($DbHost, $DbUser, $DbPassword);
 					//if there are words to index, add the link to the database, get its id, and add the word + their relation
 					if (is_array($wordarray) && count($wordarray) > $min_words_per_page) {
 						if ($md5sum == '') {
-							mysql_query ("insert into ".$mysql_table_prefix."links (site_id, url, title, description, fulltxt, indexdate, size, md5sum, level) values ('$site_id', '$url', '$title', '$desc', '$fulltxt', curdate(), '$pageSize', '$newmd5sum', $thislevel)");
+							mysql_query ("insert into ".$mysql_table_prefix."links (site_id, url, title, description, fullhtml, fulltxt, indexdate, size, md5sum, level) values ('$site_id', '$url', '$title', '$desc', '$fullhtml', '$fulltxt', curdate(), '$pageSize', '$newmd5sum', $thislevel)");
 							echo mysql_error();
 							$result = mysql_query("select link_id from ".$mysql_table_prefix."links where url='$url'");
 							echo mysql_error();
@@ -394,7 +393,7 @@ $success = mysql_pconnect ($DbHost, $DbUser, $DbPassword);
 		$result = mysql_query("select site_id from ".$mysql_table_prefix."sites where url='$url'");
 		echo mysql_error();
 		$row = mysql_fetch_row($result);
-		$site_id = $row[0];
+		$site_id = $row[0];                                                             
 		
 		if ($site_id != "" && $reindex == 1) {
 			mysql_query ("insert into ".$mysql_table_prefix."temp (link, level, id) values ('$url', 0, '$sessid')");
@@ -424,7 +423,7 @@ $success = mysql_pconnect ($DbHost, $DbUser, $DbPassword);
 					"disallowed = '$url_not_inc', can_leave_domain=$can_leave_domain where site_id=$site_id");
 			echo mysql_error();
 		}
-	
+
 	
 		$result = mysql_query("select site_id, temp_id, level, count, num from ".$mysql_table_prefix."pending where site_id='$site_id'");
 		echo mysql_error();
@@ -557,7 +556,7 @@ $success = mysql_pconnect ($DbHost, $DbUser, $DbPassword);
 
 	}
 
-	function index_all() {
+	function index_all() {          
 		global $mysql_table_prefix;
 		$result=mysql_query("select url, spider_depth, required, disallowed, can_leave_domain from ".$mysql_table_prefix."sites");
 		echo mysql_error();

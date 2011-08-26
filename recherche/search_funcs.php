@@ -7,10 +7,10 @@
         return mysql_query($sql);
     }
 
-    function updateLog($action,$temps){
-        global $nomMaitre,$nomBase,$nomTable;  
+    function updateLog($action,$details,$hash,$temps){
+        global $nomMaitre,$nomBase;  
         mysql_select_db($nomMaitre);  
-        $sql = "INSERT INTO log SET action='$action', heure=NOW(), temps='$temps'";
+        $sql = "INSERT INTO log SET action='$action', details='$details', hash='$hash', heure=NOW(), temps='$temps'";
         mysql_query($sql); 
         mysql_select_db($nomBase);     
     }
@@ -24,9 +24,11 @@
     * @param mixed $limite : le nombre de résultats à renvoyer
     * @param mixed $coord : les coordonnées (latitude,longitude)
     */
-    function recherche($text, $mode, $methode, $selecCol, $limite, $coord){             
-
+    function recherche($text, $hash, $mode, $methode, $selecCol, $limite, $coord){             
+                                         
         global $nomTable, $nomColonne,$ordreMax;
+        // debug                               
+        // return array("resultats" => array(array("name"=>$hash), "temps" => 0));
         $temps = start_timer();
         $result;
 
@@ -90,7 +92,7 @@
             array_push($array,$tab);                                                                     
         }                
 
-        updateLog("Recherche ".$text,$temps=end_timer($temps));
+        updateLog("Recherche",$text,$hash,$temps=end_timer($temps));
         return array("resultats" => $array, "temps" => $temps);
     }  
 

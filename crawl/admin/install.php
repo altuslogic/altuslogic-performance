@@ -37,7 +37,7 @@ mysql_query("create table `".$mysql_table_prefix."sites`(
 	spider_depth int default 2,
 	required text,
 	disallowed text,
-	can_leave_domain bool)");
+    can_leave_domain bool)");
 if (mysql_errno() > 0) {
 	print "Error: ";
 	print mysql_error();
@@ -50,7 +50,9 @@ mysql_query("create table `".$mysql_table_prefix."links` (
 	url varchar(255) not null,
 	title varchar(200),
 	description varchar(255),
-	fulltxt mediumtext,
+    fullhtml mediumtext,
+    fulltxt mediumtext,
+	partialtxt mediumtext,
 	indexdate date,
 	size float(2),
 	md5sum varchar(32),

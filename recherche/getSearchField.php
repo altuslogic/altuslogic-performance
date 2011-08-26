@@ -19,9 +19,9 @@
     if ($resume==1){
         echo "<table border='1'>"; 
         foreach ($ligne as $key => $val){    
-            echo "<tr><td>".$key."</td><td>".$val."</td></tr>";
+            echo "<tr><td>".$key."</td><td".($key=="hash"? " style='font-size:7pt;'": "").">".$val."</td></tr>";
         }          
-        echo "</table>";
+        echo "</table><br>";
     }
 
     mysql_select_db($nomBase);
@@ -36,10 +36,10 @@
 
 ?> 
 
-<br><form>
+<form style="margin-bottom: 0;">
     <input type='text' onkeyup='javascript:soumettre(this.value,<?php echo $param; ?>);' id='champ_<?php echo $hash; ?>' style="background-color: transparent; color: #444; border: 1px solid #444;">
     <?php echo $ok; ?>
-</form>
+</form><br>
 
 <?php if ($afficheDiv){ ?>                   
     <div id='<?php echo $nomDiv; ?>'></div>  

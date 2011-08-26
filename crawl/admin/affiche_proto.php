@@ -10,12 +10,12 @@
 <script src="getWordStats.js"></script> 
 
 <div id='submenu'>
-    <ul>
+    <ul>                               
         <li><a href="admin.php?f=prototype&type=selection">Selection</a></li>
         <li><a href="admin.php?f=prototype&type=index">Indexation</a></li>
         <li><a href="admin.php?f=prototype&type=search">Search</a></li>
         <li><a href="admin.php?f=prototype&type=geo">Geo</a></li>
-        <li><a href="admin.php?f=prototype&type=keywords">Top keywords</a></li> 
+        <li><a href="admin.php?f=prototype&type=keywords">Keywords</a></li> 
         <li><a href="admin.php?f=prototype&type=expr">Expressions</a></li>
         <li><a href="admin.php?f=prototype&type=correct">Corrections</a></li>  
         <li><a href="admin.php?f=prototype&type=log">Log</a></li>         

@@ -4,12 +4,12 @@
         $sql = "SELECT COUNT(*) FROM $table";
         return mysql_query($sql);
     }
-    
+
     function tableSize($table){
         $sql = "SELECT COUNT(*) FROM $table";
         return mysql_result(mysql_query($sql),0);
     }
-    
+
     function colonneExiste($colonne){
         global $nomTable;
         $sql = "SELECT $colonne FROM $nomTable";
@@ -21,23 +21,25 @@
         $sql = "CREATE TABLE log (
         `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
         `action` varchar(255) NOT NULL,
+        `details` varchar(50) NOT NULL,
+        `hash` varchar(32) NOT NULL,
         `heure` datetime NOT NULL,
         `temps` float NOT NULL, 
         PRIMARY KEY (`id`)
         ) ENGINE=MyISAM  DEFAULT CHARSET=latin1" ;
         $result = mysql_query($sql);
-        if ($result) updateLog("Création du log",end_timer($temps));
+        if ($result) updateLog("Création du log","",end_timer($temps));
     }
 
-    function updateLog($action,$temps){
+    function updateLog($action,$details,$temps){
         global $nomMaitre,$nomBase;  
         mysql_select_db($nomMaitre);  
-        $sql = "INSERT INTO log SET action='$action', heure=NOW(), temps='$temps'";
+        $sql = "INSERT INTO log SET action='$action', details='$details', heure=NOW(), temps='$temps'";
         mysql_query($sql); 
         mysql_select_db($nomBase);     
     }
 
-    function initChamps(){
+    function creeChamps(){
         $sql = "CREATE TABLE IF NOT EXISTS champs_recherche (
         `hash` char(32) NOT NULL,
         `nomBase` char(30) NOT NULL,
@@ -53,6 +55,7 @@
         `containerAll` text NOT NULL,
         `containerResult` text NOT NULL,
         `containerDetails` text NOT NULL,
+        `description` text NOT NULL,
         PRIMARY KEY (`hash`)
         ) ENGINE=MyISAM  DEFAULT CHARSET=latin1";
         mysql_query($sql); 
@@ -91,17 +94,17 @@
             } 
         }
         progressBar("Création des tables terminée",100); 
-        updateLog("Création des tables ".$nomColonne,end_timer($temps));           
+        updateLog("Création des sous-tables ",$nomTable." ".$nomColonne,end_timer($temps));           
     }
 
     function clearTables(){
         global $nomColonne;      
-        operation("clearTable","Réinitialisation tables ".$nomColonne); 
+        operation("clearTable","Réinitialisation sous-tables"); 
     }
 
     function deleteTables(){  
         global $nomColonne;     
-        operation("deleteTable","Suppression tables ".$nomColonne); 
+        operation("deleteTable","Suppression sous-tables"); 
     }
 
     function performances(){
@@ -145,7 +148,7 @@
                 progressBar($comm,$progress);
             }                               
         } 
-        updateLog($comm,end_timer($temps));
+        updateLog($comm,$nomTable." ".$nomColonne,end_timer($temps));
     }
 
     /***
@@ -228,7 +231,7 @@
     function performance($mot){
         global $nomTable,$nomColonne;
         $debut = start_timer();
-        recherche($mot,$nomTable,$nomColonne,"milieu","tout","result");
+        recherche($mot,"",$nomTable,$nomColonne,"milieu","tout","result");
         $temps = end_timer($debut);       
         $sql = "UPDATE y_".$nomTable."_".$nomColonne."_stats SET temps='$temps' WHERE $nomColonne='$mot'";
         mysql_query($sql);
@@ -245,7 +248,7 @@
         $temps = start_timer();
         $sql = "DROP TABLE y_".$nomTable."_".$nomColonne."_stats";
         mysql_query($sql);
-        updateLog("Suppression stats ".$nomColonne,end_timer($temps));
+        updateLog("Suppression des stats",$nomTable." ".$nomColonne,end_timer($temps));
     }
 
     function deleteIndex(){
@@ -259,15 +262,16 @@
         mysql_query($sql);
         $sql = "DROP TABLE y_".$nomTable."_".$nomColonne."_keyphrase";
         mysql_query($sql);
-        updateLog("Suppression index ".$nomColonne,end_timer($temps));
+        updateLog("Suppression des index",$nomTable." ".$nomColonne,end_timer($temps));
     }
 
-    function deleteLog(){
+    function videLog(){    // clearLog déjà pris
         global $nomMaitre,$nomBase;      
-        mysql_select_db($nomMaitre); 
-        $sql = "DROP TABLE log";
-        mysql_query($sql);
-        mysql_select_db($nomBase); 
+        $temps = start_timer();
+        mysql_select_db($nomMaitre);     
+        mysql_query("TRUNCATE TABLE log");
+        mysql_select_db($nomBase);
+        updateLog("Réinitialisation du log","",end_timer($temps)); 
     } 
 
     function getSousTable($nomTable,$text){
@@ -364,7 +368,7 @@
                 }           
             }
         }
-        updateLog("Insertion ".$text,$temps=end_timer($temps)); 
+        updateLog("Insertion de ".$text,$nomTable,$temps=end_timer($temps)); 
     } 
 
     function suppression($text){
@@ -391,7 +395,7 @@
                 }           
             }
         }
-        updateLog("Suppression ".$text,$temps=end_timer($temps));
+        updateLog("Suppression de ".$text,$nomTable,$temps=end_timer($temps));
     }
 
     /**
@@ -431,15 +435,15 @@
 
             $phrase = $tab[$nomColonne]; $mot;  //echo "<br>".$phrase; 
             if (mb_detect_encoding($phrase,"UTF-8",true)) $phrase = utf8_decode($phrase); 
-            $phrase = addslashes(strtoupper(trim($phrase)));
+            $phrase = strtoupper(trim($phrase));
             if ($motParMot){               
-                $phrase = preg_replace("/[^A-ZÀÂÇÈÉÊËÎÏÔÙÛÜ\'\-]+/"," ",$phrase);
+                $phrase = preg_replace("/[^A-ZÀÂÇÈÉÊËÎÏÔÙÛÜ'-]+/"," ",$phrase);
                 $mot = explode(" ",$phrase);
             }
             else {
                 $mot = array(preg_replace("/\([^\)]+\)/","",$phrase));
             }
-            
+
             for ($i=0; $i<sizeof($mot); $i++){
                 $t = addslashes($mot[$i]);                                             
                 if (strlen($t)>1){
@@ -474,7 +478,7 @@
             }   
 
         } 
-        updateLog("Index ".$nomColonne,end_timer($temps)); 
+        updateLog("Index $key",$nomTable." ".$nomColonne,end_timer($temps)); 
     }
 
     /***
@@ -610,7 +614,7 @@
         mysql_select_db($nomBase);
         $sql = "SHOW COLUMNS FROM ".$nomTable;
         $result = mysql_query($sql) or die(mysql_error()."<br>".$sql);
-        $print = "<form action='?stage=index' method='post'><table><tr><td>Nom</td><td>Type</td><td>Nombre</td><td>Tables</td><td>Mot</td><td>Phrase</td>";
+        $print = "<form action='?stage=index' method='post'><table class='tableStyle'><tr><td>Nom</td><td>Type</td><td>Nombre</td><td>Tables</td><td>Mot</td><td>Phrase</td>";
 
         while ($ligne=mysql_fetch_array($result)){
             $nom = $ligne['Field'];
@@ -629,9 +633,9 @@
             $print .= "</td><td>".$ligne['Type']."</td>";
             $sql = "SELECT COUNT(DISTINCT $nom) FROM ".$nomTable;
             $nb = "X";//mysql_result(mysql_query($sql),0);
-            $print .= "<td>".$nb."</td><td><p align='center'><input type='checkbox' ".$tables." id='t_".$nom."' name='t_".$nom."'></p></td>
-            <td><p align='center'><input type='checkbox' ".$mot." id='i_".$nom."' name='i_".$nom."'></p></td>
-            <td><p align='center'><input type='checkbox' ".$phrase." id='j_".$nom."' name='j_".$nom."'></p></td></tr>";    
+            $print .= "<td>".$nb."</td><td align='center'><input type='checkbox' ".$tables." id='t_".$nom."' name='t_".$nom."'></td>
+            <td align='center'><input type='checkbox' ".$mot." id='i_".$nom."' name='i_".$nom."'></td>
+            <td align='center'><input type='checkbox' ".$phrase." id='j_".$nom."' name='j_".$nom."'></td></tr>";    
         }                                                                                                
         $print .= "</table><p align='center'><input type='submit' value='apply'></p></form>";
         return $print;
@@ -639,20 +643,57 @@
 
 
     function list_log(){
-        global $nomMaitre,$nomBase;
+        global $nomMaitre,$nomBase;          
 
         mysql_select_db($nomMaitre);
-        $sql = "SELECT action,temps,heure FROM log ORDER BY id DESC LIMIT 10";
+        $sql = "SELECT action,details,temps,heure FROM log ORDER BY id DESC LIMIT 10";
         $result = mysql_query($sql) or die(mysql_error());
         $print = "";
 
         while ($ligne=mysql_fetch_array($result)){ 
-            $print = "<tr><td>".$ligne['heure']."</td><td>".$ligne['action']."</td><td>".$ligne['temps']."</td></tr>".$print;  
+            $print = "<tr><td>".$ligne['heure']."</td><td>".$ligne['action']."</td><td>".$ligne['details']."</td><td>".$ligne['temps']."</td></tr>".$print;  
         }
-        $print = "<table><tr><td>Heure</td><td>Action</td><td>Durée</td></tr>".$print."</table>";
+        $print = "<table class='tableStyle'><tr><td><b>Heure</b></td><td><b>Action</b></td><td><b>Détails</b></td><td><b>Durée</b></td></tr>".$print."</table>";
+        mysql_select_db($nomBase);
         return $print;  
     }
 
+    function list_correc(){
+        global $nomMaitre,$nomBase;
+
+        mysql_select_db($nomMaitre);
+        $sql = "SELECT * FROM corrections";
+        $result = mysql_query($sql) or die(mysql_error());
+        $print = "";
+
+        while ($ligne=mysql_fetch_array($result)){ 
+            $print = "<tr><td>".$ligne['old']."</td><td>".$ligne['new']."</td></tr>".$print;  
+        }
+        $print = "<table class='tableStyle'><tr><td><b>Mot d'origine</b></td><td><b>Mot corrigé</b></td></tr>".$print."</table>";
+        mysql_select_db($nomBase);
+        return $print;  
+    } 
+
+    function list_config(){
+        global $nomMaitre,$nomBase,$nomTable,$nomColonne,$hash;
+
+        mysql_select_db($nomMaitre);
+        $sql = "SELECT hash,description,mode,methode,visuel FROM champs_recherche WHERE nomBase='$nomBase' AND nomTable='$nomTable' AND nomColonne='$nomColonne'";
+        $result = mysql_query($sql) or die(mysql_error());
+        $print = "";
+
+        while ($ligne=mysql_fetch_array($result)){ 
+            $desc = $ligne['description'];
+            if ($desc=="") $desc = "Pas de description.";
+            if ($hash==$ligne['hash']) $desc = "<b>$desc</b>";
+            else $desc = "<a href='?hash=$ligne[hash]&stage=load_param'>".$desc."</a>";
+            $print = "<tr><td>$desc</td><td>".$ligne['mode']."</td><td>".$ligne['methode']."</td><td>".$ligne['visuel']."</td></tr>".$print;  
+        }
+        $print = "<table class='tableStyle'><tr><td align='center' width='150'><b>Description</b></td><td colspan='3' align='center'><b>Paramètres</b></td></tr>".$print."</table>";
+        mysql_select_db($nomBase);
+        return $print; 
+    }
+    
 
     function etatTables($nom){
         global $nomTable;
@@ -694,7 +735,7 @@
 
             while ($tab = mysql_fetch_array($result)){
                 $word = $tab['ignored']==0? $tab[$nomColonne]: "<i>".$tab[$nomColonne]."</i>";
-                $print .= "<p><a href=\"javascript:getStats('stats_keywords','$tab[id]','$nomBase','$nomTable','$nomColonne');\" title='$tab[nombre]'>".$word."</a></p>";
+                $print .= "<p><a href=\"javascript:getStats('stats_keywords','word','$tab[id]','$nomBase','$nomTable','$nomColonne');\" title='$tab[nombre]'>".$word."</a></p>";
             }
 
             $print .= "</td>";
@@ -707,8 +748,9 @@
     /**
     * Fonction qui affiche des propositions d'expressions (suites de mots) à insérer dans l'index
     * @param mixed $limite : limite du nombre de mots à étendre (0 si tous)
+    * @param mixed $seuil : les 3 seuils utilisés dans affiche_expr
     */
-    function expressions($limite){                     
+    function expressions($limite,$seuil){                     
         global $nomTable,$nomColonne,$listeExpr;
 
         // tableau qui contient les expressions avec leur occurrence
@@ -721,7 +763,7 @@
         $cpt = 0;
 
         while ($tab = mysql_fetch_array($result)){ 
-            $tout = find_expression($tab[$nomColonne],$tab['nombre'],1);
+            $tout = find_expression($tab[$nomColonne],$tab['nombre'],1,$seuil);
             $print .= "<tr><td><b>$tab[$nomColonne]</b> <font class='chiffres'>($tab[nombre])</font></td>".$tout['affiche']."</tr>"; 
             progressBar("Expressions",round(++$cpt*100/$limite)); 
         }
@@ -751,7 +793,7 @@
             if ($sousliste!="") $printListe .= "<input type='button' value='+' onclick='openclose(\"deroule_$key\")'><div id='deroule_$key' style='display:none;'>$sousliste</div>";
         }
 
-        return "<form action='?type=validate&stage=expr' method='post'>$printListe<br><input type='submit' value='add'></form><br><table border='1'>$print</table>";
+        return "<form action='?type=expr&stage=expr' method='post'>$printListe<br><input type='submit' value='add'></form><br><table border='1'>$print</table>";
     }
 
     /**
@@ -759,8 +801,9 @@
     * @param mixed $expr : l'expression à étendre
     * @param mixed $freq : le nombre d'occurrences du mot d'origine
     * @param mixed $nbMots : la taille de l'expression
+    * @param mixed $seuil : les 3 seuils utilisés dans affiche_expr 
     */
-    function find_expression($expr,$freq,$nbMots){
+    function find_expression($expr,$freq,$nbMots,$seuil){
         global $nomTable,$nomColonne,$ordreMax;   
 
         $avant = array();
@@ -797,33 +840,33 @@
         arsort($avant);
         arsort($apres);
 
-        $print1 = affiche_expr($avant,"~KEY~ ".$expr,$freq,$nbMots);
-        $print2 = affiche_expr($apres,$expr." ~KEY~",$freq,$nbMots);
+        $print1 = affiche_expr($avant,"~KEY~ ".$expr,$freq,$nbMots,$seuil);
+        $print2 = affiche_expr($apres,$expr." ~KEY~",$freq,$nbMots,$seuil);
 
         return array("affiche"=>$print1.$print2, "entier"=>(sizeof($avant)==1&&!array_key_exists("~",$avant) || sizeof($apres)==1&&!array_key_exists("~",$apres)));
     }
 
-    function affiche_expr($liste,$truc,$freq,$nbMots){
+    function affiche_expr($liste,$truc,$freq,$nbMots,$seuil){
         global $listeExpr;
 
         $print = "<td>";
         foreach ($liste as $key=>$val){
             $pourcent = round(100*$val/$freq);
             // Seuil de 5% au-dessous duquel on n'affiche plus l'expression
-            if ($pourcent>5){
+            if ($pourcent>$seuil[0]){
                 $blabla = str_replace("~KEY~",$key,$truc);
                 $txt = "$blabla<font class='chiffres'> (".$pourcent."%)</font><br>";
                 if ($key!="~"){
                     // Seuil de 20% au-dessous duquel on ne cherche plus à étendre l'expression 
-                    if ($pourcent>20){
-                        $res = find_expression($blabla,$freq,$nbMots+1);
+                    if ($pourcent>$seuil[2]){
+                        $res = find_expression($blabla,$freq,$nbMots+1,$seuil);
                         if (!$res['entier']){
                             $txt = ($res['entier']?"":"<b>$txt</b>")."<table border='1'><tr>".$res['affiche']."</tr></table>"; 
                             $listeExpr[$blabla]=$val;
                         }              
                     }
                     // Seuil de 15% au-dessous duquel on ne propose plus l'expression 
-                    else if ($pourcent>15){
+                    else if ($pourcent>$seuil[1]){
                             $listeExpr[$blabla]=$val;
                         }
                 }
@@ -875,7 +918,7 @@
             }
             progressBar("Corrections",round(++$progress*100/$limite));
         }
-        return "<form action='?type=validate&stage=correc' method='post'><ul>$print</ul><p align='center'><input type='submit' value='correct'></form>";
+        return "<form action='?type=correct&stage=correc' method='post'><ul>$print</ul><p align='center'><input type='submit' value='correct'></form>";
     }
 
 
