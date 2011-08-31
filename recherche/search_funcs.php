@@ -25,8 +25,8 @@
     * @param mixed $coord : les coordonnées (latitude,longitude)
     */
     function recherche($text, $hash, $mode, $methode, $selecCol, $limite, $coord){             
-                                         
-        global $nomTable, $nomColonne,$ordreMax;
+
+        global $nomTable,$nomColonne,$ordreMax;
         // debug                               
         // return array("resultats" => array(array("name"=>$hash), "temps" => 0));
         $temps = start_timer();
@@ -109,33 +109,36 @@
         if ($methode=='tout') return "y_".$nomTable."_".$nomColonne."_keyphrase";
         return; 
 
-    }
+    }  
 
-    function getSousTable($text){
-        global $ordreMax;
 
-        $table = "";
+    function getSousTable($table,$colonne,$text){
+
+        $ordreMax = getOrdreMax($table,$colonne);
+        if ($ordreMax=="erreur") return "";
+        $soustable = "";
         $mot = explode(" ",$text);
         $long = max(array_map("strlen",$mot));
         $truc = $long>$ordreMax?$ordreMax:$long;
-        while ($table=="" && $truc>0){
-            $table = getSousTableLong($text,$truc--);
+        while ($soustable=="" && $truc>0){
+            $soustable = getSousTableLong($table,$colonne,$text,$truc--);
         }
-        
-        return $table;
+
+        return $soustable;
 
     }
 
     /**
     * Renvoie la sous-table appropriée dans laquelle chercher
     * une chaîne de caractères (la moins remplie)
+    * @param mixed $table : la table principale ou d'index  
+    * @param mixed $colonne : la colonne  
     * @param mixed $text : la chaîne à chercher
     * @param mixed $long : l'ordre de la table
     */
-    function getSousTableLong($text,$long){
+    function getSousTableLong($table,$colonne,$text,$long){
 
-        global $nomTable,$nomColonne;       
-        $sql = "SELECT name,MIN(nombre) FROM y_".$nomTable."_".$nomColonne."_stats WHERE";   
+        $sql = "SELECT name,MIN(nombre) FROM y_".$table."_".$colonne."_stats WHERE";   
         $liste = array();   
         $or="";
         for ($i=0; $i<strlen($text)-$long+1; $i++){
@@ -143,12 +146,12 @@
             // ignore les suites de caractères contenant un espace
             if (strpos($t," ")===FALSE && array_search($t,$liste)===FALSE){
                 array_unshift($liste,$t);
-                $sql .=  $or." name = '".$t."'";
+                $sql .=  $or." name = '".addslashes($t)."'";
                 $or = " OR";
             }
         }                                     
         //echo $sql,"<br>";   
-        $result = mysql_query($sql) or die(mysql_error());
+        $result = mysql_query($sql) or die($sql."<br>".mysql_error());
         $tab = mysql_fetch_array($result);   
         return $tab['name'];
     } 

@@ -1,5 +1,6 @@
 function getStats(zone,methode,id,base,table,colonne){
 
+    id = id.replace(/&/g,"**");
     url = "getWordStats.php?zone="+zone + "&methode="+methode + "&id="+id + "&base="+base + "&table="+table + "&colonne="+colonne;
 
     // création d'un objet capable d'interagir avec le serveur                                           

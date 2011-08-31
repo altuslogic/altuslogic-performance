@@ -1,24 +1,24 @@
 <?php if ($show=='search' || $show=='all'){ ?>
 <table><tr><td valign="top">
-<div class="divScroll">  
+<div class="divScroll">                                                       
     <h2>Configuration</h2>
-    <?php
+    <?php                                                                       
     echo list_config();
     ?>
-</div>
+</div>      
 </td><td valign="top">  
 <div class="divNoScroll">
     <h2>Paramètres de recherche</h2>
     <form action="?stage=update_param" method="post" autocomplete="off">
     <input type="hidden" name="hash" value="<?php echo $hash; ?>">
         <table>
-             <tr><td>Position</td><td><select id="mode" name="mode" style="color: #444; border: 1px solid #444; width: 100px;">
+             <tr><td>Position</td><td><select class="grayStyle" id="mode" name="mode">
                         <option <?php if (isset($mode) && $mode=="tout") echo 'selected'; ?> value="tout">tout</option>
                         <option <?php if (isset($mode) && $mode=="debut") echo 'selected'; ?> value="debut">début</option>
                         <option <?php if (!isset($mode) || $mode=="milieu") echo 'selected'; ?> value="milieu">milieu</option>
                         <option <?php if (isset($mode) && $mode=="fin") echo 'selected'; ?> value="fin">fin</option>
                     </select></td></tr>   
-            <tr><td>Méthode de recherche</td><td><select id="methode" name="methode" style="color: #444; border: 1px solid #444; width: 100px;">
+            <tr><td>Méthode de recherche</td><td><select class="grayStyle" id="methode" name="methode">
                         <option <?php if (!isset($methode) || $methode=="direct") echo 'selected'; ?> value="direct">directe</option>
                         <?php $array = etatTables($nomColonne);
                         if ($array['tables']){ ?>
@@ -29,17 +29,17 @@
                         <option <?php if (isset($methode) && $methode=="tout") echo 'selected'; ?> value="tout">index(texte)</option>
                         <?php } ?>
                     </select></td></tr>
-            <tr><td>Visuel</td><td><select id="visuel" name="visuel" style="color: #444; border: 1px solid #444; width: 100px;">
+            <tr><td>Visuel</td><td><select class="grayStyle" id="visuel" name="visuel">
                         <option <?php if (isset($visuel) && $visuel=="suggest") echo 'selected'; ?> value="suggest">suggestion</option>
                         <option <?php if (!isset($visuel) || $visuel=="result") echo 'selected'; ?> value="result">résultats</option> 
                     </select></td></tr>
-            <tr><td>Résumé</td><td><select id="resume" name="resume" style="color: #444; border: 1px solid #444; width: 100px;">
+            <tr><td>Résumé</td><td><select class="grayStyle" id="resume" name="resume">
                         <option <?php if (!isset($resume) || $resume==1) echo 'selected'; ?> value=1>avec</option>
                         <option <?php if (isset($resume) && $resume==0) echo 'selected'; ?> value=0>sans</option> 
                     </select></td></tr>
-            <tr><td>Nombre de résultats</td><td><input type="text" id="limite" name="limite" value="<?php echo (isset($limite)?$limite:10); ?>" style="color: #444; border: 1px solid #444; width: 100px;"></td></tr>
-            <tr><td>Nom du cadre</td><td><input type="text" id="nomDiv" name="nomDiv" value="<?php echo (isset($nomDiv)?$nomDiv:'ajax'); ?>" style="color: #444; border: 1px solid #444; width: 100px;"></td></tr> 
-            <tr><td>Affichage du cadre</td><td><select id="afficheDiv" name="afficheDiv" style="color: #444; border: 1px solid #444; width: 100px;">
+            <tr><td>Nombre de résultats</td><td><input type="text" class="grayStyle" id="limite" name="limite" value="<?php echo (isset($limite)?$limite:10); ?>"></td></tr>
+            <tr><td>Nom du cadre</td><td><input type="text" class="grayStyle" id="nomDiv" name="nomDiv" value="<?php echo (isset($nomDiv)?$nomDiv:'ajax'); ?>"></td></tr> 
+            <tr><td>Affichage du cadre</td><td><select class="grayStyle" id="afficheDiv" name="afficheDiv">
                         <option <?php if (!isset($afficheDiv) || $afficheDiv==1) echo 'selected'; ?> value=1>avec</option>
                         <option <?php if (isset($afficheDiv) && $afficheDiv==0) echo 'selected'; ?> value=0>sans</option> 
                     </select></td></tr>
@@ -174,13 +174,19 @@ Requis : index mot, index phrase
     <tr><td>Seuils (%) : </td><td><input type="text" name="seuil1" value="<?php echo $seuil1;?>" title="seuil d'affichage" style="width:25px"></td>  
     <td><input type="text" name="seuil2" value="<?php echo $seuil2;?>" title="seuil de proposition" style="width:25px"></td>
     <td><input type="text" name="seuil3" value="<?php echo $seuil3;?>" title="seuil d'extension" style="width:25px"><input type="submit" value="ok"></td></tr></table> 
-    </form>  
-       <?php echo $print;?> 
+    </form>
+    <?php if ($print!=""){ ?>
+    <form action="?stage=expression" method="post" target="machintruc">  
+    <br><div style="max-height:500px; overflow:auto; border:1px solid #aaa;"><br><?php echo $print;?><br></div>
+    <p align="center"><input type="submit" name="action" value="add"></p>  
+    </form>
+    <?php } ?>  
 </div> 
 </td><td valign="top">
 <div id="stats_expr" class="divScroll">
     <h2>Expression</h2>
 </div>
+<iframe name="machintruc"></iframe>
 </td></tr></table>
 
 <?php }          
@@ -196,20 +202,48 @@ Requis : index mot ou index phrase
 <div class="stats">
     <h2>Top corrections</h2>
     <form method="get" autocomplete="off">
-    Indexation : <input type="radio" name="methode" value="word" checked>mot<input type="radio" name="methode" value="phrase">phrase
+    Indexation : <input type="radio" name="methode" value="word" <?php if ($meth=='word') echo 'checked'; ?>>mot
+    <input type="radio" name="methode" value="phrase" <?php if ($meth=='phrase') echo 'checked'; ?>>phrase
     <br><br><table><tr><td>Limite : </td><td><input type="text" name="limit" title="nombre de mots examinés" value="<?php echo $lim;?>"></td></tr>
     <tr><td>Seuil (%) : </td><td><input type="text" name="seuil" title="seuil de similarité" value="<?php echo $seuil;?>"><input type="submit" value="ok"></td></tr></table>
+    </form>
+    <?php if ($print!=""){ ?> 
+    <form action="?stage=correct" method="post">
+    <input type="hidden" name="methode" value=<?php echo $meth; ?>>
+    <br><div style="max-height:500px; overflow:auto; border:1px solid #aaa;"><ul><?php echo $print;?></ul></div>
+    <p align="center"><input type="submit" name="action" value="correct"><input type="submit" name="action" value="ignore"></p>
     </form>  
-    <?php echo $print;?>
+    <?php } ?>
 </div>
 </td><td valign="top">
 <div id="stats_correc" class="divScroll">
     <h2>Mot erroné</h2>
 </div>
 </td><td valign="top">
-<div class="divScroll">
+<div class="stats" style="max-height:500px;">
     <h2>Corrections</h2>
     <?php echo list_correc(); ?>
+</div>
+</td><td valign="top">
+<div class="divNoScroll">
+    <h2>Edition</h2>
+    <form action="?stage=update_correc" method="post" autocomplete="off">
+    <input type="hidden" name="correc_id" value="<?php if (isset($correc_id)) echo $correc_id; ?>">     
+    <table><tr><td>Projet</td><td><input type="text" class="grayStyle" name="correc_project" value="<?php if (isset($correc_project)) echo $correc_project; else echo 'global'; ?>" style="width:120px;"></td></tr>  
+    <tr><td>Action&nbsp;</td><td><select class="grayStyle" name="correc_action">
+    <?php $liste=array('correct','split','merge','ignore','no_problem','expression');
+    foreach ($liste as $val){
+    echo "<option value=$val".((isset($correc_action) && $correc_action==$val)? ' selected' : '').">$val</option>"; 
+    } ?>          
+    </select></td></tr>
+    <tr><td>Type</td><td><select class="grayStyle" name="correc_type">
+    <option value="word" <?php if (isset($correc_type) && $correc_type=='word') echo 'selected'; ?>>mot</option>
+    <option value="phrase" <?php if (isset($correc_type) && $correc_type=='phrase') echo 'selected'; ?>>phrase</option></select></td></tr>                                                                                                                                                       
+    <tr><td>Mot</td><td><textarea class="grayStyle" name="correc_word" spellcheck="false" style="width:200px; max-width:200px;"><?php if (isset($correc_word)) echo $correc_word; ?></textarea></td></tr> 
+    </table>
+    <p align="center"><input type="submit" name="action" value="new">
+    <input type="submit" name="action" value="save">
+    <input type="submit" name="action" value="delete"></p></form>
 </div>
 </td></tr></table>
 

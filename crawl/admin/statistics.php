@@ -170,8 +170,7 @@
         $siteQuery = "select count(site_id) from ".$mysql_table_prefix."sites";
         $categoriesQuery = "select count(category_id) from ".$mysql_table_prefix."categories";
 
-        $result = mysql_query($keywordQuery);
-        echo mysql_error();
+        $result = mysql_query($keywordQuery) or die(mysql_error());
         if ($row=mysql_fetch_array($result)) {
             $stats['keywords']=$row[0];
         }

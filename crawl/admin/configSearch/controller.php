@@ -63,17 +63,22 @@
 
     function creeCorrec(){
         $sql = "CREATE TABLE IF NOT EXISTS corrections (
-        `old` char(30) NOT NULL PRIMARY KEY,
-        `new` char(30) NOT NULL
+        `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+        `action` enum('correct','split','merge','ignore','no_problem','expression') NOT NULL,
+        `type` enum('word','phrase') NOT NULL,
+        `word` varchar(200) NOT NULL,
+        `project` varchar(30) NOT NULL,
+        PRIMARY KEY (`id`)
         ) ENGINE=MyISAM  DEFAULT CHARSET=latin1";
         mysql_query($sql); 
     }
 
-    function updateCorrec($old,$new){
+    function updateCorrec($action,$type,$word,$project){
         global $nomMaitre,$nomBase;  
         mysql_select_db($nomMaitre);
-        $sql = "INSERT INTO corrections SET old='$old', new='$new'";    
-        mysql_query($sql); 
+        $word = addslashes($word);
+        $sql = "INSERT INTO corrections SET action='$action', type='$type', word='$word', project='$project'";    
+        mysql_query($sql) or die(mysql_error()); 
         mysql_select_db($nomBase);  
     }
 
@@ -83,17 +88,19 @@
     function creeTables(){
         global $nomTable, $nomColonne, $ordreMax, $thres;
         $temps = start_timer();
-        creeStats(); 
+        creeStats();
+        startProgress(""); 
         creeSousTables("");    
         for ($i=2; $i<=$ordreMax; $i++){
             $sql = "SELECT name FROM y_".$nomTable."_".$nomColonne."_stats WHERE ordre='$i'-1 AND nombre>'$thres'";
             $result = mysql_query($sql) or die(mysql_error());
             if (mysql_num_rows($result)==0) break;
+            startProgress("");
             while ($tab = mysql_fetch_array($result)){
                 creeSousTables($tab['name']);
             } 
         }
-        progressBar("Création des tables terminée",100); 
+        updateProgress("Création des tables terminée",100);
         updateLog("Création des sous-tables ",$nomTable." ".$nomColonne,end_timer($temps));           
     }
 
@@ -138,6 +145,7 @@
         $count_table=mysql_num_rows($result);  //Richard
         $cpt=0;
         $progress=0;
+        startProgress($comm);
         while ($tab = mysql_fetch_array($result)){
             $op($tab['name']);
             echo $tab['name']," "; //Richard
@@ -145,7 +153,7 @@
             $pourcent = round(100*$cpt/$count_table);
             if ($pourcent > $progress){
                 $progress = $pourcent;
-                progressBar($comm,$progress);
+                updateProgress($comm,$progress);
             }                               
         } 
         updateLog($comm,$nomTable." ".$nomColonne,end_timer($temps));
@@ -164,7 +172,7 @@
             $pourcent += (ord(substr($debut,$i,1))-ord("A"))*100/pow(26,$i+1);
         }
         $pourcent = round($pourcent);
-        progressBar("Création des tables $debut"."x",$pourcent);
+        updateProgress("Création des tables $debut"."x",$pourcent);
 
         for ($lettre=ord("A"); $lettre<=ord("Z"); $lettre++){ 
 
@@ -172,7 +180,7 @@
             $table; 
             if (strlen($mot)==1) $table = $nomTable;
             else {
-                $table = "z_".$nomTable."_".$nomColonne."_".getSousTableLong($nomTable,$mot,strlen($mot)-1);
+                $table = "z_".$nomTable."_".$nomColonne."_".getSousTableLong($nomTable,$nomColonne,$mot,strlen($mot)-1);
             }
 
             $id = getPrimaryKey($table);
@@ -185,7 +193,7 @@
                 flush();
                 //$sql1 = "CREATE TABLE z_".$nomTable."_".$nomColonne."_".$mot." LIKE y_original_index"; //new thing .. copy table from model
                 $sql1 = "CREATE TABLE z_".$nomTable."_".$nomColonne."_".$mot." (
-                `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                `id` int(11) UNSIGNED NOT NULL PRIMARY KEY,
                 $nomColonne varchar(255) NOT NULL
                 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1";
                 $sql2 = "INSERT INTO z_".$nomTable."_".$nomColonne."_".$mot." (SELECT $id,$nomColonne FROM $table WHERE $nomColonne LIKE '%$mot%')";
@@ -274,33 +282,33 @@
         updateLog("Réinitialisation du log","",end_timer($temps)); 
     } 
 
-    function getSousTable($nomTable,$text){
-        global $ordreMax;
+    function getSousTable($table,$colonne,$text){
 
-        $table = "";
+        $ordreMax = getOrdreMax($table,$colonne);
+        if ($ordreMax=="erreur") return "";
+        $soustable = "";
         $mot = explode(" ",$text);
         $long = max(array_map("strlen",$mot));
         $truc = $long>$ordreMax?$ordreMax:$long;
-        while ($table=="" && $truc>0){
-            $table = getSousTableLong($nomTable,$text,$truc--);
+        while ($soustable=="" && $truc>0){
+            $soustable = getSousTableLong($table,$colonne,$text,$truc--);
         }
 
-        return $table;
+        return $soustable;
 
     }
 
     /**
     * Renvoie la sous-table appropriée dans laquelle chercher
     * une chaîne de caractères (la moins remplie)
-    * @param mixed $nomTable : la table principale ou d'index 
+    * @param mixed $table : la table principale ou d'index  
+    * @param mixed $colonne : la colonne  
     * @param mixed $text : la chaîne à chercher
     * @param mixed $long : l'ordre de la table
     */
-    function getSousTableLong($nomTable,$text,$long){
+    function getSousTableLong($table,$colonne,$text,$long){
 
-        global $nomColonne;
-
-        $sql = "SELECT name,MIN(nombre) FROM y_".$nomTable."_".$nomColonne."_stats WHERE";   
+        $sql = "SELECT name,MIN(nombre) FROM y_".$table."_".$colonne."_stats WHERE";   
         $liste = array();   
         $or="";
         for ($i=0; $i<strlen($text)-$long+1; $i++){
@@ -319,8 +327,7 @@
     } 
 
     function getPrimaryKey($table){
-        $sql = "SHOW KEYS FROM $table WHERE Key_name = 'PRIMARY'";
-        $result = mysql_query($sql);
+        $result = mysql_query("SHOW KEYS FROM $table WHERE Key_name = 'PRIMARY'"); 
         $tab = mysql_fetch_array($result);
         return $tab['Column_name'];
     }
@@ -331,7 +338,9 @@
     */
     function existe($text){
 
-        global $nomTable,$nomColonne,$ordreMax;
+        global $nomTable,$nomColonne;
+
+        $ordreMax = getOrdreMax($nomTable,$nomColonne);
         // test d'appartenance à la table d'origine (en fait à la sous-table appropriée)
         $table = "";
         $truc = $ordreMax;
@@ -413,6 +422,7 @@
         $nomColonne $type NOT NULL,
         `nombre` int(11) UNSIGNED NOT NULL,
         `ignored` tinyint(1) NOT NULL,
+        `noproblem` tinyint(1) NOT NULL,
         PRIMARY KEY (`id`)
         ) ENGINE=MyISAM  DEFAULT CHARSET=latin1" ;
         mysql_query($sql); 
@@ -431,6 +441,8 @@
         $result = mysql_query($sql) or die($sql);
         $total = mysql_num_rows($result);
         $cpt = 0; $progress = 0;
+        startProgress("Création de l\'index ".$nomColonne);
+        
         while ($tab = mysql_fetch_array($result)){
 
             $phrase = $tab[$nomColonne]; $mot;  //echo "<br>".$phrase; 
@@ -474,7 +486,7 @@
             $pourcent = round(100*$cpt/$total);                      
             if ($pourcent > $progress){
                 $progress = $pourcent;                         
-                progressBar("Création de l\'index ".$nomColonne,$progress);
+                updateProgress("Création de l\'index ".$nomColonne,$progress);
             }   
 
         } 
@@ -551,6 +563,12 @@
         return $print;
     } 
 
+
+    function getOrdreMax($table,$colonne){
+        $result = mysql_query("SELECT MAX(ordre) FROM y_".$table."_".$colonne."_stats");
+        if (!$result) return "error";
+        return mysql_result($result,0);
+    }
 
 
     function list_db(){
@@ -659,17 +677,22 @@
     }
 
     function list_correc(){
-        global $nomMaitre,$nomBase;
+        global $nomMaitre,$nomBase,$correc_id;
 
         mysql_select_db($nomMaitre);
-        $sql = "SELECT * FROM corrections";
+        $sql = "SELECT * FROM corrections ORDER BY project";
         $result = mysql_query($sql) or die(mysql_error());
         $print = "";
 
-        while ($ligne=mysql_fetch_array($result)){ 
-            $print = "<tr><td>".$ligne['old']."</td><td>".$ligne['new']."</td></tr>".$print;  
+        while ($ligne=mysql_fetch_array($result)){
+            $print .= "<tr><td>".$ligne['project']."</td><td>".$ligne['action']."</td><td>".$ligne['type']."</td><td>";
+            if (isset($correc_id) && $correc_id==$ligne['id']){
+                $print .= "<b>".$ligne['word']."</b>";  
+            }
+            else $print .= "<a href='?stage=load_correc&correc_id=$ligne[id]'>".$ligne['word']."</a>";
+            $print .= "</td></tr>";  
         }
-        $print = "<table class='tableStyle'><tr><td><b>Mot d'origine</b></td><td><b>Mot corrigé</b></td></tr>".$print."</table>";
+        $print = "<table class='tableStyle'><tr align='center'><td><b>Projet</b></td><td><b>Action</b></td><td><b>Type</b></td><td><b>Mot</b></td></tr>".$print."</table>";
         mysql_select_db($nomBase);
         return $print;  
     } 
@@ -693,7 +716,7 @@
         mysql_select_db($nomBase);
         return $print; 
     }
-    
+
 
     function etatTables($nom){
         global $nomTable;
@@ -751,7 +774,7 @@
     * @param mixed $seuil : les 3 seuils utilisés dans affiche_expr
     */
     function expressions($limite,$seuil){                     
-        global $nomTable,$nomColonne,$listeExpr;
+        global $nomBase,$nomTable,$nomColonne,$listeExpr;
 
         // tableau qui contient les expressions avec leur occurrence
         $listeExpr=array();   
@@ -761,11 +784,12 @@
         $result = mysql_query($sql) or die($sql."<br>".mysql_error());  
         $print = "";
         $cpt = 0;
-
+        startProgress("Expressions");
+        
         while ($tab = mysql_fetch_array($result)){ 
             $tout = find_expression($tab[$nomColonne],$tab['nombre'],1,$seuil);
             $print .= "<tr><td><b>$tab[$nomColonne]</b> <font class='chiffres'>($tab[nombre])</font></td>".$tout['affiche']."</tr>"; 
-            progressBar("Expressions",round(++$cpt*100/$limite)); 
+            updateProgress("Expressions",round(++$cpt*100/$limite)); 
         }
 
         // tableau qui contient les expressions avec leur taille
@@ -780,20 +804,29 @@
 
         // on parcourt les expressions (primaires) par taille décroissante
         foreach ($listeExpr2 as $key=>&$val){
-            $printListe .= "<br><input type='checkbox' name='$key'>$key<font class='chiffres'> ($listeExpr[$key])</font>";
+            $name = str_replace("'","++",$key);
+            $printListe .= "<input type='checkbox' name='$name'>
+            <a href=\"javascript:getStats('stats_expr','','$key','$nomBase','$nomTable','$nomColonne');\">$key</a>
+            <font class='chiffres'> ($listeExpr[$key])</font>";
             $sousliste = "";
             foreach ($listeExpr as $k=>$v){   
                 // si une expression (secondaire) est contenue dans l'expression (primaire) courante, on l'ajoute dans une sous-liste...
                 if ($k!=$key && preg_match("/\b$k\b/",$key)){
-                    $sousliste .= ($sousliste==""?"":"<br>")."&nbsp;&nbsp;<input type='checkbox' name='$k'>$k<font class='chiffres'> ($v)</font>";
+                    $name = str_replace("'","++",$k);
+                    $sousliste .= str_repeat("&nbsp;",5)."<input type='checkbox' name='$name'>
+                    <a href=\"javascript:getStats('stats_expr','','$k','$nomBase','$nomTable','$nomColonne');\">$k</a> 
+                    <font class='chiffres'> ($v)</font><br>";
                     // ... et on la supprime des expressions primaires             
                     unset($listeExpr2[$k]);                             
                 }
             }
-            if ($sousliste!="") $printListe .= "<input type='button' value='+' onclick='openclose(\"deroule_$key\")'><div id='deroule_$key' style='display:none;'>$sousliste</div>";
+            $divid = "deroule_".str_replace("'","*",$key);
+            if ($sousliste!="") $printListe .= "<input type='button' value='+' onclick='openclose(\"$divid\")'><br><div id='$divid' style='display:none;'>$sousliste</div>";
+            else $printListe .= "<br>";
         }
 
-        return "<form action='?type=expr&stage=expr' method='post'>$printListe<br><input type='submit' value='add'></form><br><table border='1'>$print</table>";
+        //return "$printListe<br><table border='1'>$print</table>";
+        return $printListe;
     }
 
     /**
@@ -804,13 +837,13 @@
     * @param mixed $seuil : les 3 seuils utilisés dans affiche_expr 
     */
     function find_expression($expr,$freq,$nbMots,$seuil){
-        global $nomTable,$nomColonne,$ordreMax;   
+        global $nomTable,$nomColonne;   
 
         $avant = array();
         $apres = array();                                            
         $tablePhrase = "y_".$nomTable."_".$nomColonne."_keyphrase";
 
-        $table = getSousTable($tablePhrase,$expr);
+        $table = getSousTable($tablePhrase,$nomColonne,$expr);
         if ($table==""){
             $table = $tablePhrase; echo $expr."<br>";
         }
@@ -879,46 +912,100 @@
 
 
     function corrections($meth,$limite,$tauxMin){
+        include "conversion_funcs.php";
         global $nomBase,$nomTable,$nomColonne;
         $print = "";
-        $tableMot = "y_".$nomTable."_".$nomColonne."_key".$meth; 
+        $tableMot = "y_".$nomTable."_".$nomColonne."_key".$meth;
+        
+        $dico = array();
+        $result = mysql_query("SELECT $nomColonne FROM $tableMot");
+        while ($row = mysql_fetch_row($result)){
+            $dico[sansAccent("$row[0]")]=1; 
+        }
+         
         $sql = "SELECT $nomColonne FROM $tableMot ORDER BY nombre DESC LIMIT $limite";
-        $result = mysql_query($sql);
+        $result1 = mysql_query($sql);
         $progress = 0;
+        startProgress("Corrections");
 
-        while ($tab = mysql_fetch_array($result)){
+        while ($tab = mysql_fetch_array($result1)){
             $mot1 = $tab[$nomColonne];
-            $sql = "SELECT $nomColonne,id,nombre FROM $tableMot";
+            $sql = "SELECT $nomColonne,id,nombre FROM $tableMot WHERE noproblem=0";
             $result2 = mysql_query($sql);       
             $sousliste = array();
 
             while ($tab2 = mysql_fetch_array($result2)){
                 $mot2 = $tab2[$nomColonne];
-                if ($mot1!=$mot2 && $mot1!=$mot2."S" && $mot2!=$mot1."S"){
-                    $dist = levenshtein($mot1,$mot2);
-                    $taux = 1-$dist/max(strlen($mot1),strlen($mot2));
-                    if ($taux>$tauxMin){         
-                        $sousliste[$mot2."|".$tab2['id']."|".$tab2['nombre']] = $taux;     
-                    } 
-                }     
+                if ($mot1!=$mot2){
+                    if ($mot1!=$mot2."S" && $mot2!=$mot1."S"){
+                        $dist = levenshtein($mot1,$mot2);
+                        $taux = 1-$dist/max(strlen($mot1),strlen($mot2));
+                        if ($taux>$tauxMin){
+                            $name = str_replace("'","++","correct**$mot2##$mot1**$mot2");         
+                            $sousliste[$name."|".$mot2."|".$tab2['id']."|".$tab2['nombre']."|blue"] = $taux;     
+                        } 
+                        $pos = strpos($mot2,$mot1);            
+                        if ($meth=='word' && $pos===0 || $pos===strlen($mot2)-strlen($mot1)){   
+                            if ($pos===0){
+                                $mot3 = substr($mot2,strlen($mot1));
+                                $split = $mot1."##".$mot3;
+                            }
+                            else {
+                                $mot3 = substr($mot2,0,$pos);
+                                $split = $mot3."##".$mot1;
+                            }
+                            //$mot3 = addslashes($mot3);                                           
+                            //$result3 = mysql_query("SELECT COUNT(*) FROM $tableMot WHERE $nomColonne='$mot3'") or die(mysql_error());
+                            //$result3 = mysql_query("SELECT COUNT(*) FROM (SELECT 1 FROM $tableMot WHERE $nomColonne='$mot3' LIMIT 1)t");
+                            if (isset($dico[sansAccent($mot3)])){//mysql_result($result3,0)==1){
+                                $name = str_replace("'","++","split**$split**$mot2");
+                                $sousliste[$name."|".$mot2."|".$tab2['id']."|".$tab2['nombre']."|green"] = 1-1/strlen($mot2);
+                            }     
+                        }              
+                    }
+                }
             }
             $taille = sizeof($sousliste);
-            if ($taille>0){                
-                $print .= "<li>$mot1<font class='chiffres'> ($taille)</font><input type='button' value='+' onclick='openclose(\"deroule_$mot1\")'>
-                <div id='deroule_$mot1' style='display:none;'>";
+            if ($taille>0){
+                $divid = "deroule_".str_replace("'","*",$mot1);                 
+                $print .= "<li>$mot1<font class='chiffres'> ($taille)</font><input type='button' value='+' onclick='openclose(\"$divid\")'>
+                <div id='$divid' style='display:none;'>";
                 arsort($sousliste);
                 foreach ($sousliste as $key=>$val){
                     $t = explode("|",$key);
-                    $pourcent = round(100*$val);
-                    $print .= "<input type='checkbox' name='$mot1|$t[0]'>
-                    <a href=\"javascript:getStats('stats_correc','$meth','$t[1]','$nomBase','$nomTable','$nomColonne');\" title='$t[2]'>$t[0]</a>
+                    $pourcent = round(100*$val);                                  
+                    $print .= "<input type='checkbox' name='$t[0]'>
+                    <a href=\"javascript:getStats('stats_correc','$meth','$t[2]','$nomBase','$nomTable','$nomColonne');\" title='$t[3]' style='color:$t[4];'>$t[1]</a>
                     <font class='chiffres'> ($pourcent%)</font><br>";
                 }
                 $print .= "</div></li>";
             }
-            progressBar("Corrections",round(++$progress*100/$limite));
+            updateProgress("Corrections",round(++$progress*100/$limite));
         }
-        return "<form action='?type=correct&stage=correc' method='post'><ul>$print</ul><p align='center'><input type='submit' value='correct'></form>";
+        return $print;
+    }
+
+
+    /**
+    * Applique les corrections définies dans la table corrections
+    * @param mixed $projet : le projet considéré
+    */
+    function applyCorrec($projet){
+        
+        //ignore
+        /*
+        $table = "y_".$nomTable."_".$nomColonne."_keyword";
+        $sql = "UPDATE $table SET ignored=1-ignored WHERE id='$id'";
+        $result = mysql_query($sql) or die($sql."<br>".mysql_error());
+        }*/  
+
+        //noproblem
+        /*
+        $table = "y_".$nomTable."_".$nomColonne."_keyword";
+        $sql = "UPDATE $table SET noproblem=1 WHERE $nomColonne='$mot[1]'";
+        $result = mysql_query($sql) or die($sql."<br>".mysql_error());
+        */
+
     }
 
 

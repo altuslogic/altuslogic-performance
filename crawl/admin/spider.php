@@ -12,7 +12,8 @@ include "configSearch/cookie.php";
 	require_once ("$settings_dir/conf.php");
 
 	include "messages.php";
-	include "spiderfuncs.php";
+	include "spider_funcs.php";
+    include "conversion_funcs.php";    
 	error_reporting (E_ALL ^ E_NOTICE ^ E_WARNING);
                                                         
 
@@ -259,8 +260,8 @@ $success = mysql_pconnect ($DbHost, $DbUser, $DbPassword);
 					printStandardReport('metaNoindex',$command_line);
 				}
 	
-
-				$wordarray = unique_array(explode(" ", $data['content']));
+                                                                         
+				$wordarray = unique_array(explode(" ", $data['content']));   
 	
 				if ($data['nofollow'] != 1) {
 					$links = get_links($file, $url, $can_leave_domain, $data['base']);
@@ -304,7 +305,7 @@ $success = mysql_pconnect ($DbHost, $DbUser, $DbPassword);
 					}
 
 					$wordarray = calc_weights ($wordarray, $title, $host, $path, $data['keywords']);
-
+                                          
 					//if there are words to index, add the link to the database, get its id, and add the word + their relation
 					if (is_array($wordarray) && count($wordarray) > $min_words_per_page) {
 						if ($md5sum == '') {

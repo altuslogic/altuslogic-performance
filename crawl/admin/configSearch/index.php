@@ -6,11 +6,11 @@
     error_reporting(15);                    
     $temps_total = start_timer();
     //  echo '<link rel="stylesheet" type="text/css" href="my.css"><body><br><br><br>';
-    if ($show=="index" || $show=="expr" || $show=="correct" || $show=="all") init(5,5,600,30,'#fff','#444','#006699');
+    if ($show=="index" || $show=="expr" || $show=="correct" || $show=="all") initProgress(5,5,600,30,'#fff','#444','#006699');
 
     mysql_select_db($nomMaitre);
     creeLog();
-    creeCorrec(); 
+    creeCorrec();
     creeChamps();
     mysql_select_db($nomBase);
 
@@ -75,7 +75,37 @@
                 $$col = $val;
             }
             mysql_select_db($nomBase); 
-            break;    
+            break;
+        case 'update_correc':
+            if (isset($_POST['action'])){
+                foreach ($_POST as $key=>$val){
+                    $$key = $val;
+                } 
+                mysql_select_db($nomMaitre);
+                if ($action=="new"){         
+                    mysql_query("INSERT INTO corrections SET action='$correc_action', type='$correc_type', word='$correc_word', project='$correc_project'");// or die($sql);
+                    $correc_id = mysql_insert_id();
+                }
+                else if ($action=="save"){       
+                        mysql_query("UPDATE corrections SET action='$correc_action', type='$correc_type', word='$correc_word', project='$correc_project' WHERE id=$correc_id]");// or die($sql);
+                    }
+                    else if ($action=="delete"){      
+                            mysql_query("DELETE FROM corrections WHERE id=$correc_id");// or die($sql);
+                            unset($correc_id);
+                        }
+                        mysql_select_db($nomBase);                        
+            }
+            break;
+        case 'load_correc':
+            mysql_select_db($nomMaitre);
+            $result = mysql_query("SELECT project,action,type,word FROM corrections WHERE id='$correc_id' LIMIT 1");
+            $tab = mysql_fetch_assoc($result);
+            foreach ($tab as $col=>$val){
+                $nomVar = "correc_".$col;
+                $$nomVar = $val;
+            }
+            mysql_select_db($nomBase);  
+            break;   
         case 'modif':
             if (isset($_POST['action'])){
                 $text = $_POST['modif'];   
@@ -107,19 +137,44 @@
         case 'indexphrase':
             creeIndex(false);
             break;
-        case 'stats_keywords':
-            $id = $_POST['id'];
+        case 'keywords':
             if (isset($_POST['action']) && $_POST['action']=="ignore"){
-                $table = "y_".$nomTable."_".$nomColonne."_keyword";
-                $sql = "UPDATE $table SET ignored=1-ignored WHERE id='$id'";
-                $result = mysql_query($sql) or die($sql."<br>".mysql_error());
-            }                                                                               
+                updateCorrec('ignore','word',$_POST['word'],$nomProjet); 
+            }                                                                              
             break;
-        case 'correc':     
-            foreach ($_POST as $key=>$val){
-                $mot = explode("|",$key);
-                updateCorrec($mot[1],$mot[0]);
+        case 'correct':
+            if (isset($_POST['action'])){
+                $meth = $_POST['methode'];
+                if ($_POST['action']=="correct"){     
+                    foreach ($_POST as $key=>$val){
+                        if ($key!='action' && $key!='methode'){
+                            $key = str_replace(array("++","_"),array("'"," "),$key);
+                            $t = explode("**",$key);            
+                            $mot = explode("##",$t[1]);
+                            if ($t[0]=='correct') updateCorrec($t[0],$meth,$mot[0]." => ".$mot[1],$nomProjet);
+                            else if ($t[0]=='split') updateCorrec($t[0],'word',$mot[0]." | ".$mot[1],$nomProjet);      
+                        }
+                    }
+                }
+                else if ($_POST['action']=="ignore"){     
+                        foreach ($_POST as $key=>$val){    
+                            if ($key!='action' && $key!='methode'){
+                                $t = explode("**",$key);
+                                $t[2] = str_replace(array("++","_"),array("'"," "),$t[2]);
+                                updateCorrec('no_problem',$meth,$t[2],$nomProjet);
+                            }
+                    }
+                }
             }
+            break;
+        case 'expression':
+            if (isset($_POST['action']) && $_POST['action']=="add"){
+                foreach ($_POST as $key=>$val){
+                    if ($key!='action'){          
+                        updateCorrec('expression','word',str_replace(array("++","_"),array("'"," "),$key),$nomProjet);
+                    }
+                } 
+            } 
             break;
     }
 

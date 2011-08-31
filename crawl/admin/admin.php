@@ -16,7 +16,7 @@
     include "clean_funcs.php"; 
     include "statistics.php";        
 
-    set_time_limit (0);
+    set_time_limit (0);          
 
 
 ?> 
@@ -70,8 +70,8 @@
 
             $img = array("yes"=>"images/ok.jpg","no"=>"images/ko1.jpg","empty"=>"images/ko2.jpg");
             $info = $nomBase;
-            $info .= " > ".(tableExiste($nomTable)? $nomTable: "<a href='?type=selection' style='color:red;' title='Table introuvable.'>$nomTable</a>");
-            $info .= " > ".(colonneExiste($nomColonne)? $nomColonne: "<a href='?type=selection' style='color:red;' title='Colonne introuvable.'>$nomColonne</a>");
+            $info .= " > ".(tableExiste($nomTable)? $nomTable: "<a href='?f=prototype&type=selection' style='color:red;' title='Table introuvable.'>$nomTable</a>");
+            $info .= " > ".(colonneExiste($nomColonne)? $nomColonne: "<a href='?f=prototype&type=selection' style='color:red;' title='Colonne introuvable.'>$nomColonne</a>");
             $col = array($info,"Table principale","Index mot","Index phrase");
             foreach ($col as &$t) $t="&nbsp;$t&nbsp;";
             echo "<table border='1' id='info'><tr><td>".implode("</td><td>",$col)."</td></tr>";

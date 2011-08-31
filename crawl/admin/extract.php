@@ -2,6 +2,7 @@
 
     include "configSearch/cookie.php";
     include "auth.php";
+    include "conversion_funcs.php";
     //require_once ("../include/commonfuncs.php");
     //require_once ("../settings/conf.php");
     error_reporting (E_ALL ^ E_NOTICE ^ E_WARNING);
@@ -15,11 +16,15 @@
         die();
     }
 
+    echo "[Back to <a href=\"admin.php\">admin</a>]";
+    
     foreach ($_POST as $key=>$val){
         //echo $key,"=",$val,"<br>";
         $$key = $val;
     }
 
+    mysql_query("ALTER TABLE ".$mysql_table_prefix."links ADD $column MEDIUMTEXT");
+    
     $sql = "SELECT link_id,fullhtml FROM ".$mysql_table_prefix."links WHERE site_id='$site'";
     if ($in!="") $sql .= " AND url LIKE '%$in%'";
     if ($out!="") $sql .= " AND url NOT LIKE '%$out%'";  
@@ -57,8 +62,7 @@
         if ($end_text!=""){
             $fin = strpos($html,stripslashes($end_text));
             if ($fin!==FALSE) $html = substr($html,0,$fin);
-        }
-       // echo $html; die();
+        }                 
 
         $partialtxt = $html;        
 
@@ -72,16 +76,19 @@
             $partialtxt = str_replace($regs[0], "", $partialtxt);
         }
 
-        $partialtxt = preg_replace("@<style[^>]*>.*?<\/style>@si", " ", $partialtxt);        
-
+        $partialtxt = preg_replace("@<style[^>]*>.*?<\/style>@si", " ", $partialtxt);               
+                
+        // HTML tags
+        $partialtxt = preg_replace("/&lt;(\/?[^(&gt;)]+)&gt;/", "<\\1>", $partialtxt);   
         //create spaces between tags, so that removing tags doesnt concatenate strings
-        $partialtxt = preg_replace("/<[\w ]+>/", "\\0 ", $partialtxt);
-        $partialtxt = preg_replace("/<\/[\w ]+>/", "\\0 ", $partialtxt);
-        $partialtxt = strip_tags($partialtxt);
-        $partialtxt = preg_replace("/&nbsp;/", " ", $partialtxt);       
-
-        mysql_query("UPDATE ".$mysql_table_prefix."links SET partialtxt='$partialtxt' WHERE link_id='$tab[link_id]'"); 
+        $partialtxt = preg_replace("/\<(\/?[^\>]+)\>/", "\\0 ", $partialtxt);       
+        $partialtxt = strip_tags($partialtxt);                  
+        $partialtxt = htmlToISO($partialtxt);
+        
+        mysql_query("UPDATE ".$mysql_table_prefix."links SET $column='$partialtxt' WHERE link_id='$tab[link_id]'");
+        echo "<b>".mysql_error()."</b>"; 
         echo "<br><br><b>$tab[link_id]</b>",$partialtxt;
+        
     }
 
 ?>

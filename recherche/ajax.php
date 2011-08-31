@@ -4,13 +4,12 @@
     foreach ($_GET as $key=>$val){
         $$key = $val;
     } 
-    $ordreMax=3; // à changer : recherche dans stats
 
     $nomMaitre = $nomBase;
     include "config/db.inc.php";
     include "config/config.inc.php";
     include "search_funcs.php";                  
-
+    
     // Détermination des colonnes nécessaires
     $tabDetails = explode("~",$containerDetails);
     $tabCol = array($nomColonne);

@@ -20,18 +20,25 @@
         return $value;
     }      
 
+    // Choix des données
+    $nomProjet = readCookie($_GET,"nomProjet","global");
     $nomBase = readCookie($_GET,"nomBase","");    
     $nomTable = readCookie($_GET,"nomTable","");
     $nomColonne = readCookie($_GET,"nomColonne","");
-    $f = readCookie($_GET,"f",2); 
-    $type = readCookie($_GET,"type",""); 
+    
+    // Paramètres sous-tables 
     $thres = readCookie($_GET,"threshold",5000);
     $ordreMax = readCookie($_GET,"ordre",3);
+    
+    // Choix de l'action
+    $f = readCookie($_GET,"f",2); 
+    $type = readCookie($_GET,"type","");
     
     // Paramètres de l'extraction
     $site = readCookie($_POST,"site","");
     $in = readCookie($_POST,"in","");
     $out = readCookie($_POST,"out","");
+    $column = readCookie($_POST,"column","partialtxt");
     $tag_name = readCookie($_POST,"tag_name","");
     $attrib_name = readCookie($_POST,"attrib_name","");
     $attrib_value = readCookie($_POST,"attrib_value","");

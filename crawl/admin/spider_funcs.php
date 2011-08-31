@@ -572,8 +572,8 @@
     function clean_file($file, $url, $type) {
         global $entities, $index_host, $index_meta_keywords;
 
-        $fullhtml = $file;    
-        
+        $fullhtml = $file;                                           
+
         $urlparts = parse_url($url);
         $host = $urlparts['host'];
         //remove filename from path
@@ -582,7 +582,7 @@
         $file = preg_replace("@<!--sphider_noindex-->.*?<!--\/sphider_noindex-->@si", " ",$file);	
         $file = preg_replace("@<!--.*?-->@si", " ",$file);	
         $file = preg_replace("@<script[^>]*?>.*?</script>@si", " ",$file);
-        $headdata = get_head_data($file);
+        $headdata = get_head_data($file);          
         $regs = Array ();
         if (preg_match("@<title *>(.*?)<\/title*>@si", $file, $regs)) {
             $title = trim($regs[1]);
@@ -591,47 +591,48 @@
                 $title = substr($file, 0, strrpos(substr($file, 0, 40), " "));
             }
 
-            $file = preg_replace("@<style[^>]*>.*?<\/style>@si", " ", $file);        
-        
-
+            $file = preg_replace("@<style[^>]*>.*?<\/style>@si", " ", $file);                  
+                                                                                      
+        $file = preg_replace("/&lt;(\/?[^(&gt;)]+)&gt;/", "<\\1>", $file);                     
+        $file = preg_replace("/\<(\/?[^\>]+) \>/", "<\\1>", $file);                      
         //create spaces between tags, so that removing tags doesnt concatenate strings
-        $file = preg_replace("/<[\w ]+>/", "\\0 ", $file);
-        $file = preg_replace("/<\/[\w ]+>/", "\\0 ", $file);
+        $file = preg_replace("/\<(\/?[^\>]+)\>/", "\\0 ", $file);                        
         $file = strip_tags($file);
         $file = preg_replace("/&nbsp;/", " ", $file); 
 
-        $fulltext = $file;                  
+        $fulltext = $file;                        
         $content = $file." ".$title;
         if ($index_host == 1) {
             $content = $content." ".$host." ".$path;
-        }
+        }                                                                                                             
         if ($index_meta_keywords == 1) {
             $content = $content." ".$headdata['keywords'];
         }
-
+             
 
         //replace codes with ascii chars
         $content = preg_replace('~&#x([0-9a-f]+);~ei', 'chr(hexdec("\\1"))', $content);
         $content = preg_replace('~&#([0-9]+);~e', 'chr("\\1")', $content);
-        $content = strtolower($content);
+        $content = strtolower($content);                                                                                  
         reset($entities);
         while ($char = each($entities)) {
             $content = preg_replace("/".$char[0]."/i", $char[1], $content);
-        }
-        $content = preg_replace("/&[a-z]{1,6};/", " ", $content);
+        }                                                                                                                                                           
+        $content = preg_replace("/&[a-z]{1,6};/", " ", $content);                                                          
         $content = preg_replace("/[\*\^\+\?\\\.\[\]\^\$\|\{\)\(\}~!\"\/@#£$%&=`´;><:,]+/", " ", $content);
         $content = preg_replace("/\s+/", " ", $content);
+
         $data['fullhtml'] = addslashes($fullhtml);
-        $data['fulltext'] = addslashes($fulltext);
+        $data['fulltext'] = addslashes($fulltext);                                                                        
         $data['content'] = addslashes($content);          
-        $data['title'] = addslashes($title);          
-        $data['description'] = $headdata['description'];
+        $data['title'] = htmlToISO($title);          
+        $data['description'] = htmlToISO($headdata['description']);
         $data['keywords'] = $headdata['keywords'];
         $data['host'] = $host;
         $data['path'] = $path;
         $data['nofollow'] = $headdata['nofollow'];
         $data['noindex'] = $headdata['noindex'];
-        $data['base'] = $headdata['base'];
+        $data['base'] = $headdata['base'];                          
 
         return $data;
 
@@ -650,7 +651,7 @@
             $word_in_domain = 0;
             $word_in_title = 0;
             $meta_keyword = 0;
-            if ($index_host == 1) {
+            if ($index_host == 1) {    
                 while (list ($id, $path) = each($patharray)) {
                     if ($path[1] == $word[1]) {
                         $word_in_path = 1;
@@ -687,7 +688,7 @@
 
             $wordarray[$wid][2] = (int) (calc_weight($wordarray[$wid][2], $word_in_title, $word_in_domain, $word_in_path, $path_depth, $meta_keyword));
         }
-        reset($wordarray);
+        reset($wordarray);   
         return $wordarray;
     }
 
@@ -822,7 +823,7 @@
         $weight = ($words_in_page + $word_in_title * $title_weight +
         $word_in_domain * $domain_weight +
         $word_in_path * $path_weight + $meta_keyword * $meta_weight) *10 / (0.8 +0.2*$path_depth);
-
+                      
         return $weight;
     }
 

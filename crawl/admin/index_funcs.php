@@ -39,13 +39,6 @@
             }            
         }                        
     ?>
-    <script type="text/javascript">
-        function showhide(divid){
-            if (document.getElementById(divid).style.display=='none')    
-                document.getElementById(divid).style.display = 'table-row';
-            else document.getElementById(divid).style.display = 'none'; 
-        }
-    </script>
     <div class="indexoptions"><table>
             <form action="spider.php" method="post">
             <tr><td><b>Address:</b></td><td> <input type="text" name="url" size="48" value=<?php print "\"$url\"";?>></td></tr>
@@ -57,21 +50,15 @@
                 </td></tr>
             <tr><td></td><td><input type="checkbox" name="domaincb" value="1" <?php print $checkcan;?>> CRAWLER can leave domain <!--a href="javascript:;" onClick="window.open('hmm','newWindow','width=300,height=300,left=600,top=200,resizable');" >?</a--><br/></td></tr>
             <tr><td><b>URL must include:</b></td><td><textarea name="in" cols=35 rows=2 wrap="virtual"><?php print $must;?></textarea></td></tr>
-            <tr><td><b>URL must not include:</b></td><td><textarea name="out" cols=35 rows=2 wrap="virtual"><?php print $mustnot;?></textarea></td></tr>
-
-            <?php if ($canleave==1) {$checkcan="checked" ;} ?>
-            <tr id="advanced1" style="display:none;"><td></td><td><input type="checkbox" name="domaincb" value="1" <?php print $checkcan;?>> ZONE TAG TO SAVE <!--a href="javascript:;" onClick="window.open('hmm','newWindow','width=300,height=300,left=600,top=200,resizable');" >?</a--><br/></td></tr>               
-            <tr id="advanced2" style="display:none;"><td><b>Column to save in:</b></td><td><textarea name="column" cols=35 rows=2 wrap="virtual"><?php print $mustnot;?></textarea></td></tr></table>
-
-        <center><input type="button" id="submit" onclick="showhide('advanced1');showhide('advanced2');" value="Advanced options">
-            <input type="submit" id="submit" value="Start indexing"></center>
+            <tr><td><b>URL must not include:</b></td><td><textarea name="out" cols=35 rows=2 wrap="virtual"><?php print $mustnot;?></textarea></td></tr></table>
+        <center><input type="submit" id="submit" value="Start indexing"></center>
         </form></div>
 
     <?php 
     }
 
     function extractScreen(){
-        global $mysql_table_prefix, $site, $in, $out, $tag_name, $attrib_name, $attrib_mode, $attrib_value, $start_text, $end_text;
+        global $mysql_table_prefix, $site, $in, $out, $column, $tag_name, $attrib_name, $attrib_mode, $attrib_value, $start_text, $end_text;
         $result = mysql_query("SELECT site_id,url FROM ".$mysql_table_prefix."sites");
         echo mysql_error();
         $printSites = "";
@@ -86,7 +73,8 @@
                         <?php echo $printSites; ?>
                     </select></td></tr>
             <tr><td><b>URL must include:</b></td><td><input type="text" name="in" value="<?php print $in;?>"></td></tr> 
-            <tr><td><b>URL must not include:</b></td><td><input type="text" name="out" value="<?php print $out;?>"></td></tr> 
+            <tr><td><b>URL must not include:</b></td><td><input type="text" name="out" value="<?php print $out;?>"></td></tr>
+            <tr><td><b>Column to save in:</b></td><td><input type="text" name="column" value="<?php print $column;?>"></td></tr> 
             <tr><td><b>HTML Container:</b></td><td><input type="text" name="tag_name" value="<?php print $tag_name;?>"></td></tr>
             <tr><td><b>Attribute:</b></td><td>              
                     <input type="text" name="attrib_name" value="<?php print $attrib_name; ?>" style="width:100px;">
