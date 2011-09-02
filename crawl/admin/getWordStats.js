@@ -1,7 +1,7 @@
-function getStats(zone,methode,id,base,table,colonne){
+function getStats(zone,methode,string,id,base,table,colonne){
 
-    id = id.replace(/&/g,"**");
-    url = "getWordStats.php?zone="+zone + "&methode="+methode + "&id="+id + "&base="+base + "&table="+table + "&colonne="+colonne;
+    string = string.replace(/&/g,"~AND~");
+    url = "getWordStats.php?zone="+zone + "&methode="+methode + "&string="+string + "&id="+id + "&base="+base + "&table="+table + "&colonne="+colonne;
 
     // création d'un objet capable d'interagir avec le serveur                                           
     try {

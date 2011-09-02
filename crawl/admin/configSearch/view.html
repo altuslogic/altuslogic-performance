@@ -1,10 +1,12 @@
 <?php if ($show=='search' || $show=='all'){ ?>
 <table><tr><td valign="top">
-<div class="divScroll">                                                       
+<div class="divNoScroll">                                                       
     <h2>Configuration</h2>
+    <div class="divScroll">
     <?php                                                                       
     echo list_config();
     ?>
+    </div>
 </div>      
 </td><td valign="top">  
 <div class="divNoScroll">
@@ -104,7 +106,7 @@ if ($show=='index' || $show=='all'){ ?>
     </form>
 </div>
 </td><td valign="top"> 
-<div class="divNoScroll">
+<div class="divBig">
     <h2>Indexation</h2>
     <?php          
     if ($nomBase && $nomTable) echo info_colonnes();    
@@ -143,14 +145,14 @@ if ($show=='keywords' || $show=='all'){
 $print = "";
 if ($nomBase && $nomTable && $nomColonne) $print = stats(20); ?> 
 
-Requis : index mot
+<center>Requis : index mot</center>
 <table><tr><td>
 <div class="stats">
     <h2>Top keywords</h2>
         <?php echo $print;?> 
 </div>
 </td><td valign="top">
-<div id="stats_keywords" class="divScroll">
+<div id="stats_keywords" class="divNoScroll">
     <h2>Keyword</h2>
 </div>
 </td></tr></table>
@@ -162,45 +164,49 @@ $lim = isset($_GET['limit'])? $_GET['limit']: 50;
 $seuil1 = isset($_GET['seuil1'])? $_GET['seuil1']: 5;
 $seuil2 = isset($_GET['seuil2'])? $_GET['seuil2']: 15;
 $seuil3 = isset($_GET['seuil3'])? $_GET['seuil3']: 20;
-if ($nomBase && $nomTable && $nomColonne && isset($_GET['limit'])) $print = expressions($lim,array($seuil1,$seuil2,$seuil3)); ?> 
+$seuil4 = isset($_GET['seuil4'])? $_GET['seuil4']: 95;
+if ($nomBase && $nomTable && $nomColonne && isset($_GET['limit'])) $print = expressions($lim,array($seuil1,$seuil2,$seuil3,$seuil4));
+else $print = "Les seuils globaux correspondent au rapport<br>de fréquences de l'expression et du mot d'origine,
+<br>les seuils locaux au rapport de fréquences<br>entre l'expression et son extension.<br>"; ?> 
 
-Requis : index mot, index phrase
-<br>Conseillé : sous-tables de l'index phrase
+<center>Requis : index mot, index phrase
+<br>Conseillé : sous-tables de l'index phrase</center>
 <table><tr><td valign="top">    
 <div class="stats">
     <h2>Top expressions</h2>
     <form method="get" autocomplete="off">
-    <table><tr><td>Limite : </td><td colspan="3"><input type="text" name="limit" title="nombre de mots examinés" value="<?php echo $lim;?>"></td></tr>
-    <tr><td>Seuils (%) : </td><td><input type="text" name="seuil1" value="<?php echo $seuil1;?>" title="seuil d'affichage" style="width:25px"></td>  
-    <td><input type="text" name="seuil2" value="<?php echo $seuil2;?>" title="seuil de proposition" style="width:25px"></td>
-    <td><input type="text" name="seuil3" value="<?php echo $seuil3;?>" title="seuil d'extension" style="width:25px"><input type="submit" value="ok"></td></tr></table> 
+    <table><tr><td>Limite : </td><td><input type="text" name="limit" title="nombre de mots examinés" value="<?php echo $lim;?>"></td></tr>
+    <tr><td>Seuils (%) : </td><td><input type="text" name="seuil1" value="<?php echo $seuil1;?>" title="seuil global d'affichage" style="width:25px"> 
+    <input type="text" name="seuil2" value="<?php echo $seuil2;?>" title="seuil global de proposition" style="width:25px">
+    <input type="text" name="seuil3" value="<?php echo $seuil3;?>" title="seuil global d'extension" style="width:25px">
+    <input type="text" name="seuil4" value="<?php echo $seuil4;?>" title="seuil local d'affichage" style="width:25px"><input type="submit" value="ok"></td></tr></table> 
     </form>
     <?php if ($print!=""){ ?>
-    <form action="?stage=expression" method="post" target="machintruc">  
+    <form action="correction_ops.php?stage=expression" method="post" target="iframe_expr">  
     <br><div style="max-height:500px; overflow:auto; border:1px solid #aaa;"><br><?php echo $print;?><br></div>
     <p align="center"><input type="submit" name="action" value="add"></p>  
     </form>
     <?php } ?>  
 </div> 
 </td><td valign="top">
-<div id="stats_expr" class="divScroll">
+<div id="stats_expr" class="divNoScroll">
     <h2>Expression</h2>
 </div>
-<iframe name="machintruc"></iframe>
+<iframe class="divNoScroll" name="iframe_expr"></iframe>
 </td></tr></table>
 
 <?php }          
-if ($show=='correct' || $show=='all'){
+if ($show=='errors' || $show=='all'){
 $print = "";
 $meth = isset($_GET['methode'])? $_GET['methode']: "word";
 $lim = isset($_GET['limit'])? $_GET['limit']: 50;  
 $seuil = isset($_GET['seuil'])? $_GET['seuil']: 75;  
 if ($nomBase && $nomTable && $nomColonne && isset($_GET['limit'])) $print = corrections($meth,$lim,$seuil/100); ?> 
 
-Requis : index mot ou index phrase
+<center>Requis : index mot ou index phrase</center>
 <table><tr><td valign="top">    
 <div class="stats">
-    <h2>Top corrections</h2>
+    <h2>Top errors</h2>
     <form method="get" autocomplete="off">
     Indexation : <input type="radio" name="methode" value="word" <?php if ($meth=='word') echo 'checked'; ?>>mot
     <input type="radio" name="methode" value="phrase" <?php if ($meth=='phrase') echo 'checked'; ?>>phrase
@@ -208,30 +214,53 @@ Requis : index mot ou index phrase
     <tr><td>Seuil (%) : </td><td><input type="text" name="seuil" title="seuil de similarité" value="<?php echo $seuil;?>"><input type="submit" value="ok"></td></tr></table>
     </form>
     <?php if ($print!=""){ ?> 
-    <form action="?stage=correct" method="post">
+    <form action="correction_ops.php?stage=correct" method="post" target="iframe_correc">
     <input type="hidden" name="methode" value=<?php echo $meth; ?>>
     <br><div style="max-height:500px; overflow:auto; border:1px solid #aaa;"><ul><?php echo $print;?></ul></div>
     <p align="center"><input type="submit" name="action" value="correct"><input type="submit" name="action" value="ignore"></p>
     </form>  
     <?php } ?>
+</div></td>
+
+<td valign="top">
+<div id="stats_correc" class="divNoScroll">
+    <h2>Error</h2>
 </div>
-</td><td valign="top">
-<div id="stats_correc" class="divScroll">
-    <h2>Mot erroné</h2>
-</div>
-</td><td valign="top">
-<div class="stats" style="max-height:500px;">
+<iframe class="divNoScroll" name="iframe_correc"></iframe>
+</td></tr></table>
+
+<?php }          
+if ($show=='correct' || $show=='all'){ ?> 
+
+<table><tr><td valign="top">
+<div class="divNoScroll">
+    <h2>Projets de correction</h2>
+    <form action="?stage=add_project" method="post" autocomplete="off">
+    <input type="text" name="projet">
+    <input type="submit" value="add">
+    </form>
+    <form action="?stage=reindex" method="post">
+    <input type="hidden" name="global" value="on">
+    <?php echo list_projets(); ?>
+    <p align="center"><input type="submit" value="apply"></p>
+    </form>
+</div></td>
+
+<td valign="top">
+<div class="stats">
     <h2>Corrections</h2>
+    <div class="divScroll">
     <?php echo list_correc(); ?>
+    </div>
 </div>
+
 </td><td valign="top">
 <div class="divNoScroll">
     <h2>Edition</h2>
     <form action="?stage=update_correc" method="post" autocomplete="off">
     <input type="hidden" name="correc_id" value="<?php if (isset($correc_id)) echo $correc_id; ?>">     
-    <table><tr><td>Projet</td><td><input type="text" class="grayStyle" name="correc_project" value="<?php if (isset($correc_project)) echo $correc_project; else echo 'global'; ?>" style="width:120px;"></td></tr>  
-    <tr><td>Action&nbsp;</td><td><select class="grayStyle" name="correc_action">
-    <?php $liste=array('correct','split','merge','ignore','no_problem','expression');
+    <table><tr><td>Action</td><td><select class="grayStyle" name="correc_action">
+    <?php $liste=array('correct','split','merge','ignore','no_index','expression');
     foreach ($liste as $val){
     echo "<option value=$val".((isset($correc_action) && $correc_action==$val)? ' selected' : '').">$val</option>"; 
     } ?>          
@@ -239,7 +268,7 @@ Requis : index mot ou index phrase
     <tr><td>Type</td><td><select class="grayStyle" name="correc_type">
     <option value="word" <?php if (isset($correc_type) && $correc_type=='word') echo 'selected'; ?>>mot</option>
     <option value="phrase" <?php if (isset($correc_type) && $correc_type=='phrase') echo 'selected'; ?>>phrase</option></select></td></tr>                                                                                                                                                       
-    <tr><td>Mot</td><td><textarea class="grayStyle" name="correc_word" spellcheck="false" style="width:200px; max-width:200px;"><?php if (isset($correc_word)) echo $correc_word; ?></textarea></td></tr> 
+    <tr><td>Mot</td><td><textarea class="grayStyle" name="correc_word" spellcheck="false" style="width:200px; max-width:200px;"><?php if (isset($correc_word)) echo decode($correc_word); ?></textarea></td></tr> 
     </table>
     <p align="center"><input type="submit" name="action" value="new">
     <input type="submit" name="action" value="save">
@@ -262,14 +291,17 @@ if ($show=='geo' || $show=='all'){ ?>
 
 <?php }
 if ($show=='log' || $show=='all'){ ?>
-
-<div class="divNoScroll">
+<table><tr><td>
+<div class="divBig">
     <h2>Log</h2>
+    <div class="divScroll">
     <?php          
     echo list_log();    
-    ?>                                                                                  
+    ?> 
+    </div>                                                                                 
     <form method="post" action="?stage=clear_log">
     <p align="center"><input type="submit" value="clear"></p>
     </form>
-</div>
+</div></td></tr></table>
+
 <?php } ?>

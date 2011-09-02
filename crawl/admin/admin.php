@@ -64,17 +64,16 @@
                 die ("<b>Cannot connect to database, check if username, password and host are correct.</b>");
             $success = mysql_select_db ($nomBase);
             if (!$success) {
-                print "<b>Cannot choose database, check if database name is correct.<br>".list_db();
-                die();
+                die("<b>Cannot choose database, check if database name is correct.<br>".list_db());
             }                                     
 
             $img = array("yes"=>"images/ok.jpg","no"=>"images/ko1.jpg","empty"=>"images/ko2.jpg");
-            $info = $nomBase;
-            $info .= " > ".(tableExiste($nomTable)? $nomTable: "<a href='?f=prototype&type=selection' style='color:red;' title='Table introuvable.'>$nomTable</a>");
-            $info .= " > ".(colonneExiste($nomColonne)? $nomColonne: "<a href='?f=prototype&type=selection' style='color:red;' title='Colonne introuvable.'>$nomColonne</a>");
+            $info = "<b>$nomBase</b>";
+            $info .= " > ".(tableExiste($nomTable)? "<b>$nomTable</b>": "<a href='?f=prototype&type=selection' style='color:red;' title='Table introuvable.'>$nomTable</a>");
+            $info .= " > ".(colonneExiste($nomColonne)? "<b>$nomColonne</b>": "<a href='?f=prototype&type=selection' style='color:red;' title='Colonne introuvable.'>$nomColonne</a>");
             $col = array($info,"Table principale","Index mot","Index phrase");
             foreach ($col as &$t) $t="&nbsp;$t&nbsp;";
-            echo "<table border='1' id='info'><tr><td>".implode("</td><td>",$col)."</td></tr>";
+            echo "<div id=\"topstats\"><table border='1' id='info'><tr><td>".implode("</td><td>",$col)."</td></tr>";
 
             $etatBase="yes";
             if (!colonneExiste($nomColonne)) $etatBase="no";
@@ -91,7 +90,7 @@
             $tablePhrase = "y_".$nomTable."_".$nomColonne."_keyphrase";  
             $etat = etatInfo($tablePhrase,$etatBase,"stage=indexphrase","Création de l'index phrase");
             etatInfo("y_".$tablePhrase."_".$nomColonne."_stats",$etat,"nomTable=$tablePhrase&stage=initialize","Création des sous-tables de l'index phrase");
-            echo "</td></tr></table>";
+            echo "</td></tr></table></div>";
 
             function etatInfo($table,$requis,$action,$text){
                 $img = array("yes"=>"images/ok.jpg","no"=>"images/ko1.jpg","empty"=>"images/ko2.jpg");
@@ -280,7 +279,7 @@
                         case choosedatabase;
                             include "choice_db.php";
                             break;
-                        case prototype;         
+                        case prototype;
                             $show = $type;
                             include "affiche_proto.php";        
                             break;

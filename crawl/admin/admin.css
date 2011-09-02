@@ -2,16 +2,36 @@
 html { height: 100%; margin-bottom: 1px; }
 body {font-size: 12px; font-family: Verdana, Arial; }
 
-TD {font-size: 12px; font-family: Verdana, Arial;height:26px;}
+ td {font-size: 12px; font-family: Verdana, Arial;height:26px; padding: 2px 6px 2px 6px;}
 a:visited{color:#000066}
 a:hover{text-decoration: underline}
 a {text-decoration: underline; color:#000090}
 .white {background-color: #FFFFFF}
 .grey {background-color: #F2F2F2}
-.darkgrey {background-color: #AAAAAA}
+#main table.darkgrey {background-color: #fff;  -moz-box-shadow: 6px 6px 6px #fff;  border: 0px;
+    -webkit-box-shadow: 6px 6px 6px #fff;
+    box-shadow: 6px 6px 6px #fff;}
+.darkgrey td {padding: 8px; border: 0px;}
 .greyHeading {
 	background-color: #EEE; 
 	padding: 4px;
+}
+
+#topstats{
+    padding: 5px;
+    position:absolute;
+    right: 30px;top: 5px;
+     border: 1px solid #ccc;  
+      -moz-box-shadow: 6px 6px 10px #ddd;
+    -webkit-box-shadow: 6px 6px 10px #ddd;
+    box-shadow: 6px 6px 10px #ddd;
+}
+#topstats table{
+   border: 0;
+    
+}
+#topstats td{
+  font-size: 8pt;color: #444;padding: 0;border: 0;
 }
 
 a#small_button{
@@ -76,29 +96,37 @@ div.clear{clear:both;}
 }
 
 div#settings{
-	width:80%;
-	border:1px solid #202020;
+	width:800px;
+	border:1px solid #ccc;
 	background:#ffffff;
 	padding:20px;
 	margin:0 auto;
+     -moz-box-shadow: 6px 6px 10px #ddd;
+                                -webkit-box-shadow: 6px 6px 10px #ddd;
+                                box-shadow: 6px 6px 10px #ddd;
 }
 
 div.indexoptions{
 	padding:10px;
 	width:500px;
-	border:1px solid #202020;
+	border:1px solid #ccc;
 	background:#ffffff;
 	margin:0 auto;
+     -moz-box-shadow: 6px 6px 10px #ddd;
+                                -webkit-box-shadow: 6px 6px 10px #ddd;
+                                box-shadow: 6px 6px 10px #ddd;
 }
 
 div#sitelist{
-
+ -moz-box-shadow: 6px 6px 10px #ddd;
+                                -webkit-box-shadow: 6px 6px 10px #ddd;
+                                box-shadow: 6px 6px 10px #ddd;
 }
 
 
 div#admin{
     padding:10px;
-	margin: 15px 15px;
+	margin: 35px 15px;
 	/*margin:0 auto;
 	width:80%;
 	background-color:#6f6f6;*/
@@ -128,6 +156,10 @@ background: #e5ecf9;
 	font-size: 12px;
 	clear: both;
 	text-align: center;
+} 
+#tabs ul li{  
+
+
 }
 
 #tabs ul {
@@ -138,7 +170,7 @@ background: #e5ecf9;
 
 #tabs li { 
 	float: left; 
-	height: 41px;
+	height: 42px;
 }
 
 #tabs a { 
@@ -148,16 +180,17 @@ background: #e5ecf9;
 #tabs a#selected {
 	position: relative;
 	top: 0px;
-	margin: 2px 8px 0 0;
+	
 	float: left;
-	background: #eee;
-	border-right: 2px solid #333;
-	border-top: 2px solid #333;
-	border-left: 2px solid #333;
+	background: #999;
 	padding: 9px 4px 5px 10px;
 	text-decoration: none;
 	font-weight: bold;
-	color: #333;height: 24px;
+	color: #fff;height: 24px;
+        -moz-box-shadow: 2px -2px 4px #ddd;
+    -webkit-box-shadow: 2px -2px 4px #ddd;
+    box-shadow: 2px -2px 4px #ddd;
+    margin: 4px 4px 1px 3px;
 }
 
 #tabs a#default {
@@ -165,21 +198,25 @@ background: #e5ecf9;
 	top: 0;
 	margin: 2px 8px 0 0;
 	float: left;
-	border-right: 1px solid #AAA;
-	border-top: 1px solid #AAA;
-	border-left: 1px solid #AAA;
+	border-right: 1px solid #bbb;
+	border-top: 1px solid #bbb;
+	border-left: 1px solid #bbb;
 	padding: 9px 4px 5px 10px;
 	text-decoration: none;
 	font-weight: bold;
-	color: #333;height: 24px;
+	color: #444;height: 24px;
+    -moz-box-shadow: 2px -2px 4px #ddd;
+    -webkit-box-shadow: 2px -2px 4px #ddd;
+    box-shadow: 2px -2px 4px #ddd;
+    margin: 4px 4px 1px 3px;
 }
 
 #tabs a:hover {
-	background: #eee;
-	position: relative;
-	top: 0;
-	padding: 5px 4px 6px 10px;
-	margin-top: 0px;
+	
+	
+    -moz-box-shadow: 2px -2px 7px #bbb;
+    -webkit-box-shadow: 2px -2px 7px #bbb;
+    box-shadow: 2px -2px 7px #bbb;
 }
 
 #tabs a.active {
@@ -187,10 +224,7 @@ background: #e5ecf9;
 	top: 0;
 	margin: 0 2px 0 0;
 	float: left;
-	background: #EEE;
-	border-right: 1px solid #666;
-	border-top: 1px solid #666;
-	border-left: 1px solid #666;
+	background: #ccc;
 	padding: 6px 4px 6px 10px;
 	text-decoration: none;
 	color: #333;
@@ -211,30 +245,47 @@ background: #e5ecf9;
 
 #main {
 	text-align: left;
-	border: 1px solid #666;
-	clear: both;
-	width: 98%;
-	margin-top: -1px;
+	border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    clear: both;
+	width: 100%;
+	margin-top: 2px;
+    padding-bottom: 30px;
+     -moz-box-shadow: 6px 6px 10px #ddd;
+    -webkit-box-shadow: 6px 6px 10px #ddd;
+    box-shadow: 6px 6px 10px #ddd;
+}
+
+
+
+#indexoptions{
+     -moz-box-shadow: 6px 6px 10px #ddd;
+    -webkit-box-shadow: 6px 6px 10px #ddd;
+    box-shadow: 6px 6px 10px #ddd;
+    
+}
+
+
+#main table {
+    text-align: left;
 }
 
 #submenu ul {
 	list-style-type: none;
 	margin:0;
-	margin-left:25px;
 	padding: 0;
 }
 
 #submenu li {
 	float: left;
 	padding: 12px 15px 0 15px;
-	margin-left:-1px;
-	border-left: 1px solid #333;
-	border-right: 1px solid #333;
+	border-right: 1px solid #d6d6d6;
 	white-space: nowrap;
 	height: 30px;
 }
 #submenu li a{
-	color: #00B;
+	color: #fff;
 	font-weight:bold;
 /*	border-left:1px solid;
 	border-bottom:1px solid;*/
@@ -254,8 +305,8 @@ background: #e5ecf9;
 	padding:7px;
 	margin-bottom:10px;
 	font-family: Verdana, Arial;
-	background: #eee;
-	color: #666;
+	background: #999;
+	color: #fff;
 	border-bottom:1px solid #666;
 	height: 38px;
 //	padding: 5px 7px 7px 7px; /* for All other Browsers */

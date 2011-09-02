@@ -1,8 +1,25 @@
-.divNoScroll{background-color: #fff;border: 2px solid #aaa; padding: 20px;width: 280px;min-height: 200px;margin: 12px;}   
+.divNoScroll{background-color: #fff;border: 1px solid #ccc; padding: 20px;width: 280px; min-width: 280px;min-height: 200px;margin: 12px;
+    -moz-box-shadow: 6px 6px 10px #ddd;
+    -webkit-box-shadow: 6px 6px 10px #ddd;
+    box-shadow: 6px 6px 10px #ddd;
+}
+.divScroll{
+    border: 1px solid #aaa; max-height: 400px; overflow:auto;
+}
+.divBig{background-color: #fff;border: 1px solid #ccc; padding: 20px; margin: 12px;overflow: auto;
+    -moz-box-shadow: 6px 6px 10px #ddd;
+    -webkit-box-shadow: 6px 6px 10px #ddd;
+    box-shadow: 6px 6px 10px #ddd;
+}
+.stats{background-color: #fff;border: 1px solid #ccc; padding: 20px;max-width: 1300px;min-height: 200px; margin: 12px;overflow: auto;
+    -moz-box-shadow: 6px 6px 10px #ddd;
+    -webkit-box-shadow: 6px 6px 10px #ddd;
+    box-shadow: 6px 6px 10px #ddd;
+} 
+                                
 #progress{background-color: #fff;border: 1px solid #888; padding: 15px;width: 600px;min-height: 60px;margin: 30px auto;}
 #geo{background-color: #fff;border: 2px solid #aaa; padding: 20px;width: 95%;min-height: 200px;float: left;margin: 12px;}
-.stats{background-color: #fff;border: 2px solid #aaa; padding: 20px;max-width: 1300px;min-height: 200px; margin: 12px;overflow: auto;} 
-.divScroll{background-color: #fff;border: 2px solid #aaa; padding: 20px;width: 280px;min-height: 200px; max-height: 500px; margin: 12px; overflow:auto;}
+
 font.chiffres{color: #888; font-size:8pt;}
 h2{font-size: 13pt;text-shadow: 3px; }
 .tableStyle td{background-color: #eee;font-size: 8pt;}

@@ -52,7 +52,6 @@ mysql_query("create table `".$mysql_table_prefix."links` (
 	description varchar(255),
     fullhtml mediumtext,
     fulltxt mediumtext,
-	partialtxt mediumtext,
 	indexdate date,
 	size float(2),
 	md5sum varchar(32),

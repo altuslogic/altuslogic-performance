@@ -19,14 +19,20 @@
         if (mb_detect_encoding($text,"UTF-8",true)) $text = utf8_decode($text);      
         return addslashes($text);
     }
+
+
+    function sansAccents($string) {
+        return (strtr($string, "ÀÁÂÃÄÅÆàáâãäåæÒÓÔÕÖØòóôõöøÈÉÊËèéêëðÇçÐÌÍÎÏìíîïÙÚÛÜùúûüÑñÞßÿý",
+        "AAAAAAAaaaaaaaOOOOOOooooooEEEEeeeeeCcDIIIIiiiiUUUUuuuuNntsyy"));
+    }
     
     
-    function sansAccent($text){
-        $accent = 'ÀÂÇÈÉÊËÎÏÔÙÛÜ';  
-        $sansaccent = 'AACEEEEIIOUUU';
-        //$accent = 'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûýýþÿ'; 
-        //$sansaccent = 'aaaaaaaceeeeiiiidnoooooouuuuybsaaaaaaaceeeeiiiidnoooooouuuyyby'; 
-        return strtr($text,$accent,$sansaccent); 
+    function encode($string){
+        return str_replace(array("'"," ","&"),array("~QUOTE~","~SPACE~","~AND~"),$string);
+    }
+    
+    function decode($string){
+        return str_replace(array("~QUOTE~","~SPACE~","~AND~"),array("'"," ","&"),$string);
     }
 
 ?>
