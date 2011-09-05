@@ -1,6 +1,6 @@
 <?php
 
-    include "../crawl/admin/configSearch/time_function.php";
+    include "../crawl/admin/configSearch/time_funcs.php";
 
     function tableExiste($table){
         $sql = "SELECT COUNT(*) FROM $table";
@@ -8,11 +8,9 @@
     }
 
     function updateLog($action,$details,$hash,$temps){
-        global $nomMaitre,$nomBase;  
-        mysql_select_db($nomMaitre);  
-        $sql = "INSERT INTO log SET action='$action', details='$details', hash='$hash', heure=NOW(), temps='$temps'";
-        mysql_query($sql); 
-        mysql_select_db($nomBase);     
+        global $nomMaitre,$nomBase;
+        $sql = "INSERT INTO $nomMaitre.log SET action='$action', details='$details', hash='$hash', heure=NOW(), temps='$temps'";
+        mysql_query($sql);   
     }
 
     /***
@@ -30,7 +28,6 @@
         // debug                               
         // return array("resultats" => array(array("name"=>$hash), "temps" => 0));
         $temps = start_timer();
-        $result;
 
         if ($mode=="tout"){
             // mode expression régulière (à changer)
@@ -39,52 +36,52 @@
         }
 
         else {       
-            $table;
 
             if ($methode=='tables'){
-                $table = getSousTable($text);
+                $table = getSousTable($nomTable,$nomColonne,$text);
                 if ($table!="") $table = "z_".$nomTable."_".$nomColonne."_".$table; 
             }
             else $table = getTable($methode);
 
-            if ($table!=""){
-
-                $selecCol = str_replace($nomColonne,"$table.".$nomColonne,$selecCol);
-                // cas où mode=index ???
-                $selecTables = "$table".($nomTable==$table?"":", $nomTable");
-                $jointure = ($nomTable==$table?" ":"$nomTable.id=$table.id AND ");
-                $sql;
-
-                if ($coord!=null){
-                    /*$lat = $coord[0];
-                    $lon = $coord[1];
-                    $rayon = 6370;
-                    $dist = "(ACOS( SIN($lat*PI()/180) * SIN(latitude*PI()/180) + COS($lat*PI()/180) * COS(latitude*PI()/180) * COS(($lon-longitude)*PI()/180)) * $rayon) AS distance";
-                    if ($table==$nomTable) $sql = "SELECT $nomColonne,latitude,longitude,".$dist." FROM $nomTable WHERE latitude NOT LIKE '' AND";
-                    else $sql = "SELECT $table.$nomColonne,latitude,longitude,".$dist." FROM $nomTable, $table WHERE $nomTable.id = $table.id AND latitude NOT LIKE '' AND";*/
-                }
-                else {                                                                   
-                    $sql = "SELECT $selecCol FROM $selecTables WHERE $jointure";      
-                }
-                $debut = $mode=="debut"?"":"%";
-                $fin = $mode=="fin"?"":"%";
-                $and = "";
-
-                $mot = explode(" ",$text);
-                for ($i=0; $i<sizeof($mot); $i++){
-                    if (strlen($mot[$i])>0){
-                        $sql .= $and." $table.$nomColonne LIKE '".$debut."$mot[$i]".$fin."'";
-                        $and = " AND"; 
-                        if ($i==0){
-                            $debut = $fin = "%";
-                        }
-                    }
-                }                                     
-
-                $sql .= ($coord!=null? " ORDER BY distance": ((strpos($selecCol,"nombre")!==false)? " ORDER BY nombre DESC": ""))." LIMIT ".$limite;   
-                $result = mysql_query($sql) or die($sql."<br>".mysql_error());  
-
+            if ($table==""){
+                $table = $nomTable;
+                echo "Sous-tables introuvables : utilisation de la table principale.<br><br>";
             }
+
+            $selecCol = str_replace($nomColonne,"$table.".$nomColonne,$selecCol);
+            // cas où mode=index ???
+            $selecTables = "$table".($nomTable==$table?"":", $nomTable");
+            $jointure = ($nomTable==$table?"":"$nomTable.id=$table.id AND ");
+
+            if ($coord!=null){
+                /*$lat = $coord[0];
+                $lon = $coord[1];
+                $rayon = 6370;
+                $dist = "(ACOS( SIN($lat*PI()/180) * SIN(latitude*PI()/180) + COS($lat*PI()/180) * COS(latitude*PI()/180) * COS(($lon-longitude)*PI()/180)) * $rayon) AS distance";
+                if ($table==$nomTable) $sql = "SELECT $nomColonne,latitude,longitude,".$dist." FROM $nomTable WHERE latitude NOT LIKE '' AND";
+                else $sql = "SELECT $table.$nomColonne,latitude,longitude,".$dist." FROM $nomTable, $table WHERE $nomTable.id = $table.id AND latitude NOT LIKE '' AND";*/
+            }
+            else {                                                                   
+                $sql = "SELECT $selecCol FROM $selecTables WHERE $jointure";      
+            }
+            $debut = $mode=="debut"?"":"%";
+            $fin = $mode=="fin"?"":"%";
+            $and = "";
+
+            $mot = explode(" ",$text);
+            for ($i=0; $i<sizeof($mot); $i++){
+                if (strlen($mot[$i])>0){
+                    $sql .= $and." $table.$nomColonne LIKE '".$debut."$mot[$i]".$fin."'";
+                    $and = " AND"; 
+                    if ($i==0){
+                        $debut = $fin = "%";
+                    }
+                }
+            }                                     
+
+            $sql .= ($coord!=null? " ORDER BY distance": ((strpos($selecCol,"nombre")!==false)? " ORDER BY nombre DESC": ""))." LIMIT ".$limite;   
+            $result = mysql_query($sql) or die($sql."<br>".mysql_error());  
+
         }
 
         $array=array(); 
@@ -106,7 +103,7 @@
 
         if ($methode=='direct') return $nomTable;
         if ($methode=='mot') return "y_".$nomTable."_".$nomColonne."_keyword";
-        if ($methode=='tout') return "y_".$nomTable."_".$nomColonne."_keyphrase";
+        if ($methode=='phrase') return "y_".$nomTable."_".$nomColonne."_keyphrase";
         return; 
 
     }  
@@ -154,7 +151,13 @@
         $result = mysql_query($sql) or die($sql."<br>".mysql_error());
         $tab = mysql_fetch_array($result);   
         return $tab['name'];
-    } 
+    }
+
+    function getOrdreMax($table,$colonne){
+        $result = mysql_query("SELECT MAX(ordre) FROM y_".$table."_".$colonne."_stats");
+        if (!$result) return "error";
+        return mysql_result($result,0);
+    }
 
 
 ?>

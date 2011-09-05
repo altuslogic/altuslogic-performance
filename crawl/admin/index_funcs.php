@@ -13,7 +13,7 @@
     }
 
     function indexscreen ($url, $reindex) {
-        global $mysql_table_prefix;
+        global $mysql_table_prefix, $nomBase;
         $check = "";
         $levelchecked = "checked";
         $spider_depth = 2;
@@ -39,9 +39,24 @@
             }            
         }                        
     ?>
+
+    <script>
+        function text_transform(field,id){
+            var casechanged = field.toLowerCase();
+            var result = casechanged.replace("http://","");
+            result = result.replace("www.","");
+            result = result.replace(/[^a-zA-Z 0-9\/]+/g,'x');
+            result = result.replace(/\/+/g,'_')
+
+            document.getElementById(id).value = result;
+        }
+    </script>
+
     <div class="indexoptions"><table>
             <form action="spider.php" method="post">
-            <tr><td><b>Address:</b></td><td> <input type="text" name="url" size="48" value=<?php print "\"$url\"";?>></td></tr>
+            <tr><td><b>Database:</b></td><td><input type="text" name="prefix" size="10" value="<?php print "crawl"; ?>">
+            <input type="text" name="db" id="db" size="34" value="<?php print str_replace("crawl_","",$nomBase); ?>"><input type="checkbox" name="create_db">Create DB</td></tr>
+            <tr><td><b>Address:</b></td><td> <input type="text" name="url" size="64" onkeyup="javascript:text_transform(this.value,'db');" onkeydown="javascript:text_transform(this.value,'db');" oninput="javascript:text_transform(this.value,'db');" value=<?php print "\"$url\"";?>></td></tr>
             <tr><td><b>Indexing options:</b></td><td>
                     <input type="radio" name="soption" value="full" <?php print $fullchecked;?>> Full<br/>
                     <input type="radio" name="soption" value="level" <?php print $levelchecked;?>>To depth: <input type="text" name="maxlevel" size="2" value="<?php print $spider_depth;?>"><br/>

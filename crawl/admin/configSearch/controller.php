@@ -42,18 +42,22 @@
         `hash` char(32) NOT NULL,
         `nomBase` char(30) NOT NULL,
         `nomTable` char(50) NOT NULL,
-        `nomColonne` char(20) NOT NULL, 
-        `mode` enum('debut','milieu','fin','tout') NOT NULL,
-        `methode` enum('direct','tables','mot','tout') NOT NULL,
+        `nomColonne` char(20) NOT NULL,
         `visuel` enum('suggest','result') NOT NULL,
         `resume` tinyint(1) NOT NULL,
-        `limite` smallint(5) UNSIGNED NOT NULL,
         `nomDiv` char(20) NOT NULL,
         `afficheDiv` tinyint(1) NOT NULL,
+        `description` text NOT NULL,
+        `mode_suggest` enum('debut','milieu','fin') NOT NULL,
+        `mode_result` enum('debut','milieu','fin') NOT NULL,
+        `methode_suggest` enum('direct','tables','mot','phrase') NOT NULL,
+        `methode_result` enum('direct','tables','mot','phrase') NOT NULL,
+        `limite_suggest` smallint(5) UNSIGNED NOT NULL,
+        `limite_result` smallint(5) UNSIGNED NOT NULL,
         `containerAll` text NOT NULL,
         `containerResult` text NOT NULL,
         `containerDetails` text NOT NULL,
-        `description` text NOT NULL,
+        `containerSuggest` text NOT NULL,
         PRIMARY KEY (`hash`)
         ) ENGINE=MyISAM  DEFAULT CHARSET=latin1";
         mysql_query($sql); 
@@ -786,7 +790,7 @@
     function list_config(){
         global $nomMaitre,$nomBase,$nomTable,$nomColonne,$hash;
 
-        $sql = "SELECT hash,description,mode,methode,visuel FROM $nomMaitre.champs_recherche WHERE nomBase='$nomBase' AND nomTable='$nomTable' AND nomColonne='$nomColonne'";
+        $sql = "SELECT hash,description,visuel FROM $nomMaitre.champs_recherche WHERE nomBase='$nomBase' AND nomTable='$nomTable' AND nomColonne='$nomColonne'";
         $result = mysql_query($sql) or die(mysql_error());
         $print = "";
 
@@ -795,7 +799,7 @@
             if ($desc=="") $desc = "Pas de description.";
             if ($hash==$ligne['hash']) $desc = "<b>$desc</b>";
             else $desc = "<a href='?hash=$ligne[hash]&stage=load_param'>".$desc."</a>";
-            $print = "<tr><td>$desc</td><td>".$ligne['mode']."</td><td>".$ligne['methode']."</td><td>".$ligne['visuel']."</td></tr>".$print;  
+            $print = "<tr><td>$desc</td><td>0</td><td>0</td><td>".$ligne['visuel']."</td></tr>".$print;  
         }
         $print = "<table class='tableStyle'><tr><td align='center' width='150'><b>Description</b></td><td colspan='3' align='center'><b>Paramètres</b></td></tr>".$print."</table>";
         return $print; 

@@ -1,5 +1,5 @@
 <?php 
-                  
+
     include "config/config.inc.php";
     include "config/db.inc.php";
     include "search_funcs.php";
@@ -24,21 +24,26 @@
         echo "</table><br>";
     }
 
+    unset($ligne['resume']);
+    unset($ligne['afficheDiv']);
+    unset($ligne['description']);
+    $param = json_encode($ligne);
+
     mysql_select_db($nomBase);
 
-    $param = "\"".$hash."\",\"".$nomBase."\",\"".$nomTable."\",\"".$nomColonne."\",\"".$mode."\",\"".$methode."\",\"".$visuel."\",\"".$limite."\",\"".$nomDiv."\",\"".$containerAll."\",\"".$containerResult."\",\"".$containerDetails."\"";     
-
-    $ok = "OK";
+    $ok = "";
     $t = "y_".$nomTable."_".$nomColonne;
-    if ($methode=='tables' && !tableExiste($t."_stats") || $methode=='mot' && !tableExiste($t."_keyword") || $methode=='tout' && !tableExiste($t."_keyphrase")){
-        $ok = "KO";
+    if (($methode_suggest=='tables' || $methode_result=='tables') && !tableExiste($t."_stats")
+    || ($methode_suggest=='mot' || $methode_result=='mot') && !tableExiste($t."_keyword")
+    || ($methode_suggest=='phrase' || $methode_result=='phrase') && !tableExiste($t."_keyphrase")){
+        $ok = "disabled";
     }
 
 ?> 
 
 <form style="margin-bottom: 0;">
-    <input type='text' onkeyup='javascript:soumettre(this.value,<?php echo $param; ?>);' id='champ_<?php echo $hash; ?>' style="background-color: transparent; color: #444; border: 1px solid #444;">
-    <?php echo $ok; ?>
+    <input type='text' onkeyup='javascript:soumettre(true,"champ_<?php echo $hash; ?>",<?php echo $param; ?>);' id='champ_<?php echo $hash; ?>' style="background-color: transparent; color: #444; border: 1px solid #444;">
+    <input type='button' <?php echo $ok; ?> value="search" onclick='javascript:soumettre(false,"champ_<?php echo $hash; ?>",<?php echo $param; ?>);'>
 </form><br>
 
 <?php if ($afficheDiv){ ?>                   

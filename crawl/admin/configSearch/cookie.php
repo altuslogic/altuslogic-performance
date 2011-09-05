@@ -22,7 +22,7 @@
 
     // Choix des données
     $nomProjet = readCookie($_GET,"nomProjet","global");
-    $nomBase = readCookie($_GET,"nomBase","");    
+    $nomBase = readCookie($_GET,"nomBase","");
     $nomTable = readCookie($_GET,"nomTable","");
     $nomColonne = readCookie($_GET,"nomColonne","");
     

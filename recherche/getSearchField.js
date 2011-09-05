@@ -28,18 +28,25 @@ xhr.open("GET", url, false);
 xhr.send(null);                          
 
 
-function soumettre(search,key,base,table,colonne,mode,methode,visuel,limite,nomDiv,containerAll,containerResult,containerDetails){  
-
-    search = escape(search);
+function soumettre(auto,fieldId,p){  
+    
+    search = escape(document.getElementById(fieldId).value);
     if (search.length==0){
         document.getElementById(nomDiv).innerHTML = ""; 
         return;
     }
+    if (!p.auto){
+        p.visuel="result";
+        p.methode="tables";
+    }
 
-    var url = "../../recherche/ajax.php?search="+search + "&hash="+key + "&nomBase="+base + "&nomTable="+table + "&nomColonne="+colonne
-    + "&mode="+mode + "&methode="+methode + "&visuel="+visuel + "&limite="+limite 
-    + "&containerAll="+containerAll + "&containerResult="+containerResult + "&containerDetails="+containerDetails;      
-                 
+    var param = "";
+    for (key in p){
+        param += "&"+key+"="+p[key];
+    }
+    
+    var url = "../../recherche/ajax.php?search="+search + param;
+alert(url);
     // création d'un objet capable d'interagir avec le serveur
     try {
         // Essayer IE
@@ -60,7 +67,7 @@ function soumettre(search,key,base,table,colonne,mode,methode,visuel,limite,nomD
             // debug                                                 
             // alert(result);
 
-            if (visuel=="result"){                                                               
+            if (p.visuel=="result"){                                                               
                 document.getElementById(nomDiv).innerHTML = result; 
             }
 

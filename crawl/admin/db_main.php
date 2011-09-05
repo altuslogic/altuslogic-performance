@@ -61,11 +61,11 @@ function checkAll(theForm, cName, allNo_stat) {
 <table width="94%" border="0" cellspacing=0 cellpadding=0 align="center">
   <tr align=center> 
 	<td width="1%" class="greyHeading">&nbsp;</td>
-	<td class="greyHeading"><b>Tables</b></font></td>
-	<td width="10%" class="greyHeading"><b>Rows</b></font></td>
-	<td width="20%" class="greyHeading"><b>Created on</b></font></td>
-	<td width="15%" class="greyHeading"><b>Data Size kB</b></font></td>
-	<td width="17%" class="greyHeading"><b>Index Size kB</b></font></td>
+	<td class="greyHeading"><b>Tables</b></td>
+	<td width="10%" class="greyHeading"><b>Rows</b></td>
+	<td width="20%" class="greyHeading"><b>Created on</b></td>
+	<td width="15%" class="greyHeading"><b>Data Size kB</b></td>
+	<td width="17%" class="greyHeading"><b>Index Size kB</b></td>
   </tr>
  <?php
 
@@ -76,7 +76,7 @@ function checkAll(theForm, cName, allNo_stat) {
 			echo("ERROR: Database contains no tables");
 		}	
 
-		$bgcolor='grey';
+		$bgcolor='white';
 		$i=0;
 		while ($rows=mysql_fetch_array($stats) ) {
 			print "<tr><td class=".$bgcolor."><input type='checkbox' id='tables$i' class='check' name='tables[$i]' value='".$rows["Name"]."' ></td>";

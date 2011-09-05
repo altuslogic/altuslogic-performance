@@ -1,7 +1,7 @@
 <?php
 
     $nomMaitre = "antoine_maitre";
-    include "configSearch/time_function.php";
+    include "configSearch/time_funcs.php";
     include "configSearch/progressbar.php";
     include "conversion_funcs.php";
 
@@ -48,24 +48,32 @@
             if (isset($_POST['action'])){
                 foreach ($_POST as $key=>$val){
                     $$key = $val;
-                } 
+                }
                 mysql_select_db($nomMaitre);
                 if ($action=="new"){
                     $hash = md5(microtime());
-                    mysql_query("INSERT INTO champs_recherche SET hash='$hash', nomBase='$nomBase', nomTable='$nomTable', nomColonne='$nomColonne',
-                    mode='$mode', methode='$methode', visuel='$visuel', resume='$resume', limite='$limite', nomDiv='$nomDiv', afficheDiv='$afficheDiv',
-                    containerAll='$containerAll', containerResult='$containerResult', containerDetails='$containerDetails', description='$description'");// or die($sql);
+                    $resume = isset($resume)? 1:0;
+                    $afficheDiv = isset($afficheDiv)? 1:0;
+                    $sql = "";
+                    foreach ($_POST as $key=>$val){
+                        if ($key!="action") $sql .= ", $key='".$$key."'";
+                    }
+                    mysql_query("INSERT INTO champs_recherche SET nomBase='$nomBase', nomTable='$nomTable', nomColonne='$nomColonne'".$sql) or die(mysql_error());
                 }
                 else if ($action=="save"){       
-                        mysql_query("UPDATE champs_recherche SET nomBase='$nomBase', nomTable='$nomTable', nomColonne='$nomColonne',
-                        mode='$mode', methode='$methode', visuel='$visuel', resume='$resume', limite='$limite', nomDiv='$nomDiv', afficheDiv='$afficheDiv',
-                        containerAll='$containerAll', containerResult='$containerResult', containerDetails='$containerDetails', description='$description' WHERE hash='$hash'");// or die($sql);
+                        $resume = isset($resume)? 1:0;
+                        $afficheDiv = isset($afficheDiv)? 1:0;
+                        $sql = "";
+                        foreach ($_POST as $key=>$val){
+                            if ($key!="action" && $key!="hash") $sql .= ", $key='$val'";
+                    }    
+                    mysql_query("UPDATE champs_recherche SET nomBase='$nomBase', nomTable='$nomTable', nomColonne='$nomColonne'".$sql." WHERE hash='$hash'") or die(mysql_error());
+                }
+                else if ($action=="delete"){      
+                        mysql_query("DELETE FROM champs_recherche WHERE hash='$hash'");// or die($sql);
+                        $hash = "";
                     }
-                    else if ($action=="delete"){      
-                            mysql_query("DELETE FROM champs_recherche WHERE hash='$hash'");// or die($sql);
-                            $hash = "";
-                        }
-                        mysql_select_db($nomBase);                        
+                    mysql_select_db($nomBase);                        
             }
             break;
         case 'load_param':
@@ -75,6 +83,9 @@
             foreach ($tab as $col=>$val){
                 $$col = $val;
             }
+            break;
+        case 'clear_correc':
+            mysql_query("TRUNCATE TABLE $nomMaitre.corrections");
             break;
         case 'update_correc':
             if (isset($_POST['action'])){

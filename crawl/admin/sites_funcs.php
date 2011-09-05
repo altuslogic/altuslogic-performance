@@ -316,9 +316,6 @@
             $url=$row[0];
 
             $lastIndexQuery = "SELECT indexdate from ".$mysql_table_prefix."sites where site_id = $site_id";
-            $sumSizeQuery = "select sum(length(fulltxt)) from ".$mysql_table_prefix."links where site_id = $site_id";
-            $siteSizeQuery = "select sum(size) from ".$mysql_table_prefix."links where site_id = $site_id";
-            $linksQuery = "select count(*) from ".$mysql_table_prefix."links where site_id = $site_id";
 
             $result = mysql_query($lastIndexQuery);
             echo mysql_error();
@@ -326,16 +323,19 @@
                 $stats['lastIndex']=$row[0];
             }
 
-            $result = mysql_query($sumSizeQuery);
+            $otherQueries = "select sum(length(fulltxt)) as sumSize, sum(size) as siteSize, count(*) as links from ".$mysql_table_prefix."links where site_id = $site_id";
+            
+            $result = mysql_query($otherQueries);
             echo mysql_error();
             if ($row=mysql_fetch_array($result)) {
-                $stats['sumSize']=$row[0];
+                $stats['sumSize']=$row['sumSize'];
+                $stats['links']=$row['links'];
+                $stats['siteSize']=$row['siteSize'];
             }
-            $result = mysql_query($linksQuery);
-            echo mysql_error();
-            if ($row=mysql_fetch_array($result)) {
-                $stats['links']=$row[0];
-            }
+    
+            if ($stats['siteSize']=="")
+                $stats['siteSize'] = 0;
+            $stats['siteSize'] = number_format($stats['siteSize'], 2);
 
             for ($i=0;$i<=15; $i++) {
                 $char = dechex($i);
@@ -355,14 +355,6 @@
                 }
             }
             
-            $result = mysql_query($siteSizeQuery);
-            echo mysql_error();
-            if ($row=mysql_fetch_array($result)) {
-                $stats['siteSize']=$row[0];
-            }
-            if ($stats['siteSize']=="")
-                $stats['siteSize'] = 0;
-            $stats['siteSize'] = number_format($stats['siteSize'], 2);
             print"<div id=\"submenu\"></div>";
             print "<br/><div align=\"center\"><center><table cellspacing =\"0\" cellpadding=\"0\" class=\"darkgrey\"><tr><td><table cellpadding=\"3\" cellspacing = \"1\"><tr  class=\"grey\"><td colspan=\"2\">";
             print "Statistics for site <a href=\"admin.php?f=20&site_id=$site_id\">$url</a>";
