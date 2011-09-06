@@ -12,7 +12,7 @@
     include "../settings/database.php";
     include "conversion_funcs.php";
 
-    $nomMaitre = "antoine_maitre";
+    $nomMaitre = "proto_master";
     mysql_pconnect ($DbHost, $DbUser, $DbPassword);          
     mysql_select_db($nomBase);
 

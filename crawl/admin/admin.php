@@ -54,8 +54,6 @@
             $database_funcs = Array ("database" => "default"); 
             $choosedatabase_funcs = Array ("choosedatabase" => "default");
             $prototype_funcs = Array ("prototype" => "default");
-        ?>
-        <?php 
 
             //die ("a;:$DbHost, $DbUser, $DbPassword");
             $success = mysql_pconnect ($DbHost, $DbUser, $DbPassword);
@@ -66,42 +64,6 @@
             if (!$success) {
                 die("<b>Cannot choose database, check if database name is correct.<br>".list_db());
             }                                     
-
-            $img = array("yes"=>"images/ok.jpg","no"=>"images/ko1.jpg","empty"=>"images/ko2.jpg");
-            $info = "<b>$nomBase</b>";
-            $info .= " > ".(tableExiste($nomTable)? "<b>$nomTable</b>": "<a href='?f=prototype&type=selection' style='color:red;' title='Table introuvable.'>$nomTable</a>");
-            $info .= " > ".(colonneExiste($nomColonne)? "<b>$nomColonne</b>": "<a href='?f=prototype&type=selection' style='color:red;' title='Colonne introuvable.'>$nomColonne</a>");
-            $col = array($info,"Table principale","Index mot","Index phrase");
-            foreach ($col as &$t) $t="&nbsp;$t&nbsp;";
-            echo "<div id=\"topstats\"><table border='1' id='info'><tr><td>".implode("</td><td>",$col)."</td></tr>";
-
-            $etatBase="yes";
-            if (!colonneExiste($nomColonne)) $etatBase="no";
-            else if (tableSize($nomTable)==0) $etatBase="empty";
-                echo "<tr><td align='center'>table/subtables</td><td align='center'><img src='$img[$etatBase]'>";
-            etatInfo("y_".$nomTable."_".$nomColonne."_stats",$etatBase,"stage=initialize","Création des sous-tables");
-
-            echo "</td><td align='center'>";
-            $tableMot = "y_".$nomTable."_".$nomColonne."_keyword";
-            $etat = etatInfo($tableMot,$etatBase,"stage=indexmot","Création de l'index mot");
-            etatInfo("y_".$tableMot."_".$nomColonne."_stats",$etat,"nomTable=$tableMot&stage=initialize","Création des sous-tables de l'index mot");
-
-            echo "</td><td align='center'>";
-            $tablePhrase = "y_".$nomTable."_".$nomColonne."_keyphrase";  
-            $etat = etatInfo($tablePhrase,$etatBase,"stage=indexphrase","Création de l'index phrase");
-            etatInfo("y_".$tablePhrase."_".$nomColonne."_stats",$etat,"nomTable=$tablePhrase&stage=initialize","Création des sous-tables de l'index phrase");
-            echo "</td></tr></table></div>";
-
-            function etatInfo($table,$requis,$action,$text){
-                $img = array("yes"=>"images/ok.jpg","no"=>"images/ko1.jpg","empty"=>"images/ko2.jpg");
-                $etat="yes";  
-                if (!tableExiste($table)) $etat="no";
-                else if (tableSize($table)==0) $etat="empty";
-                    $info = "<img src='$img[$etat]'>";
-                if ($etat=="no" && $requis=="yes") $info = "<a href='?$action' title=\"$text\">$info</a>";
-                echo $info;
-                return $etat;
-            }                
 
         ?> 
 
@@ -300,5 +262,44 @@
                 ?>
             </div>
         </div>
+
+        <?php
+            $img = array("yes"=>"images/ok.jpg","no"=>"images/ko1.jpg","empty"=>"images/ko2.jpg");
+            $info = "<b>$nomBase</b>";
+            $info .= " > ".(tableExiste($nomTable)? "<b>$nomTable</b>": "<a href='?f=prototype&type=selection' style='color:red;' title='Table introuvable.'>$nomTable</a>");
+            $info .= " > ".(colonneExiste($nomColonne)? "<b>$nomColonne</b>": "<a href='?f=prototype&type=selection' style='color:red;' title='Colonne introuvable.'>$nomColonne</a>");
+            $col = array($info,"Table principale","Index mot","Index phrase");
+            foreach ($col as &$t) $t="&nbsp;$t&nbsp;";
+            echo "<div id=\"topstats\"><table border='1' id='info'><tr><td>".implode("</td><td>",$col)."</td></tr>";
+
+            $etatBase="yes";
+            if (!colonneExiste($nomColonne)) $etatBase="no";
+            else if (tableSize($nomTable)==0) $etatBase="empty";
+                echo "<tr><td align='center'>table/subtables</td><td align='center'><img src='$img[$etatBase]'>";
+            etatInfo("y_".$nomTable."_".$nomColonne."_stats",$etatBase,"stage=subtables","Création des sous-tables");
+
+            echo "</td><td align='center'>";
+            $tableMot = "y_".$nomTable."_".$nomColonne."_keyword";
+            $etat = etatInfo($tableMot,$etatBase,"stage=indexmot","Création de l'index mot");
+            etatInfo("y_".$tableMot."_".$nomColonne."_stats",$etat,"stage=subtables&methode=word","Création des sous-tables de l'index mot");
+
+            echo "</td><td align='center'>";
+            $tablePhrase = "y_".$nomTable."_".$nomColonne."_keyphrase";  
+            $etat = etatInfo($tablePhrase,$etatBase,"stage=indexphrase","Création de l'index phrase");
+            etatInfo("y_".$tablePhrase."_".$nomColonne."_stats",$etat,"stage=subtables&methode=phrase","Création des sous-tables de l'index phrase");
+            echo "</td></tr></table></div>";
+
+            function etatInfo($table,$requis,$action,$text){
+                $img = array("yes"=>"images/ok.jpg","no"=>"images/ko1.jpg","empty"=>"images/ko2.jpg");
+                $etat="yes";  
+                if (!tableExiste($table)) $etat="no";
+                else if (tableSize($table)==0) $etat="empty";
+                    $info = "<img src='$img[$etat]'>";
+                if ($etat=="no" && $requis=="yes") $info = "<a href='?$action' title=\"$text\">$info</a>";
+                echo $info;
+                return $etat;
+            }
+        ?>
+
     </body>
 </html>

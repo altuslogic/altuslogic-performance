@@ -1,5 +1,5 @@
-url = "../../recherche/getSearchField.php?key="+key;      
-                                        
+url = "../../recherche/getSearchField.php?hash="+hash;      
+
 $.getScript("http://localhost/jquery.ui/core.js");
 $.getScript("http://localhost/jquery.ui/widget.js");  
 $.getScript("http://localhost/jquery.ui/position.js");  
@@ -19,34 +19,41 @@ catch(e){
 xhr.onreadystatechange = function(){
     // instructions de traitement de la réponse  
     if (xhr.readyState == 4){
-        document.getElementById('search_zone_'+key).innerHTML = xhr.responseText;                              
+        document.getElementById('search_zone_'+hash).innerHTML = xhr.responseText;                              
     }                       
 };
-             
+
 // envoi de la requête (asynchrone : false)      
 xhr.open("GET", url, false); 
 xhr.send(null);                          
 
 
 function soumettre(auto,fieldId,p){  
-    
+
     search = escape(document.getElementById(fieldId).value);
+    search = search.replace(/\+/g,"~plus~");
     if (search.length==0){
-        document.getElementById(nomDiv).innerHTML = ""; 
+        document.getElementById(p.nomDiv).innerHTML = ""; 
         return;
     }
-    if (!p.auto){
-        p.visuel="result";
-        p.methode="tables";
-    }
+
+    if (p.visuel=="suggest" && !auto) p.visuel = "result";
+    p.mode = p["mode_"+p.visuel];
+    p.methode = p["methode_"+p.visuel];
+    p.limite = p["limite_"+p.visuel];
+    p.container = p["container_"+p.visuel];
 
     var param = "";
     for (key in p){
-        param += "&"+key+"="+p[key];
+        if (!endsWith(key,"_suggest") && !endsWith(key,"_result")){
+            param += "&"+key+"="+p[key];
+        }
     }
-    
+
     var url = "../../recherche/ajax.php?search="+search + param;
-alert(url);
+    // debug
+    // alert(url);
+    
     // création d'un objet capable d'interagir avec le serveur
     try {
         // Essayer IE
@@ -68,13 +75,13 @@ alert(url);
             // alert(result);
 
             if (p.visuel=="result"){                                                               
-                document.getElementById(nomDiv).innerHTML = result; 
+                document.getElementById(p.nomDiv).innerHTML = result; 
             }
 
             else {           
                 var tab = result.split('|');
                 tab.pop();  
-                $("#champ_"+key).autocomplete({
+                $("#champ_"+hash).autocomplete({
                     source: tab
                 });
             }                 
@@ -85,4 +92,8 @@ alert(url);
     xhr.open("GET", url, true); 
     xhr.send(null);  
 
+}
+
+function endsWith(str, suffix) {
+    return str.indexOf(suffix, str.length - suffix.length) !== -1;
 }

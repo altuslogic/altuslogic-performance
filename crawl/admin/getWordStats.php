@@ -6,7 +6,7 @@
     $nomTable = $_GET['table'];
     $nomColonne = $_GET['colonne'];
     
-    include "../../recherche/config/db.inc.php";
+    include "../settings/database.php";
     include "configSearch/controller.php";
     include "conversion_funcs.php";
 
@@ -25,7 +25,7 @@
         }
         else $table = "z_".$tablePhrase."_".$nomColonne."_".$table;
 
-        $sql = "SELECT $nomColonne FROM $table WHERE $nomColonne LIKE '%$expr%'";  
+        $sql = "SELECT $nomColonne FROM $table WHERE $nomColonne LIKE '%$expr%'";
         $result = mysql_query($sql) or die($sql."<br>".mysql_error());
         echo "<h2>$expr</h2>"; 
 

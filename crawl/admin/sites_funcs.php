@@ -227,7 +227,8 @@
         print "<br/>";
         if (mysql_num_rows($result) > 0) {
             print "<div align=\"center\"><table cellspacing =\"0\" cellpadding=\"0\" class=\"darkgrey\"><tr><td><table cellpadding=\"3\" cellspacing=\"1\">
-            <tr class=\"grey\"><td align=\"center\"><b>Site name</b></td><td align=\"center\"><b>Site url</b></td><td align=\"center\"><b>Last indexed</b></td><td colspan=4></td></tr>\n";
+            <tr class=\"grey\"><td align=\"center\"><b>Site name</b></td><td align=\"center\"><b>Site url</b></td>
+            <td align=\"center\"><b>Last indexed</b></td><td colspan=7 align=\"center\"><b>Options</b></td></tr>\n";
         } else {
         ?><center><p><b>Welcome to Glerkp's CRAWL. <br><br>Choose "Add site" from the submenu to add a new site, or "Index" to directly go to the indexing section.</b></p></center><?php 
         }
@@ -235,7 +236,7 @@
         while ($row=mysql_fetch_array($result))    {
             if ($row['indexdate']=='') {
                 $indexstatus="<font color=\"red\">Not indexed</font>";
-                $indexoption="<a href=\"admin.php?f=index&url=$row[url]\">Index</a>";
+                $indexoption="<a href=admin.php?f=index&url=$row[url] id=\"small_button\">Index</a>";
             } else {
                 $site_id = $row['site_id'];
                 $result2 = mysql_query("SELECT site_id from ".$mysql_table_prefix."pending where site_id =$site_id");
@@ -243,11 +244,11 @@
                 $row2=mysql_fetch_array($result2);
                 if ($row2['site_id'] == $row['site_id']) {
                     $indexstatus = "Unfinished";
-                    $indexoption="<a href=\"admin.php?f=index&url=$row[url]\">Continue</a>";
+                    $indexoption="<a href=admin.php?f=index&url=$row[url] id=\"small_button\">Continue</a>";
 
                 } else {
                     $indexstatus = $row['indexdate'];
-                    $indexoption="<a href=\"admin.php?f=index&url=$row[url]&reindex=1\">Re-index</a>";
+                    $indexoption="<a href=admin.php?f=index&url=$row[url]&reindex=1 id=\"small_button\">Re-index</a>";
                 }
             }
             if ($class =="white") 
@@ -255,7 +256,13 @@
             else 
                 $class = "white";
             print "<tr class=\"$class\"><td align=\"left\">".stripslashes($row[title])."</td><td align=\"left\"><a href=\"$row[url]\">$row[url]</a></td><td>$indexstatus</td>";
-            print "<td><a href=admin.php?f=20&site_id=$row[site_id] id=\"small_button\">Options</a></td></tr>\n";
+            print "<td><a href=admin.php?f=20&site_id=$row[site_id] id=\"small_button\">Details</a></td>";
+            print "<td><a href=admin.php?f=edit_site&site_id=$row[site_id] id=\"small_button\">Edit</a></td>";
+            print "<td>".$indexoption."</td>";
+            print "<td><a href=admin.php?f=21&site_id=$row[site_id] id=\"small_button\">Browse</a></td>";
+            print "<td><a href=admin.php?f=25&site_id=$row[site_id] id=\"small_button\">Explore</a></td>";
+            print "<td><a href=admin.php?f=5&site_id=$row[site_id] id=\"small_button\" onclick=\"return confirm('Are you sure you want to delete? Index will be lost.')\">Delete</a></td>";
+            print "<td><a href=admin.php?f=19&site_id=$row[site_id] id=\"small_button\">Stats</a></td></tr>\n";
 
         }
         if (mysql_num_rows($result) > 0) {

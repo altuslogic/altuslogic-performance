@@ -5,8 +5,7 @@
     include "search_funcs.php";
 
     error_reporting(15); 
-    if (isset($_GET['key'])) $hash=$_GET['key'];
-    else $hash="";
+    $hash = isset($_GET['hash'])? $_GET['hash']: "";
 
     $sql = "SELECT * FROM champs_recherche WHERE hash='$hash' LIMIT 1";
     $result = mysql_query($sql) or die(mysql_error());

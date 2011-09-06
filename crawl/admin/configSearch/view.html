@@ -22,15 +22,15 @@
                     </select></td>
             <td><input type="checkbox" name="resume" <?php if (isset($resume) && $resume) echo 'checked'; ?>>Résumé</td></tr>
                     <tr><td>Nom du cadre</td><td><input type="text" class="grayStyle" id="nomDiv" name="nomDiv" value="<?php echo (isset($nomDiv)?$nomDiv:'ajax'); ?>"></td>
-            <td><input type="checkbox" name="afficheDiv" <?php if (isset($afficheDiv) && $afficheDiv) echo 'checked'; ?>>Affichage du cadre</td></tr>
+            <td><input type="checkbox" name="afficheDiv" <?php if (!isset($afficheDiv) || $afficheDiv) echo 'checked'; ?>>Affichage du cadre</td></tr>
             <tr><td></td></tr><tr><td></td><td>Résultats</td><td>Suggestion</td></tr>
             <tr><td>Position</td><td><select class="grayStyle" name="mode_result">
-                        <option <?php if (isset($mode_result) && $mode_result=="tout") echo 'selected'; ?> value="tout">tout</option>
+                        <option <?php if (isset($mode_result) && $mode_result=="regexp") echo 'selected'; ?> value="regexp">regexp</option>
                         <option <?php if (isset($mode_result) && $mode_result=="debut") echo 'selected'; ?> value="debut">début</option>
                         <option <?php if (!isset($mode_result) || $mode_result=="milieu") echo 'selected'; ?> value="milieu">milieu</option>
                         <option <?php if (isset($mode_result) && $mode_result=="fin") echo 'selected'; ?> value="fin">fin</option>
                     </select></td><td><select class="grayStyle" name="mode_suggest">
-                        <option <?php if (isset($mode_suggest) && $mode_suggest=="tout") echo 'selected'; ?> value="tout">tout</option>
+                        <option <?php if (isset($mode_suggest) && $mode_suggest=="regexp") echo 'selected'; ?> value="regexp">regexp</option>
                         <option <?php if (isset($mode_suggest) && $mode_suggest=="debut") echo 'selected'; ?> value="debut">début</option>
                         <option <?php if (!isset($mode_suggest) || $mode_suggest=="milieu") echo 'selected'; ?> value="milieu">milieu</option>
                         <option <?php if (isset($mode_suggest) && $mode_suggest=="fin") echo 'selected'; ?> value="fin">fin</option>
@@ -43,7 +43,7 @@
                         <?php } if ($array['mot']){ ?>
                         <option <?php if (isset($methode_result) && $methode_result=="mot") echo 'selected'; ?> value="mot">index(mot)</option>
                         <?php } if ($array['phrase']){ ?>
-                        <option <?php if (isset($methode_result) && $methode_result=="phrase") echo 'selected'; ?> value="tout">index(texte)</option>
+                        <option <?php if (isset($methode_result) && $methode_result=="phrase") echo 'selected'; ?> value="phrase">index(texte)</option>
                         <?php } ?>
                     </select></td><td><select class="grayStyle" name="methode_suggest">
                         <option <?php if (!isset($methode_suggest) || $methode_suggest=="direct") echo 'selected'; ?> value="direct">directe</option>
@@ -53,19 +53,20 @@
                         <?php } if ($array['mot']){ ?>
                         <option <?php if (isset($methode_suggest) && $methode_suggest=="mot") echo 'selected'; ?> value="mot">index(mot)</option>
                         <?php } if ($array['phrase']){ ?>
-                        <option <?php if (isset($methode_suggest) && $methode_suggest=="phrase") echo 'selected'; ?> value="tout">index(texte)</option>
+                        <option <?php if (isset($methode_suggest) && $methode_suggest=="phrase") echo 'selected'; ?> value="phrase">index(texte)</option>
                         <?php } ?>
                     </select></td></tr>
             <tr><td>Nombre de résultats</td><td><input type="text" class="grayStyle" name="limite_result" value="<?php echo (isset($limite_result)?$limite_result:10); ?>"></td>
             <td><input type="text" class="grayStyle" name="limite_suggest" value="<?php echo (isset($limite_suggest)?$limite_suggest:10); ?>"></td></tr>
-            <tr><td>Format général</td><td><textarea name="containerAll" spellcheck="false" style="color: #444; border: 1px solid #444; max-width: 205px;"
-            ><?php echo (isset($containerAll)?$containerAll:'<b>~TITLE~</b><ul>~ALL~</ul>~TIME~'); ?></textarea></td>
-            <td><textarea name="containerSuggest" spellcheck="false" style="color: #444; border: 1px solid #444; max-width: 205px;"
-            ><?php echo (isset($containerSuggest)?$containerSuggest:'~'.strtoupper($nomColonne).'~'); ?></textarea></td></tr>
-            <tr><td>Format résultat</td><td><textarea name="containerResult" spellcheck="false" style="color: #444; border: 1px solid #444; max-width: 205px;"
-            ><?php echo (isset($containerResult)?$containerResult:'<li>~RES~</li>'); ?></textarea></td></tr>
-            <tr><td>Format détails</td><td><textarea name="containerDetails" spellcheck="false" style="color: #444; border: 1px solid #444; max-width: 205px;"
-            ><?php echo (isset($containerDetails)?$containerDetails:'~'.strtoupper($nomColonne).'~'); ?></textarea></td></tr>
+            <tr><td>Format général</td><td><textarea name="container_all" spellcheck="false" style="color: #444; border: 1px solid #444; max-width: 205px;"
+            ><?php echo (isset($container_all)?$container_all:'<b>~TITLE~</b><ul>~ALL~</ul>~TIME~'); ?></textarea></td>
+            <td><input type="checkbox" name="onclickSearch" <?php if (!isset($onclickSearch) || $onclickSearch) echo 'checked'; ?>>Onclick search</td></tr>
+            <tr><td>Format liste</td><td><textarea name="container_list" spellcheck="false" style="color: #444; border: 1px solid #444; max-width: 205px;"
+            ><?php echo (isset($container_list)?$container_list:'<li>~RES~</li>'); ?></textarea></td></tr>
+            <tr><td>Format détails</td><td><textarea name="container_result" spellcheck="false" style="color: #444; border: 1px solid #444; max-width: 205px;"
+            ><?php echo (isset($container_result)?$container_result:'~'.strtoupper($nomColonne).'~'); ?></textarea></td>
+            <td><textarea name="container_suggest" spellcheck="false" style="color: #444; border: 1px solid #444; max-width: 205px;"
+            ><?php echo (isset($container_suggest)?$container_suggest:'~'.strtoupper($nomColonne).'~'); ?></textarea></td></tr>
         </table> 
         <p align="center"><input type="submit" name="action" value="new"><input type="submit" name="action" value="save"><input type="submit" name="action" value="delete"></p>
     </form>
@@ -93,8 +94,8 @@ if ($show=='index' || $show=='all'){ ?>
 <div class="divNoScroll">
     <h2>Menu action </h2>
     <a href="?stage">Home</a> |
-    <a href="?stage=initialize">Initialize</a> <br><br>
-    <a href="?stage=performances">Performances</a> <br><br>
+    <a href="?stage=subtables">Subtables</a><br><br>
+    <a href="?stage=performances">Performances</a><br><br>
     <a href="?stage=details">Details</a><br><br>       
     <a href="?stage=delete_tables">Delete tables</a>  -
     <a href="?stage=delete_index">Delete index</a> -              
@@ -115,7 +116,7 @@ if ($show=='index' || $show=='all'){ ?>
         <h2>Paramètres d'indexation (sous-tables)</h2>
         Threshold (nb items / sous-table)<br><input type="text" size=8 id="threshold" name="threshold" value="<?php echo $thres; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
         <br>Ordre d'indexation<br> <input type="text" size=8 name="ordre" id="ordre" value="<?php echo $ordreMax; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
-        <br><br><input type="submit" value="validate" id="initialize"> 
+        <br><br><input type="submit" value="validate"> 
     </form>
 </div>
 </td><td valign="top"> 

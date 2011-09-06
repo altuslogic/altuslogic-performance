@@ -23,6 +23,7 @@
         `action` varchar(255) NOT NULL,
         `details` varchar(50) NOT NULL,
         `hash` varchar(32) NOT NULL,
+        `ip` varchar(20) NOT NULL,
         `heure` datetime NOT NULL,
         `temps` float NOT NULL, 
         PRIMARY KEY (`id`)
@@ -47,17 +48,18 @@
         `resume` tinyint(1) NOT NULL,
         `nomDiv` char(20) NOT NULL,
         `afficheDiv` tinyint(1) NOT NULL,
+        `onclickSearch` tinyint(1) NOT NULL,
         `description` text NOT NULL,
-        `mode_suggest` enum('debut','milieu','fin') NOT NULL,
-        `mode_result` enum('debut','milieu','fin') NOT NULL,
+        `mode_suggest` enum('regexp,'debut','milieu','fin') NOT NULL,
+        `mode_result` enum('regexp','debut','milieu','fin') NOT NULL,
         `methode_suggest` enum('direct','tables','mot','phrase') NOT NULL,
         `methode_result` enum('direct','tables','mot','phrase') NOT NULL,
         `limite_suggest` smallint(5) UNSIGNED NOT NULL,
         `limite_result` smallint(5) UNSIGNED NOT NULL,
-        `containerAll` text NOT NULL,
-        `containerResult` text NOT NULL,
-        `containerDetails` text NOT NULL,
-        `containerSuggest` text NOT NULL,
+        `container_all` text NOT NULL,
+        `container_list` text NOT NULL,
+        `container_result` text NOT NULL,
+        `container_suggest` text NOT NULL,
         PRIMARY KEY (`hash`)
         ) ENGINE=MyISAM  DEFAULT CHARSET=latin1";
         mysql_query($sql); 
@@ -252,7 +254,7 @@
     function performance($mot){
         global $nomTable,$nomColonne;
         $debut = start_timer();
-        recherche($mot,"",$nomTable,$nomColonne,"milieu","tout","result");
+        recherche($mot,"",$nomTable,$nomColonne,"milieu","phrase","result");
         $temps = end_timer($debut);       
         $sql = "UPDATE y_".$nomTable."_".$nomColonne."_stats SET temps='$temps' WHERE $nomColonne='$mot'";
         mysql_query($sql);
@@ -742,8 +744,8 @@
             }
             else $print .= "<a href='?nomColonne=".$nom."'>".$nom."</a>";
             $print .= "</td><td>".$ligne['Type']."</td>";
-            $sql = "SELECT COUNT(DISTINCT $nom) FROM ".$nomTable;
-            $nb = "X";//mysql_result(mysql_query($sql),0);
+            $sql = "SELECT COUNT($nom) FROM ".$nomTable;
+            $nb = mysql_result(mysql_query($sql),0);
             $print .= "<td>".$nb."</td><td align='center'><input type='checkbox' ".$tables." id='t_".$nom."' name='t_".$nom."'></td>
             <td align='center'><input type='checkbox' ".$mot." id='i_".$nom."' name='i_".$nom."'></td>
             <td align='center'><input type='checkbox' ".$phrase." id='j_".$nom."' name='j_".$nom."'></td></tr>";    
@@ -790,7 +792,8 @@
     function list_config(){
         global $nomMaitre,$nomBase,$nomTable,$nomColonne,$hash;
 
-        $sql = "SELECT hash,description,visuel FROM $nomMaitre.champs_recherche WHERE nomBase='$nomBase' AND nomTable='$nomTable' AND nomColonne='$nomColonne'";
+        $sql = "SELECT hash,description,visuel,methode_suggest,methode_result,limite_suggest,limite_result
+        FROM $nomMaitre.champs_recherche WHERE nomBase='$nomBase' AND nomTable='$nomTable' AND nomColonne='$nomColonne'";
         $result = mysql_query($sql) or die(mysql_error());
         $print = "";
 
@@ -799,9 +802,10 @@
             if ($desc=="") $desc = "Pas de description.";
             if ($hash==$ligne['hash']) $desc = "<b>$desc</b>";
             else $desc = "<a href='?hash=$ligne[hash]&stage=load_param'>".$desc."</a>";
-            $print = "<tr><td>$desc</td><td>0</td><td>0</td><td>".$ligne['visuel']."</td></tr>".$print;  
+            $print = "<tr><td>$desc</td><td>".($ligne['visuel']=='suggest'? $ligne['methode_suggest']."(".$ligne['limite_suggest'].")": "aucune").
+            "</td><td>".$ligne['methode_result']."(".$ligne['limite_result'].")</td></tr>".$print;  
         }
-        $print = "<table class='tableStyle'><tr><td align='center' width='150'><b>Description</b></td><td colspan='3' align='center'><b>Paramètres</b></td></tr>".$print."</table>";
+        $print = "<table class='tableStyle'><tr><td align='center' width='150'><b>Description</b></td><td><b>Suggestion</b></td><td><b>Résultats</b></td></tr>".$print."</table>";
         return $print; 
     }
 

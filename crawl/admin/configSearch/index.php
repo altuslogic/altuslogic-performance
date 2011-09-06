@@ -1,6 +1,6 @@
 <?php
 
-    $nomMaitre = "antoine_maitre";
+    $nomMaitre = "proto_master";
     include "configSearch/time_funcs.php";
     include "configSearch/progressbar.php";
     include "conversion_funcs.php";
@@ -9,6 +9,7 @@
     $temps_total = start_timer();
     initProgress(5,5,600,30,'#fff','#444','#006699');
 
+    mysql_query("CREATE DATABASE IF NOT EXISTS $nomMaitre");
     mysql_select_db($nomMaitre);
     creeLog();
     creeProjets();
@@ -24,12 +25,17 @@
     $print_search = "";       
 
     switch($stage){
-        case 'initialize':
-            creeTables(); 
+        case 'subtables':
+            $origin_table = $nomTable;
+            if (isset($_GET['methode'])){
+                $nomTable = "y_".$nomTable."_".$nomColonne."_key".$_GET['methode'];
+            }
+            creeTables();
+            $nomTable = $origin_table;
             break;
         case 'performances': 
             performances();                                       
-        case 'details':    
+        case 'details':
             $print_details = getDetails();  
             break;       
         case 'delete_tables':
@@ -52,17 +58,18 @@
                 mysql_select_db($nomMaitre);
                 if ($action=="new"){
                     $hash = md5(microtime());
-                    $resume = isset($resume)? 1:0;
-                    $afficheDiv = isset($afficheDiv)? 1:0;
+                    $_POST['hash'] = $hash;
+                    $_POST['resume'] = isset($resume)? 1:0;
+                    $_POST['afficheDiv'] = isset($afficheDiv)? 1:0;
                     $sql = "";
                     foreach ($_POST as $key=>$val){
-                        if ($key!="action") $sql .= ", $key='".$$key."'";
+                        if ($key!="action") $sql .= ", $key='".$val."'";
                     }
                     mysql_query("INSERT INTO champs_recherche SET nomBase='$nomBase', nomTable='$nomTable', nomColonne='$nomColonne'".$sql) or die(mysql_error());
                 }
                 else if ($action=="save"){       
-                        $resume = isset($resume)? 1:0;
-                        $afficheDiv = isset($afficheDiv)? 1:0;
+                        $_POST['resume'] = isset($resume)? 1:0;
+                        $_POST['afficheDiv'] = isset($afficheDiv)? 1:0;
                         $sql = "";
                         foreach ($_POST as $key=>$val){
                             if ($key!="action" && $key!="hash") $sql .= ", $key='$val'";
@@ -166,7 +173,7 @@
             break;
     }
 
-    if ($hash!="") $print_search = "<div id='search_zone_".$hash."'></div>\n<script type='text/javascript'>var key='".$hash."';</script>\n<script type='text/javascript' src='../../recherche/getSearchField.js'></script>";
+    if ($hash!="") $print_search = "<div id='search_zone_".$hash."'></div>\n<script type='text/javascript'>var hash='".$hash."';</script>\n<script type='text/javascript' src='../../recherche/getSearchField.js'></script>";
 
     include "configSearch/view.html";   
 

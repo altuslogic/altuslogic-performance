@@ -9,7 +9,8 @@
 
     function updateLog($action,$details,$hash,$temps){
         global $nomMaitre,$nomBase;
-        $sql = "INSERT INTO $nomMaitre.log SET action='$action', details='$details', hash='$hash', heure=NOW(), temps='$temps'";
+        $ip = $_SERVER['REMOTE_ADDR'];
+        $sql = "INSERT INTO $nomMaitre.log SET action='$action', details='$details', hash='$hash', heure=NOW(), temps='$temps', ip='$ip'";
         mysql_query($sql);   
     }
 
@@ -18,71 +19,77 @@
     * @param mixed $text : la chaîne à chercher
     * @param mixed $mode : le mode de recherche (début,milieu,fin)
     * @param mixed $methode : la méthode utilisée (directe,sous-tables,index)
-    * @param mixed $selecCol : les colonnes qui nous intéressent
+    * @param mixed $tabCol : les colonnes qui nous intéressent
     * @param mixed $limite : le nombre de résultats à renvoyer
     * @param mixed $coord : les coordonnées (latitude,longitude)
     */
-    function recherche($text, $hash, $mode, $methode, $selecCol, $limite, $coord){             
+    function recherche($text, $hash, $mode, $methode, $tabCol, $limite, $coord){             
 
         global $nomTable,$nomColonne,$ordreMax;
         // debug                               
-        // return array("resultats" => array(array("name"=>$hash), "temps" => 0));
+        // return array("resultats" => array(array("name"=>$hash)), "temps" => 0);
         $temps = start_timer();
 
-        if ($mode=="tout"){
-            // mode expression régulière (à changer)
-            //$sql = "SELECT $nomColonne FROM $nomTable WHERE $nomColonne RLIKE '$text' LIMIT ".$limite;                                    
-            //$result = mysql_query($sql) or die($sql."<br>".mysql_error());
+        if ($methode=='tables'){
+            $table = getSousTable($nomTable,$nomColonne,$text);
+            if ($table!="") $table = "z_".$nomTable."_".$nomColonne."_".$table; 
         }
+        else $table = getTable($methode);
 
-        else {       
-
-            if ($methode=='tables'){
-                $table = getSousTable($nomTable,$nomColonne,$text);
-                if ($table!="") $table = "z_".$nomTable."_".$nomColonne."_".$table; 
+        if ($table==""){
+            $table = $nomTable;
+            echo "Sous-tables introuvables : utilisation de la table principale.<br><br>";
+        }
+        
+        foreach ($tabCol as $key=>$col){
+            $tabCol[$key] = $table.".".$col;
+        }
+        $selecCol = strtolower(implode(", ",$tabCol));
+        
+        if ($coord!=null){
+            /*$lat = $coord[0];
+            $lon = $coord[1];
+            $rayon = 6370;
+            $dist = "(ACOS( SIN($lat*PI()/180) * SIN(latitude*PI()/180) + COS($lat*PI()/180) * COS(latitude*PI()/180) * COS(($lon-longitude)*PI()/180)) * $rayon) AS distance";
+            if ($table==$nomTable) $sql = "SELECT $nomColonne,latitude,longitude,".$dist." FROM $nomTable WHERE latitude NOT LIKE '' AND";
+            else $sql = "SELECT $table.$nomColonne,latitude,longitude,".$dist." FROM $nomTable, $table WHERE $nomTable.id = $table.id AND latitude NOT LIKE '' AND";*/
+        }
+        else {
+            if ($methode=='mot' || $methode=='phrase'){
+                // pas de jointure à faire dans ce cas
+                $sql = "SELECT $selecCol FROM $table WHERE ";
+                $mot = array($text);
             }
-            else $table = getTable($methode);
-
-            if ($table==""){
-                $table = $nomTable;
-                echo "Sous-tables introuvables : utilisation de la table principale.<br><br>";
+            else {
+                $selecTables = "$table".($nomTable==$table?"":", $nomTable");
+                $jointure = ($nomTable==$table?"":"$nomTable.id=$table.id AND ");
+                $sql = "SELECT $selecCol FROM $selecTables WHERE $jointure";
+                $mot = explode(" ",$text);
             }
-
-            $selecCol = str_replace($nomColonne,"$table.".$nomColonne,$selecCol);
-            // cas où mode=index ???
-            $selecTables = "$table".($nomTable==$table?"":", $nomTable");
-            $jointure = ($nomTable==$table?"":"$nomTable.id=$table.id AND ");
-
-            if ($coord!=null){
-                /*$lat = $coord[0];
-                $lon = $coord[1];
-                $rayon = 6370;
-                $dist = "(ACOS( SIN($lat*PI()/180) * SIN(latitude*PI()/180) + COS($lat*PI()/180) * COS(latitude*PI()/180) * COS(($lon-longitude)*PI()/180)) * $rayon) AS distance";
-                if ($table==$nomTable) $sql = "SELECT $nomColonne,latitude,longitude,".$dist." FROM $nomTable WHERE latitude NOT LIKE '' AND";
-                else $sql = "SELECT $table.$nomColonne,latitude,longitude,".$dist." FROM $nomTable, $table WHERE $nomTable.id = $table.id AND latitude NOT LIKE '' AND";*/
+            if ($mode=='regexp'){
+                // mode expression régulière
+                $mot = array($text);
+                $like = "RLIKE";
             }
-            else {                                                                   
-                $sql = "SELECT $selecCol FROM $selecTables WHERE $jointure";      
-            }
-            $debut = $mode=="debut"?"":"%";
-            $fin = $mode=="fin"?"":"%";
-            $and = "";
+            else $like = "LIKE";
+        }
+        $debut = ($mode=="debut" || $mode=='regexp')?"":"%";
+        $fin = ($mode=="fin" || $mode=='regexp')?"":"%";
+        $and = "";
 
-            $mot = explode(" ",$text);
-            for ($i=0; $i<sizeof($mot); $i++){
-                if (strlen($mot[$i])>0){
-                    $sql .= $and." $table.$nomColonne LIKE '".$debut."$mot[$i]".$fin."'";
-                    $and = " AND"; 
-                    if ($i==0){
-                        $debut = $fin = "%";
-                    }
+        for ($i=0; $i<sizeof($mot); $i++){
+            if (strlen($mot[$i])>0){
+                $sql .= $and." $table.$nomColonne $like '".$debut."$mot[$i]".$fin."'";
+                $and = " AND"; 
+                if ($i==0){
+                    $debut = $fin = "%";
                 }
-            }                                     
+            }
+        }                                     
 
-            $sql .= ($coord!=null? " ORDER BY distance": ((strpos($selecCol,"nombre")!==false)? " ORDER BY nombre DESC": ""))." LIMIT ".$limite;   
-            $result = mysql_query($sql) or die($sql."<br>".mysql_error());  
-
-        }
+        $sql .= ($coord!=null? " ORDER BY distance": ((strpos($selecCol,"nombre")!==false)? " ORDER BY nombre DESC": ""))." LIMIT ".$limite;
+        //return array("resultats" => array(array("name"=>$sql)), "temps" => 0);
+        $result = mysql_query($sql) or die($sql."<br>".mysql_error());  
 
         $array=array(); 
         while ($tab = mysql_fetch_array($result)){ 
