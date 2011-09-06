@@ -1,4 +1,4 @@
 
 *.inc.php
 conf.php
-database.php
+settings/database.php
