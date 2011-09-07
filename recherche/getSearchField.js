@@ -50,7 +50,7 @@ function soumettre(auto,fieldId,p){
         }
     }
 
-    var url = "../../recherche/ajax.php?search="+search + param;
+    var url = "../../recherche/ajax.php?search="+search + "&auto="+auto + param;
     // debug
     // alert(url);
     
@@ -82,7 +82,8 @@ function soumettre(auto,fieldId,p){
                 var tab = result.split('|');
                 tab.pop();  
                 $("#champ_"+hash).autocomplete({
-                    source: tab
+                    source: tab,
+                    onclickSearch: p.onclickSearch
                 });
             }                 
         }

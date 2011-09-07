@@ -6,7 +6,7 @@
 .divScroll{
     border: 1px solid #aaa; max-height: 400px; overflow:auto;
 }
-.divBig{background-color: #fff;border: 1px solid #ccc; padding: 20px; margin: 12px;overflow: auto;
+.divBig{background-color: #fff;border: 1px solid #ccc; min-width: 280px;min-height: 200px; padding: 20px; margin: 12px;overflow: auto;
     -moz-box-shadow: 6px 6px 10px #ddd;
     -webkit-box-shadow: 6px 6px 10px #ddd;
     box-shadow: 6px 6px 10px #ddd;
@@ -25,3 +25,6 @@ h2{font-size: 13pt;text-shadow: 3px; }
 .tableStyle td{background-color: #eee;font-size: 8pt;}
 .tableStyle{width: 100%;}
 .grayStyle{color: #444; border: 1px solid #444; width: 100px;}
+
+.tableSansMarge{border-collapse: collapse; margin: 0px; padding: 0px; }
+.tableSansMarge td{border-collapse: collapse; margin: 0px; padding: 0px; }

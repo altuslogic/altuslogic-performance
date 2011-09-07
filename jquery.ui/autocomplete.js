@@ -28,7 +28,8 @@
                 at: "left bottom",
                 collision: "none"
             },
-            source: null
+            source: null,
+            onclickSearch: null
         },
 
         pending: 0,
@@ -204,6 +205,7 @@
 
                     self.close( event );
                     self.selectedItem = item;
+                    if (self.options.onclickSearch==1) document.getElementById("search").click();
                 },
                 blur: function( event, ui ) {
                     // don't set the value of the text field if it's already correct

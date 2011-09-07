@@ -32,15 +32,14 @@
             }
             creeTables();
             $nomTable = $origin_table;
-            break;
-        case 'performances': 
-            performances();                                       
+            break;                                   
         case 'details':
             $print_details = getDetails();  
             break;       
-        case 'delete_tables':
+        case 'delete_subtables':
             deleteTables(); 
             deleteStats();
+            break;
         case 'delete_index':
             deleteIndex();
             break;
@@ -52,35 +51,37 @@
             break;
         case 'update_param':
             if (isset($_POST['action'])){
-                foreach ($_POST as $key=>$val){
-                    $$key = $val;
-                }
                 mysql_select_db($nomMaitre);
-                if ($action=="new"){
-                    $hash = md5(microtime());
-                    $_POST['hash'] = $hash;
+                if ($action=="delete"){
+                    $hash = $_POST['hash'];
+                    mysql_query("DELETE FROM champs_recherche WHERE hash='$hash'");// or die($sql);
+                    $hash = "";
+                }
+                else {
                     $_POST['resume'] = isset($resume)? 1:0;
                     $_POST['afficheDiv'] = isset($afficheDiv)? 1:0;
-                    $sql = "";
+                    $_POST['onclickSearch'] = isset($onclickSearch)? 1:0;
                     foreach ($_POST as $key=>$val){
-                        if ($key!="action") $sql .= ", $key='".$val."'";
+                        $$key = $val;
                     }
-                    mysql_query("INSERT INTO champs_recherche SET nomBase='$nomBase', nomTable='$nomTable', nomColonne='$nomColonne'".$sql) or die(mysql_error());
-                }
-                else if ($action=="save"){       
-                        $_POST['resume'] = isset($resume)? 1:0;
-                        $_POST['afficheDiv'] = isset($afficheDiv)? 1:0;
+                    if ($action=="new"){
+                        $hash = md5(microtime());
+                        $_POST['hash'] = $hash;
+                        $sql = "";
+                        foreach ($_POST as $key=>$val){
+                            if ($key!="action") $sql .= ", $key='".$val."'";
+                        }
+                        mysql_query("INSERT INTO champs_recherche SET nomBase='$nomBase', nomTable='$nomTable', nomColonne='$nomColonne'".$sql) or die(mysql_error());
+                    }
+                    else if ($action=="save"){
                         $sql = "";
                         foreach ($_POST as $key=>$val){
                             if ($key!="action" && $key!="hash") $sql .= ", $key='$val'";
-                    }    
-                    mysql_query("UPDATE champs_recherche SET nomBase='$nomBase', nomTable='$nomTable', nomColonne='$nomColonne'".$sql." WHERE hash='$hash'") or die(mysql_error());
-                }
-                else if ($action=="delete"){      
-                        mysql_query("DELETE FROM champs_recherche WHERE hash='$hash'");// or die($sql);
-                        $hash = "";
+                        }    
+                        mysql_query("UPDATE champs_recherche SET nomBase='$nomBase', nomTable='$nomTable', nomColonne='$nomColonne'".$sql." WHERE hash='$hash'") or die(mysql_error());
                     }
-                    mysql_select_db($nomBase);                        
+                }
+                mysql_select_db($nomBase);                        
             }
             break;
         case 'load_param':
@@ -102,11 +103,11 @@
                 $correc_word = strtoupper($correc_word); 
                 mysql_select_db($nomMaitre);
                 if ($action=="new"){         
-                    mysql_query("INSERT INTO corrections SET action='$correc_action', type='$correc_type', word='$correc_word', project='$nomProjet'");// or die($sql);
+                    mysql_query("INSERT INTO corrections SET action='$correc_action', type='$correc_type', word='$correc_word', project='$correc_project'");// or die($sql);
                     $correc_id = mysql_insert_id();
                 }
                 else if ($action=="save"){       
-                        mysql_query("UPDATE corrections SET action='$correc_action', type='$correc_type', word='$correc_word', project='$nomProjet' WHERE id=$correc_id");// or die($sql);
+                        mysql_query("UPDATE corrections SET action='$correc_action', type='$correc_type', word='$correc_word', project='$correc_project' WHERE id=$correc_id");// or die($sql);
                     }
                     else if ($action=="delete"){      
                             mysql_query("DELETE FROM corrections WHERE id=$correc_id");// or die($sql);
@@ -169,11 +170,14 @@
             }
             break;
         case 'reindex':
-            creeIndex($_POST,1);
+            creeIndex($_POST,3);
             break;
     }
 
-    if ($hash!="") $print_search = "<div id='search_zone_".$hash."'></div>\n<script type='text/javascript'>var hash='".$hash."';</script>\n<script type='text/javascript' src='../../recherche/getSearchField.js'></script>";
+    if ($hash!=""){
+        $src = "http://".$_SERVER['HTTP_HOST']."/recherche/getSearchField.js";
+        $print_search = "<div id='search_zone_".$hash."'></div>\n<script type='text/javascript'>var hash='".$hash."';</script>\n<script type='text/javascript' src='$src'></script>";
+    }
 
     include "configSearch/view.html";   
 

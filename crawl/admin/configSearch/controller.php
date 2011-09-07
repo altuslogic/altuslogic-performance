@@ -12,8 +12,7 @@
 
     function colonneExiste($colonne){
         global $nomTable;
-        $sql = "SELECT $colonne FROM $nomTable";
-        return mysql_query($sql);
+        return mysql_query("SELECT $colonne FROM $nomTable");
     }
 
     function creeLog(){          
@@ -120,17 +119,11 @@
     }
 
     function clearTables(){
-        global $nomColonne;      
         operation("clearTable","Réinitialisation sous-tables"); 
     }
 
-    function deleteTables(){  
-        global $nomColonne;     
+    function deleteTables(){
         operation("deleteTable","Suppression sous-tables"); 
-    }
-
-    function performances(){
-        operation("performance","Performances");
     }
 
     function creeStats(){
@@ -245,47 +238,33 @@
         mysql_query($sql);
     }
 
-    /***
-    * Remplissage partiel de la table Stats
-    * avec la durée de la recherche d'un mot grâce à la méthode 2
-    * (recherche dans la sous-table la moins remplie)
-    * @param mixed $mot : le mot à rechercher
-    */
-    function performance($mot){
-        global $nomTable,$nomColonne;
-        $debut = start_timer();
-        recherche($mot,"",$nomTable,$nomColonne,"milieu","phrase","result");
-        $temps = end_timer($debut);       
-        $sql = "UPDATE y_".$nomTable."_".$nomColonne."_stats SET temps='$temps' WHERE $nomColonne='$mot'";
-        mysql_query($sql);
-    }
-
     function clearStats(){
         global $nomTable,$nomColonne;
-        $sql = "TRUNCATE TABLE y_".$nomTable."_".$nomColonne."_stats";
-        mysql_query($sql);
+        mysql_query("TRUNCATE TABLE y_".$nomTable."_".$nomColonne."_stats");
     }
 
     function deleteStats(){
         global $nomTable,$nomColonne;
-        $temps = start_timer();
-        $sql = "DROP TABLE y_".$nomTable."_".$nomColonne."_stats";
-        mysql_query($sql);
-        updateLog("Suppression des stats",$nomTable.".".$nomColonne,end_timer($temps));
+        mysql_query("DROP TABLE y_".$nomTable."_".$nomColonne."_stats");
     }
 
     function deleteIndex(){
         global $nomTable,$nomColonne;
         $temps = start_timer();
-        $sql = "DROP TABLE y_".$nomTable."_".$nomColonne."_indexword";
-        mysql_query($sql);
-        $sql = "DROP TABLE y_".$nomTable."_".$nomColonne."_indexphrase";
-        mysql_query($sql);
-        $sql = "DROP TABLE y_".$nomTable."_".$nomColonne."_keyword";
-        mysql_query($sql);
-        $sql = "DROP TABLE y_".$nomTable."_".$nomColonne."_keyphrase";
-        mysql_query($sql);
+        $origin_table = $nomTable;
+        deleteIndexWithSubtables('word');
+        deleteIndexWithSubtables('phrase');
+        $nomTable = $origin_table;
         updateLog("Suppression des index",$nomTable.".".$nomColonne,end_timer($temps));
+    }
+
+    function deleteIndexWithSubtables($methode){
+        global $nomTable,$nomColonne;
+        $nomTable = "y_".$nomTable."_".$nomColonne."_key".$methode;
+        deleteTables(); 
+        deleteStats();
+        mysql_query("DROP TABLE $nomTable");
+        mysql_query("DROP TABLE y_".$nomTable."_".$nomColonne."_index".$methode);
     }
 
     function videLog(){    // clearLog déjà pris
@@ -451,6 +430,11 @@
         $result = mysql_query($sql) or die($sql);
         $total = mysql_num_rows($result);
 
+        // Création d'une colonne corrigée dans la table principale
+        $query = mysql_query("SHOW COLUMNS FROM $nomTable LIKE '$nomColonne'");
+        $tab = mysql_fetch_array($query);
+        mysql_query("ALTER TABLE $nomTable ADD correct_$nomColonne $tab[Type] AFTER $nomColonne");
+        
         while ($tab = mysql_fetch_array($result)){
 
             $txt = $tab[$nomColonne];
@@ -469,6 +453,9 @@
                     }
             }
 
+            // Correction de la table principale
+            mysql_query("UPDATE $nomTable SET correct_".$nomColonne."='$txt' WHERE $id='$tab[id]'");
+
             if ($motParMot!=1){
                 $txtPhrase = preg_replace("/\([^\)]+\)/","",$txt);
                 $ignore = 0;
@@ -486,7 +473,7 @@
                 $tailleMot = sizeof($listeMot);
                 $compteMot = array_fill(0,$tailleMot,true);
                 $listeOK = array();
-                
+
                 // Recherche d'expressions
                 foreach ($correction as $corr){
                     if ($corr['action']=='expression'){
@@ -513,7 +500,7 @@
                 for ($i=0; $i<$tailleMot; $i++){
                     if ($compteMot[$i]) $listeOK[] = $listeMot[$i];
                 }
-                
+
                 foreach ($listeOK as $mot){
                     $ignore = 0; $no_index = false;
                     foreach ($correction as $corr){
@@ -564,7 +551,7 @@
     }
 
     function updateIndex($type,$mot,$idTable,$ignore){
-        global $nomTable,$nomColonne; 
+        global $nomTable,$nomColonne;
 
         $mot = addslashes($mot);                           
         if (strlen($mot)>1){ 
@@ -597,28 +584,23 @@
         $tableStats = "y_".$nomTable."_".$nomColonne."_stats";
 
         $taille = tableSize($tableStats);
-        $print = "Nombre de sous-tables : ".$taille."<br>";
-        $i=1;
-        while ($i<10){
+        $print = "Nombre de sous-tables : $taille<br>";
+        for ($i=1; $i<10; $i++){
             $sql = "SELECT COUNT(*) FROM $tableStats WHERE ordre=$i";     
             $result = mysql_query($sql);
             $taille = mysql_result($result,0);
             if ($taille==0) break;
-            $print .= "Nombre de sous-tables d'ordre ".$i." : ".$taille."<br>"; 
-            $i++;
+            $print .= "Nombre de sous-tables d'ordre ".$i." : ".$taille."<br>";
         }
         $max = $i;                                
 
-        $sql = "SELECT AVG(temps) AS moyenne FROM $tableStats WHERE nombre>0";
-        $result = mysql_query($sql);
-        $tab = mysql_fetch_array($result);
-        $print .= "Temps moyen : ".$tab['moyenne']." seconde(s).<br>";
+        $print .= "<br><table>";
 
         for ($i=1; $i<$max; $i++){
-            $print .= "<br><b>Ordre ".$i."</b><br>";
+            $print .= "<td valign='top'><b>Ordre ".$i."</b><br>";
             $sql = "SELECT nombre,name,temps FROM $tableStats WHERE ordre=$i ORDER BY nombre DESC LIMIT 25";
             $result = mysql_query($sql);
-            $print .= "<table><tr><td>Nom</td><td>Nombre</td><td>Proportion</td></tr>";
+            $print .= "<table class='tableStyle'><tr><td>Nom</td><td>Nombre</td><td>Proportion</td></tr>";
             while ($tab = mysql_fetch_array($result)){
                 if ($i==1){                         
                     $prop = tableSize($nomTable);
@@ -647,7 +629,7 @@
             $sql = "SELECT STD(nombre) AS ecart FROM $tableStats WHERE ordre=$i AND nombre>0";
             $result = mysql_query($sql);
             $tab = mysql_fetch_array($result);
-            $print .= "Ecart-type : ".$tab['ecart']."<br>";
+            $print .= "Ecart-type : ".$tab['ecart']."<td>";
         }
 
         /* $print .= "<br><b>Liste des 100 premiers éléments les plus nombreux</b>";
@@ -656,7 +638,7 @@
         while ($tab = mysql_fetch_array($result)){
         $print .= "<br>".$tab[name]." - ".$tab[compte]; 
         }  */
-        return $print;
+        return $print."</table>";
     } 
 
 

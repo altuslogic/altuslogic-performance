@@ -21,9 +21,10 @@
     * @param mixed $methode : la méthode utilisée (directe,sous-tables,index)
     * @param mixed $tabCol : les colonnes qui nous intéressent
     * @param mixed $limite : le nombre de résultats à renvoyer
+    * @param mixed $auto : 1 pour l'autocomplete, 0 sinon
     * @param mixed $coord : les coordonnées (latitude,longitude)
     */
-    function recherche($text, $hash, $mode, $methode, $tabCol, $limite, $coord){             
+    function recherche($text, $hash, $mode, $methode, $tabCol, $limite, $auto, $coord){             
 
         global $nomTable,$nomColonne,$ordreMax;
         // debug                               
@@ -96,7 +97,7 @@
             array_push($array,$tab);                                                                     
         }                
 
-        updateLog("Recherche",$text,$hash,$temps=end_timer($temps));
+        updateLog($auto?"Suggestion":"Recherche",$text,$hash,$temps=end_timer($temps));
         return array("resultats" => $array, "temps" => $temps);
     }  
 

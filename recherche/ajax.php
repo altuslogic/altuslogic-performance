@@ -20,7 +20,7 @@
     
     // Recherche proprement dite
     $search = str_replace("~plus~","+",$search);
-    $tab = recherche($search,$hash,$mode,$methode,$tabCol,$limite,null);
+    $tab = recherche($search,$hash,$mode,$methode,$tabCol,$limite,$auto,null);
     $result = $tab['resultats'];
 
     if ($visuel=="result"){

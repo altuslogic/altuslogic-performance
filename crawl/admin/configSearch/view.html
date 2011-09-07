@@ -91,17 +91,28 @@
 if ($show=='index' || $show=='all'){ ?>  
 
 <table><tr><td valign="top">
+<table class="tableSansMarge"><tr><td>
 <div class="divNoScroll">
     <h2>Menu action </h2>
     <a href="?stage">Home</a> |
     <a href="?stage=subtables">Subtables</a><br><br>
-    <a href="?stage=performances">Performances</a><br><br>
     <a href="?stage=details">Details</a><br><br>       
-    <a href="?stage=delete_tables">Delete tables</a>  -
+    <a href="?stage=delete_subtables">Delete subtables</a>  -
     <a href="?stage=delete_index">Delete index</a> -              
     <a href="?stage=clear_cache">Clear cache</a>     
-</div>               
-</td><td valign="top">                                      
+</div>
+</td></tr>
+<tr><td>
+<div class="divNoScroll">
+    <form method="get" autocomplete="off">
+        <h2>Paramètres d'indexation (sous-tables)</h2>
+        Threshold (nb items / sous-table)<br><input type="text" size=8 id="threshold" name="threshold" value="<?php echo $thres; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
+        <br>Ordre d'indexation<br> <input type="text" size=8 name="ordre" id="ordre" value="<?php echo $ordreMax; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
+        <br><br><input type="submit" value="validate"> 
+    </form>
+</div>
+</td></tr>
+<tr><td>
 <div class="divNoScroll">
     <h2>Insert / Delete</h2>
     <form action="?stage=modif" method="post" autocomplete="off">
@@ -110,14 +121,11 @@ if ($show=='index' || $show=='all'){ ?>
         <input type="submit" value="delete" name="action">   
     </form>
 </div>
-</td><td valign="top"> 
-<div class="divNoScroll">
-    <form method="get" autocomplete="off">
-        <h2>Paramètres d'indexation (sous-tables)</h2>
-        Threshold (nb items / sous-table)<br><input type="text" size=8 id="threshold" name="threshold" value="<?php echo $thres; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
-        <br>Ordre d'indexation<br> <input type="text" size=8 name="ordre" id="ordre" value="<?php echo $ordreMax; ?>" style="background-color: transparent; color: #444; border: 1px solid #444;">
-        <br><br><input type="submit" value="validate"> 
-    </form>
+</td></tr></table>
+</td><td valign="top">                                      
+<div class="divBig">
+    <h2>Details</h2>
+    <?php echo $print_details; ?>
 </div>
 </td><td valign="top"> 
 <div class="divBig">
@@ -276,7 +284,18 @@ if ($show=='correct' || $show=='all'){ ?>
     <h2>Edition</h2>
     <form action="?stage=update_correc" method="post" autocomplete="off">
     <input type="hidden" name="correc_id" value="<?php if (isset($correc_id)) echo $correc_id; ?>">     
-    <table><tr><td>Action</td><td><select class="grayStyle" name="correc_action">
+    <table><tr><td>Projet</td><td><select class="grayStyle" name="correc_project">
+    <?php 
+    $result = mysql_query("SELECT name FROM $nomMaitre.projets");
+    $proj = isset($correc_project)? $correc_project: $nomProjet;
+    while ($ligne=mysql_fetch_array($result)){
+        $p = $ligne['name'];
+        $selected = ($proj==$p)? "selected": "";
+        echo "<option value='$p' $selected>$p</option>";
+    }
+    ?>
+    </select></td></tr>
+    <tr><td>Action</td><td><select class="grayStyle" name="correc_action">
     <?php $liste=array('correct','split','merge','ignore','no_index','expression');
     foreach ($liste as $val){
     echo "<option value=$val".((isset($correc_action) && $correc_action==$val)? ' selected' : '').">$val</option>"; 
