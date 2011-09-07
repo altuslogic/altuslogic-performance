@@ -53,17 +53,19 @@
                 $node = $newDoc->importNode($item, true);   
                 $newDoc->appendChild($node);                   
             }
-            $html = $newDoc->saveHTML();            
+            $html = $newDoc->saveHTML();
         }
         if ($start_text!=""){
             $start_text = stripslashes($start_text);
             $debut = strpos($html,$start_text)+strlen($start_text);
             if ($debut!==FALSE) $html = substr($html,$debut);
+            else $html = "";
         }
         if ($end_text!=""){
             $fin = strpos($html,stripslashes($end_text));
             if ($fin!==FALSE) $html = substr($html,0,$fin);
-        }                 
+            else $html = "";
+        }
 
         if ($html!=""){
 

@@ -518,7 +518,8 @@
 
     function save_images($html, $host, $link_id){
         global $mysql_table_prefix;
-
+        
+        $print = "<div class='groupeImg'>";
         preg_match_all("/\<img([^\>]+)\>/",$html,$match);
         foreach ($match[1] as $val){
             $debut = strpos($val,"src=")+4;
@@ -539,11 +540,14 @@
             $size = getFileSize($path);
             $result = mysql_query("insert into ".$mysql_table_prefix."images set path='$path', link_id=$link_id, width=$width, height=$height, size=$size");
             if ($result){
-                echo "$path<br>";
-                echo "width:",$width," height:",$height," size:",$size,"<br>";
-                echo "<img src='$path'>";
+                $resize="";
+                if ($height>$width && $height>200) $resize="height:200px";
+                else if ($width>$height && $width>200) $resize="width:200px";
+                $print .= "<div style='float:left;position:relative;'><img src='$path' style='$resize'><br>";
+                $print .= "<center>".$width."x".$height." ($size octets)</center></div>";
             }
         }
+        return $print."</div>";
     }
 
     function getFileSize($url){

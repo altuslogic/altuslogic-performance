@@ -181,6 +181,8 @@
         $url_status = url_status($url);
         $thislevel = $level - 1;
 
+      
+        
         if (strstr($url_status['state'], "Relocation")) {
             $url = preg_replace("/ /", "", url_purify($url_status['path'], $url, $can_leave_domain));
 
@@ -196,7 +198,7 @@
 
             $url_status['state'] == "redirected";
         }
-
+        
         /*
         if ($indexdate <> '' && $url_status['date'] <> '') {
         if ($indexdate > $url_status['date']) {
@@ -354,7 +356,7 @@
 
                     }
                     
-                    if ($save_images) save_images($fullhtml, $host, $link_id);
+                    if ($save_images) $print_images = save_images($fullhtml, $host, $link_id);
                     
                 }
             }
@@ -375,6 +377,7 @@
             $numoflinks = 0;
         }
         printLinksReport($numoflinks, $all_links, $command_line);
+        echo "</div>",$print_images;
     }
 
 
@@ -405,7 +408,7 @@
             $port = 80;
         }
 
-
+ 
 
         $result = mysql_query("select site_id from ".$mysql_table_prefix."sites where url='$url'");
         echo mysql_error();
@@ -507,6 +510,7 @@
 
 
             while ($count < count($links)) {
+                 echo "<div style='clear:both;'>";
                 $num++;
                 $thislink = $links[$count];
                 $urlparts = parse_url($thislink);

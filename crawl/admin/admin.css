@@ -260,10 +260,9 @@ background: #e5ecf9;
 
 
 #indexoptions{
-     -moz-box-shadow: 6px 6px 10px #ddd;
+    -moz-box-shadow: 6px 6px 10px #ddd;
     -webkit-box-shadow: 6px 6px 10px #ddd;
     box-shadow: 6px 6px 10px #ddd;
-    
 }
 
 
@@ -416,3 +415,13 @@ ul#vertmenu{
 }
 
 #info img{width: 25px;}
+
+.groupeImg{
+    color:#aaa;
+    font-size:7px;
+    width: 100%;
+    border:1px solid #444;
+    -moz-box-shadow: 6px 6px 10px #ddd;
+    -webkit-box-shadow: 6px 6px 10px #ddd;
+    box-shadow: 6px 6px 10px #ddd;
+}
