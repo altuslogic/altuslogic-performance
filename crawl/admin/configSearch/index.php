@@ -143,9 +143,11 @@
 
             while ($ligne=mysql_fetch_array($result)){
                 $nomColonne = $ligne['Field'];                                                               
-                if (isset($_POST['t_'.$nomColonne])) creeTables(); 
-                if (isset($_POST['i_'.$nomColonne])) creeIndex(null,1); 
-                if (isset($_POST['j_'.$nomColonne])) creeIndex(null,2);                        
+                if (isset($_POST['t_'.$nomColonne])) creeTables();
+                $total = 0;
+                if (isset($_POST['i_'.$nomColonne])) $total++; 
+                if (isset($_POST['j_'.$nomColonne])) $total+=2;
+                if ($total>0) creeIndex(null,$total);
             }
             $nomColonne = $col;
             break;

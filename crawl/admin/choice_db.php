@@ -18,7 +18,7 @@
         $db_list = mysql_list_dbs($link);
         $out_print = "";
         $out_print.="<table width=\"100%\" border=0 cellspacing=0 cellpadding=0 align=\"center\">";
-        $table=array("keywords","links","temp","sites","domains");
+        $table=array("keywords","images","links","temp","sites","domains");
         $x=0;
         $out_print.="<tr><td class='greyHeading'><b>Databases<b></td>";
 

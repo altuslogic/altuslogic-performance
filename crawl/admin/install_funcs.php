@@ -73,6 +73,20 @@
             }
         }
 
+        mysql_query("create table `".$mysql_table_prefix."images`    (
+        path varchar(255) primary key not null,
+        link_id int not null,
+        width int not null,
+        height int not null,
+        size int not null)");
+
+        if (mysql_errno() > 0) {
+            print "Error: ";
+            print mysql_error();
+            print "<br>\n";
+            $error += mysql_errno();
+        }
+        
         mysql_query("create table `".$mysql_table_prefix."categories` (
         category_id integer not null auto_increment primary key, 
         category text,

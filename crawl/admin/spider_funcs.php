@@ -516,6 +516,44 @@
         }
     }
 
+    function save_images($html, $host, $link_id){
+        global $mysql_table_prefix;
+
+        preg_match_all("/\<img([^\>]+)\>/",$html,$match);
+        foreach ($match[1] as $val){
+            $debut = strpos($val,"src=")+4;
+            $fin = strpos($val," ",$debut);
+            if ($fin===FALSE) $path = substr($val,$debut);
+            else $path = substr($val,$debut,$fin-$debut);
+
+            // Supprime les guillemets, retours à la ligne...
+            //$path = substr($path,1,strlen($path)-2);
+            $path = preg_replace("@[^A-Za-z0-9/:_\-\.]+@","",$path);
+
+            if (strpos($path,"http://")!==0){
+                $path = "http://$host/$path";
+            }
+            $dim = getimagesize($path);
+            $width = $dim[0];
+            $height = $dim[1];
+            $size = getFileSize($path);
+            $result = mysql_query("insert into ".$mysql_table_prefix."images set path='$path', link_id=$link_id, width=$width, height=$height, size=$size");
+            if ($result){
+                echo "$path<br>";
+                echo "width:",$width," height:",$height," size:",$size,"<br>";
+                echo "<img src='$path'>";
+            }
+        }
+    }
+
+    function getFileSize($url){
+        if (substr($url,0,4)=='http'){ 
+            $x = array_change_key_case(get_headers($url,1),CASE_LOWER);
+            return $x['content-length'];
+        }
+        return @filesize($url); 
+    }
+
     function get_head_data($file) {
         $headdata = "";
 
@@ -592,7 +630,7 @@
             }
 
             $file = preg_replace("@<style[^>]*>.*?<\/style>@si", " ", $file);                  
-                                                                                      
+
         $file = preg_replace("/&lt;(\/?[^(&gt;)]+)&gt;/", "<\\1>", $file);                     
         $file = preg_replace("/\<(\/?[^\>]+) \>/", "<\\1>", $file);                      
         //create spaces between tags, so that removing tags doesnt concatenate strings
@@ -608,7 +646,7 @@
         if ($index_meta_keywords == 1) {
             $content = $content." ".$headdata['keywords'];
         }
-             
+
 
         //replace codes with ascii chars
         $content = preg_replace('~&#x([0-9a-f]+);~ei', 'chr(hexdec("\\1"))', $content);
@@ -823,7 +861,7 @@
         $weight = ($words_in_page + $word_in_title * $title_weight +
         $word_in_domain * $domain_weight +
         $word_in_path * $path_weight + $meta_keyword * $meta_weight) *10 / (0.8 +0.2*$path_depth);
-                      
+
         return $weight;
     }
 

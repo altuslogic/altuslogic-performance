@@ -104,6 +104,10 @@
         $save_keywords=0;
     }
 
+    if(!isset($save_keywords)) {
+        $save_images=0;
+    }
+    
     if(!isset($maxlevel)) {
         $maxlevel=0;
     }
@@ -152,7 +156,7 @@
             $out = "";
         }                                 
 
-        index_site($url, $reindex, $maxlevel, $soption, $in, $out, $domaincb, $save_keywords);
+        index_site($url, $reindex, $maxlevel, $soption, $in, $out, $domaincb, $save_keywords, $save_images);
 
     }
 
@@ -165,7 +169,7 @@
     }
 
 
-    function index_url($url, $level, $site_id, $md5sum, $domain, $indexdate, $sessid, $can_leave_domain, $reindex, $save_keywords) {                
+    function index_url($url, $level, $site_id, $md5sum, $domain, $indexdate, $sessid, $can_leave_domain, $reindex, $save_keywords, $save_images) {                
         global $entities, $min_delay;
         global $command_line;
         global $min_words_per_page;
@@ -349,6 +353,9 @@
                         printStandardReport('minWords', $command_line);
 
                     }
+                    
+                    if ($save_images) save_images($fullhtml, $host, $link_id);
+                    
                 }
             }
         } else {
@@ -371,7 +378,7 @@
     }
 
 
-    function index_site($url, $reindex, $maxlevel, $soption, $url_inc, $url_not_inc, $can_leave_domain, $save_keywords) {
+    function index_site($url, $reindex, $maxlevel, $soption, $url_inc, $url_not_inc, $can_leave_domain, $save_keywords, $save_images) {
         global $mysql_table_prefix, $command_line, $mainurl,  $tmp_urls, $domain_arr, $all_keywords;
         if (!isset($all_keywords)) {
             $result = mysql_query("select keyword_ID, keyword from ".$mysql_table_prefix."keywords");
@@ -536,7 +543,7 @@
                     echo mysql_error();
                     $rows = mysql_num_rows($result);
                     if ($rows == 0) {
-                        index_url($thislink, $level+1, $site_id, '',  $domain, '', $sessid, $can_leave_domain, $reindex, $save_keywords);
+                        index_url($thislink, $level+1, $site_id, '',  $domain, '', $sessid, $can_leave_domain, $reindex, $save_keywords, $save_images);
 
                         mysql_query("update ".$mysql_table_prefix."pending set level = $level, count=$count, num=$num where site_id=$site_id");
                         echo mysql_error();
@@ -544,7 +551,7 @@
                             $row = mysql_fetch_array($result);
                             $md5sum = $row['md5sum'];
                             $indexdate = $row['indexdate'];
-                            index_url($thislink, $level+1, $site_id, $md5sum,  $domain, $indexdate, $sessid, $can_leave_domain, $reindex, $save_keywords);
+                            index_url($thislink, $level+1, $site_id, $md5sum,  $domain, $indexdate, $sessid, $can_leave_domain, $reindex, $save_keywords, $save_images);
                             mysql_query("update ".$mysql_table_prefix."pending set level = $level, count=$count, num=$num where site_id=$site_id");
                             echo mysql_error();
                         }else {
@@ -584,7 +591,7 @@
             } else {
                 $soption = 'level';
             }
-            index_site($url, 1, $depth, $soption, $include, $not_include, $can_leave_domain, 1);
+            index_site($url, 1, $depth, $soption, $include, $not_include, $can_leave_domain, 1, 0);
         }
     }			
 

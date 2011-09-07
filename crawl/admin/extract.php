@@ -17,14 +17,14 @@
     }
 
     echo "[Back to <a href=\"admin.php\">admin</a>]";
-    
+
     foreach ($_POST as $key=>$val){
         //echo $key,"=",$val,"<br>";
         $$key = $val;
     }
 
     mysql_query("ALTER TABLE ".$mysql_table_prefix."links ADD $column MEDIUMTEXT");
-    
+
     $sql = "SELECT link_id,fullhtml FROM ".$mysql_table_prefix."links WHERE site_id='$site'";
     if ($in!="") $sql .= " AND url LIKE '%$in%'";
     if ($out!="") $sql .= " AND url NOT LIKE '%$out%'";  
@@ -56,7 +56,8 @@
             $html = $newDoc->saveHTML();            
         }
         if ($start_text!=""){
-            $debut = strpos($html,stripslashes($start_text));
+            $start_text = stripslashes($start_text);
+            $debut = strpos($html,$start_text)+strlen($start_text);
             if ($debut!==FALSE) $html = substr($html,$debut);
         }
         if ($end_text!=""){
@@ -64,31 +65,35 @@
             if ($fin!==FALSE) $html = substr($html,0,$fin);
         }                 
 
-        $partialtxt = $html;        
+        if ($html!=""){
 
-        $partialtxt = preg_replace("/<link rel[^<>]*>/i", " ", $partialtxt);
-        $partialtxt = preg_replace("@<!--sphider_noindex-->.*?<!--\/sphider_noindex-->@si", " ",$partialtxt);    
-        $partialtxt = preg_replace("@<!--.*?-->@si", " ",$partialtxt);    
-        $partialtxt = preg_replace("@<script[^>]*?>.*?</script>@si", " ",$partialtxt);
+            $partialtxt = $html;        
 
-        $regs = Array ();
-        if (preg_match("@<title *>(.*?)<\/title*>@si", $partialtxt, $regs)) {
-            $partialtxt = str_replace($regs[0], "", $partialtxt);
+            $partialtxt = preg_replace("/<link rel[^<>]*>/i", " ", $partialtxt);
+            $partialtxt = preg_replace("@<!--sphider_noindex-->.*?<!--\/sphider_noindex-->@si", " ",$partialtxt);    
+            $partialtxt = preg_replace("@<!--.*?-->@si", " ",$partialtxt);    
+            $partialtxt = preg_replace("@<script[^>]*?>.*?</script>@si", " ",$partialtxt);
+
+            $regs = Array ();
+            if (preg_match("@<title *>(.*?)<\/title*>@si", $partialtxt, $regs)) {
+                $partialtxt = str_replace($regs[0], "", $partialtxt);
+            }
+
+            $partialtxt = preg_replace("@<style[^>]*>.*?<\/style>@si", " ", $partialtxt);               
+
+            // HTML tags
+            $partialtxt = preg_replace("/&lt;(\/?[^(&gt;)]+)&gt;/", "<\\1>", $partialtxt);   
+            //create spaces between tags, so that removing tags doesnt concatenate strings
+            $partialtxt = preg_replace("/\<(\/?[^\>]+)\>/", "\\0 ", $partialtxt);       
+            $partialtxt = strip_tags($partialtxt);                  
+            $partialtxt = htmlToISO($partialtxt);
+
+            mysql_query("UPDATE ".$mysql_table_prefix."links SET $column='$partialtxt' WHERE link_id='$tab[link_id]'");
+            echo "<b>".mysql_error()."</b>"; 
+            echo "<br><br><b>$tab[link_id]</b>",$partialtxt;
+
         }
 
-        $partialtxt = preg_replace("@<style[^>]*>.*?<\/style>@si", " ", $partialtxt);               
-                
-        // HTML tags
-        $partialtxt = preg_replace("/&lt;(\/?[^(&gt;)]+)&gt;/", "<\\1>", $partialtxt);   
-        //create spaces between tags, so that removing tags doesnt concatenate strings
-        $partialtxt = preg_replace("/\<(\/?[^\>]+)\>/", "\\0 ", $partialtxt);       
-        $partialtxt = strip_tags($partialtxt);                  
-        $partialtxt = htmlToISO($partialtxt);
-        
-        mysql_query("UPDATE ".$mysql_table_prefix."links SET $column='$partialtxt' WHERE link_id='$tab[link_id]'");
-        echo "<b>".mysql_error()."</b>"; 
-        echo "<br><br><b>$tab[link_id]</b>",$partialtxt;
-        
     }
 
 ?>
