@@ -2,3 +2,4 @@
 *.inc.php
 conf.php
 database.php
+crawl/settings/database.php
