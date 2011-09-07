@@ -57,8 +57,8 @@
         }
         if ($start_text!=""){
             $start_text = stripslashes($start_text);
-            $debut = strpos($html,$start_text)+strlen($start_text);
-            if ($debut!==FALSE) $html = substr($html,$debut);
+            $debut = strpos($html,$start_text);
+            if ($debut!==FALSE) $html = substr($html,$debut+strlen($start_text));
             else $html = "";
         }
         if ($end_text!=""){

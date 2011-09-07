@@ -377,7 +377,7 @@
             $numoflinks = 0;
         }
         printLinksReport($numoflinks, $all_links, $command_line);
-        echo "</div>",$print_images;
+        echo $print_images,"</div>";
     }
 
 
