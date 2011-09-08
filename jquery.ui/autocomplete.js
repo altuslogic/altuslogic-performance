@@ -43,7 +43,7 @@
             self.searching = setTimeout(function() {     
                 self.selectedItem = null;
                 self.search( null, null );
-            }, self.options.delay );
+            }, self.options.delay );              
 
 
             this.element
@@ -99,7 +99,7 @@
                         self.element.val( self.term );
                         self.close( event );
                         break;
-                    default:        
+                    default:                   
                     // keypress is triggered before the input value is changed
                     clearTimeout( self.searching );
                     self.searching = setTimeout(function() {
@@ -197,7 +197,7 @@
                     }
 
                     if ( false !== self._trigger( "select", event, { item: item } ) ) {
-                        self.element.val( item.value );
+                        self.element.val( item.value.replace(/ \([0-9]+\)/g,"") );
                     }
                     // reset the term after the select event
                     // this allows custom select handling to work properly
@@ -397,9 +397,10 @@
         },
 
         _renderItem: function( ul, item) {
+            var text = item.label.replace(/(\([0-9]+\))/g,"<font class=chiffres>$1</font>")
             return $( "<li></li>" )
             .data( "item.autocomplete", item )
-            .append( $( "<a></a>" ).text( item.label ) )
+            .append( "<a>" + text + "</a>" )
             .appendTo( ul );
         },
 

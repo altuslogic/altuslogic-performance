@@ -28,7 +28,7 @@ xhr.open("GET", url, false);
 xhr.send(null);                          
 
 
-function soumettre(auto,fieldId,p){  
+function soumettre(source,page,fieldId,p){  
 
     search = escape(document.getElementById(fieldId).value);
     search = search.replace(/\+/g,"~plus~");
@@ -37,7 +37,7 @@ function soumettre(auto,fieldId,p){
         return;
     }
 
-    if (p.visuel=="suggest" && !auto) p.visuel = "result";
+    if (p.visuel=="suggest" && !source) p.visuel = "result";
     p.mode = p["mode_"+p.visuel];
     p.methode = p["methode_"+p.visuel];
     p.limite = p["limite_"+p.visuel];
@@ -50,7 +50,7 @@ function soumettre(auto,fieldId,p){
         }
     }
 
-    var url = "../../recherche/ajax.php?search="+search + "&auto="+auto + param;
+    var url = "../../recherche/ajax.php?search="+search + "&source="+source + "&page="+page + param;
     // debug
     // alert(url);
     

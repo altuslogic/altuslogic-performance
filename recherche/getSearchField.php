@@ -41,8 +41,8 @@
 ?> 
 
 <form style="margin-bottom: 0;">
-    <input type='text' onkeyup='javascript:soumettre(1,"champ_<?php echo $hash; ?>",<?php echo $param; ?>);' id='champ_<?php echo $hash; ?>' style="background-color: transparent; color: #444; border: 1px solid #444;">
-    <input type='button' <?php echo $ok; ?> value="search" id="search" onclick='javascript:soumettre(0,"champ_<?php echo $hash; ?>",<?php echo $param; ?>);'>
+    <input type='text' onkeyup='javascript:soumettre(1,0,"champ_<?php echo $hash; ?>",<?php echo $param; ?>);' id='champ_<?php echo $hash; ?>' style="background-color: transparent; color: #444; border: 1px solid #444;">
+    <input type='button' <?php echo $ok; ?> value="search" id="search" onclick='javascript:soumettre(0,1,"champ_<?php echo $hash; ?>",<?php echo $param; ?>);'>
 </form><br>
 
 <?php if ($afficheDiv){ ?>                   

@@ -21,10 +21,10 @@
     * @param mixed $methode : la méthode utilisée (directe,sous-tables,index)
     * @param mixed $tabCol : les colonnes qui nous intéressent
     * @param mixed $limite : le nombre de résultats à renvoyer
-    * @param mixed $auto : 1 pour l'autocomplete, 0 sinon
+    * @param mixed $source : 1 pour le clavier (autocomplete), 0 pour la souris (bouton recherche)
     * @param mixed $coord : les coordonnées (latitude,longitude)
     */
-    function recherche($text, $hash, $mode, $methode, $tabCol, $limite, $auto, $coord){             
+    function recherche($text, $hash, $mode, $methode, $tabCol, $page, $limite, $source, $coord){             
 
         global $nomTable,$nomColonne,$ordreMax;
         // debug                               
@@ -77,11 +77,11 @@
         $debut = ($mode=="debut" || $mode=='regexp')?"":"%";
         $fin = ($mode=="fin" || $mode=='regexp')?"":"%";
         $and = "";
-        
+
         for ($i=0; $i<sizeof($mot); $i++){
             if (strlen($mot[$i])>0){
                 // pas toujours nécessaire (dépend si la table principale est bien encodée)
-                $mot[$i] = utf8_encode($mot[$i]);
+                $mot[$i] = addslashes(utf8_encode($mot[$i]));
                 $sql .= $and." $table.$nomColonne $like '".$debut."$mot[$i]".$fin."'";
                 $and = " AND"; 
                 if ($i==0){
@@ -90,16 +90,29 @@
             }
         }                                     
 
-        $sql .= ($coord!=null? " ORDER BY distance": ((strpos($selecCol,"nombre")!==false)? " ORDER BY nombre DESC": ""))." LIMIT ".$limite;
-        //return array("resultats" => array(array("name"=>$sql)), "temps" => 0);
-        $result = mysql_query($sql) or die($sql."<br>".mysql_error());  
+        $sql .= ($coord!=null? " ORDER BY distance": ((strpos($selecCol,"nombre")!==false)? " ORDER BY nombre DESC": "")).($page>0? "": " LIMIT ".$limite);
+        $result = mysql_query($sql);  
+        //return array("resultats" => array(array("name"=>$sql."<br>".mysql_error())), "temps" => 0);
 
-        $array=array(); 
+        $array=array();
+        
+        $cpt = 0;
+        if ($page>1){
+            while ($tab = mysql_fetch_array($result)){
+                if (++$cpt==($page-1)*$limite) break;   
+            }
+        }                                         
+        $cpt=0;
         while ($tab = mysql_fetch_array($result)){ 
-            array_push($array,$tab);                                                                     
-        }                
+            array_push($array,$tab);
+            if (++$cpt==$limite) break;                                                                     
+        }              
 
-        updateLog($auto?"Suggestion":"Recherche",$text,$hash,$temps=end_timer($temps));
+        updateLog($source?"Suggestion":"Recherche",$text,$hash,$temps=end_timer($temps));
+
+        if ($page>0){
+            return array("resultats" => $array, "nombre" => mysql_num_rows($result), "temps" => $temps);
+        }
         return array("resultats" => $array, "temps" => $temps);
     }  
 
