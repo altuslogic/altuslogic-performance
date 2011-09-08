@@ -41,12 +41,12 @@
             $table = $nomTable;
             echo "Sous-tables introuvables : utilisation de la table principale.<br><br>";
         }
-        
+
         foreach ($tabCol as $key=>$col){
             $tabCol[$key] = $table.".".$col;
         }
         $selecCol = strtolower(implode(", ",$tabCol));
-        
+
         if ($coord!=null){
             /*$lat = $coord[0];
             $lon = $coord[1];
@@ -77,9 +77,11 @@
         $debut = ($mode=="debut" || $mode=='regexp')?"":"%";
         $fin = ($mode=="fin" || $mode=='regexp')?"":"%";
         $and = "";
-
+        
         for ($i=0; $i<sizeof($mot); $i++){
             if (strlen($mot[$i])>0){
+                // pas toujours nécessaire (dépend si la table principale est bien encodée)
+                $mot[$i] = utf8_encode($mot[$i]);
                 $sql .= $and." $table.$nomColonne $like '".$debut."$mot[$i]".$fin."'";
                 $and = " AND"; 
                 if ($i==0){
@@ -167,5 +169,10 @@
         return mysql_result($result,0);
     }
 
+
+    function decodeUTF($string){
+        if (mb_detect_encoding($string,"UTF-8",true)) return utf8_decode($string);
+        return $string;
+    }
 
 ?>

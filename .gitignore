@@ -1,7 +1,6 @@
 
 *.inc.php
 conf.php
-database.php
 crawl/settings/database.php
-
-crawl/settings/database.php
+images/
+capture/

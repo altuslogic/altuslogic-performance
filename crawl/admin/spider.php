@@ -7,7 +7,7 @@
         $nomBase = $prefix."_".$db;
         saveCookie("nomBase",$nomBase);
     }
-    
+
     set_time_limit (0);
     $include_dir = "../include";
     include "auth.php";
@@ -21,6 +21,8 @@
     include "spider_funcs.php";
     include "conversion_funcs.php";
     include "install_funcs.php";
+    include "capture.php";
+    include "image.class.php";
     error_reporting (E_ALL ^ E_NOTICE ^ E_WARNING);
 
     $success = mysql_pconnect ($DbHost, $DbUser, $DbPassword);
@@ -37,7 +39,7 @@
         print "<b>Cannot choose database, check if database name is correct.";
         die();
     }
-    
+
     if ($newdb) install();
 
 
@@ -99,15 +101,23 @@
     if(!isset($reindex)) {
         $reindex=0;
     }
-    
+
     if(!isset($save_keywords)) {
         $save_keywords=0;
     }
 
-    if(!isset($save_keywords)) {
+    if(!isset($save_images)) {
         $save_images=0;
     }
-    
+
+    if(!isset($show_images)) {
+        $show_images=0;
+    }
+
+    if(!isset($capture_pages)) {
+        $capture_pages=0;
+    }
+
     if(!isset($maxlevel)) {
         $maxlevel=0;
     }
@@ -156,7 +166,7 @@
             $out = "";
         }                                 
 
-        index_site($url, $reindex, $maxlevel, $soption, $in, $out, $domaincb, $save_keywords, $save_images);
+        index_site($url, $reindex, $maxlevel, $soption, $in, $out, $domaincb, $save_keywords, $save_images, $show_images, $capture_pages);
 
     }
 
@@ -169,7 +179,8 @@
     }
 
 
-    function index_url($url, $level, $site_id, $md5sum, $domain, $indexdate, $sessid, $can_leave_domain, $reindex, $save_keywords, $save_images) {                
+    function index_url($url, $level, $site_id, $md5sum, $domain, $indexdate, $sessid, $can_leave_domain, $reindex, $save_keywords, $save_images, $show_images, $capture_pages) { 
+
         global $entities, $min_delay;
         global $command_line;
         global $min_words_per_page;
@@ -181,8 +192,13 @@
         $url_status = url_status($url);
         $thislevel = $level - 1;
 
-      
-        
+
+        if ($capture_pages){
+            global $nomBase;
+            capture($url,"C:/Users/Antoine/altuslogic-performance/capture/$nomBase/");
+        }
+
+
         if (strstr($url_status['state'], "Relocation")) {
             $url = preg_replace("/ /", "", url_purify($url_status['path'], $url, $can_leave_domain));
 
@@ -198,7 +214,7 @@
 
             $url_status['state'] == "redirected";
         }
-        
+
         /*
         if ($indexdate <> '' && $url_status['date'] <> '') {
         if ($indexdate > $url_status['date']) {
@@ -304,7 +320,7 @@
 
                     $title = $data['title'];            
                     $host = $data['host'];
-                    $path = $data['path'];
+                    $path = $data['path'];    
                     $fullhtml = $data['fullhtml'];
                     $fulltxt = $data['fulltext'];
                     $desc = substr($data['description'], 0,254);
@@ -347,17 +363,17 @@
                                 }
                                 if ($save_keywords) save_keywords($wordarray, $link_id, $dom_id);
                                 $query = "update ".$mysql_table_prefix."links set title='$title', description ='$desc', fulltxt = '$fulltxt', indexdate=now(), size = '$pageSize', md5sum='$newmd5sum', level=$thislevel where link_id=$link_id";
-                                mysql_query($query);
-                                echo mysql_error();
-                                printStandardReport('re-indexed', $command_line);
-                            }
+                            mysql_query($query);
+                            echo mysql_error();
+                            printStandardReport('re-indexed', $command_line);
+                        }
                     }else {
                         printStandardReport('minWords', $command_line);
 
                     }
-                    
-                    if ($save_images) $print_images = save_images($fullhtml, $host, $link_id);
-                    
+
+                    if ($show_images || $save_images) $print_images = find_images($fullhtml, $host, $link_id, $save_images, $show_images);
+
                 }
             }
         } else {
@@ -377,11 +393,17 @@
             $numoflinks = 0;
         }
         printLinksReport($numoflinks, $all_links, $command_line);
-        echo $print_images,"</div>";
+        echo $print_images,"<br>";
     }
 
 
-    function index_site($url, $reindex, $maxlevel, $soption, $url_inc, $url_not_inc, $can_leave_domain, $save_keywords, $save_images) {
+    function index_site($url, $reindex, $maxlevel, $soption, $url_inc, $url_not_inc, $can_leave_domain, $save_keywords, $save_images, $show_images, $capture_pages) {
+
+        if ($capture_pages){
+            global $nomBase;
+            mkdir("C:/Users/Antoine/altuslogic-performance/capture/$nomBase");
+        }
+
         global $mysql_table_prefix, $command_line, $mainurl,  $tmp_urls, $domain_arr, $all_keywords;
         if (!isset($all_keywords)) {
             $result = mysql_query("select keyword_ID, keyword from ".$mysql_table_prefix."keywords");
@@ -406,9 +428,7 @@
             $port = (int)$urlparts['port'];
         }else {
             $port = 80;
-        }
-
- 
+        }        
 
         $result = mysql_query("select site_id from ".$mysql_table_prefix."sites where url='$url'");
         echo mysql_error();
@@ -478,7 +498,10 @@
         $omit = check_robot_txt($url);
 
         printHeader ($omit, $url, $command_line);
-
+        if ($show_images){
+            echo "<input type='button' value='show images' onclick='var list=document.getElementsByClassName(\"groupeImg\"); for (var i=0; i<list.length; i++) list[i].style.display=\"block\";'>
+            <input type='button' value='hide images' onclick='var list=document.getElementsByClassName(\"groupeImg\"); for (var i=0; i<list.length; i++) list[i].style.display=\"none\";'><br><br>";
+        }
 
         $mainurl = $url;
         $num = 0;
@@ -510,7 +533,7 @@
 
 
             while ($count < count($links)) {
-                 echo "<div style='clear:both;'>";
+
                 $num++;
                 $thislink = $links[$count];
                 $urlparts = parse_url($thislink);
@@ -547,7 +570,7 @@
                     echo mysql_error();
                     $rows = mysql_num_rows($result);
                     if ($rows == 0) {
-                        index_url($thislink, $level+1, $site_id, '',  $domain, '', $sessid, $can_leave_domain, $reindex, $save_keywords, $save_images);
+                        index_url($thislink, $level+1, $site_id, '',  $domain, '', $sessid, $can_leave_domain, $reindex, $save_keywords, $save_images, $show_images, $capture_pages);
 
                         mysql_query("update ".$mysql_table_prefix."pending set level = $level, count=$count, num=$num where site_id=$site_id");
                         echo mysql_error();
@@ -555,11 +578,12 @@
                             $row = mysql_fetch_array($result);
                             $md5sum = $row['md5sum'];
                             $indexdate = $row['indexdate'];
-                            index_url($thislink, $level+1, $site_id, $md5sum,  $domain, $indexdate, $sessid, $can_leave_domain, $reindex, $save_keywords, $save_images);
+                            index_url($thislink, $level+1, $site_id, $md5sum,  $domain, $indexdate, $sessid, $can_leave_domain, $reindex, $save_keywords, $save_images, $show_images, $capture_pages);
                             mysql_query("update ".$mysql_table_prefix."pending set level = $level, count=$count, num=$num where site_id=$site_id");
                             echo mysql_error();
                         }else {
                             printStandardReport('inDatabase',$command_line);
+                            echo "<br>";
                     }
 
                 }
@@ -595,7 +619,7 @@
             } else {
                 $soption = 'level';
             }
-            index_site($url, 1, $depth, $soption, $include, $not_include, $can_leave_domain, 1, 0);
+            index_site($url, 1, $depth, $soption, $include, $not_include, $can_leave_domain, 1, 0, 1, 0);
         }
     }			
 

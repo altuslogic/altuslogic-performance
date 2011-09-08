@@ -43,8 +43,7 @@
 
     echo "<div style='max-height:400px; overflow:auto; border:1px solid #aaa;'><ul>";
     while ($tab = mysql_fetch_array($result)){
-        $t = $tab[$nomColonne];
-        if (mb_detect_encoding($t,"UTF-8",true)) $t = utf8_decode($t);
+        $t = decode_utf($tab[$nomColonne]);                                    
         echo "<li><a href='?type=correct&correc_type=phrase&correc_word=".strtoupper(encode(sansAccents($t)))."'>$t</a></li>";
     }
     echo "</ul></div>";

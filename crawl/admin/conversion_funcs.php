@@ -25,14 +25,20 @@
         return (strtr($string, "ÀÁÂÃÄÅÆàáâãäåæÒÓÔÕÖØòóôõöøÈÉÊËèéêëðÇçÐÌÍÎÏìíîïÙÚÛÜùúûüÑñÞßÿý",
         "AAAAAAAaaaaaaaOOOOOOooooooEEEEeeeeeCcDIIIIiiiiUUUUuuuuNntsyy"));
     }
-    
-    
+
+
     function encode($string){
         return str_replace(array("'"," ","&"),array("~QUOTE~","~SPACE~","~AND~"),$string);
     }
-    
+
     function decode($string){
         return str_replace(array("~QUOTE~","~SPACE~","~AND~"),array("'"," ","&"),$string);
+    }
+
+    
+    function decodeUTF($string){
+        if (mb_detect_encoding($string,"UTF-8",true)) return utf8_decode($string);
+        return $string;
     }
 
 ?>

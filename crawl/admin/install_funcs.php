@@ -113,7 +113,7 @@
         }
 
         mysql_query("create table `".$mysql_table_prefix."temp` (
-        link varchar(255),
+        link varchar(500),
         level integer,
         id varchar (32)
         )");

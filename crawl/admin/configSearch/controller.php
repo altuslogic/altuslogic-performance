@@ -437,8 +437,7 @@
         
         while ($tab = mysql_fetch_array($result)){
 
-            $txt = $tab[$nomColonne];
-            if (mb_detect_encoding($txt,"UTF-8",true)) $txt = utf8_decode($txt); 
+            $txt = decode_utf($tab[$nomColonne]);                               
             $txt = strtoupper(trim($txt));
 
             // Application des corrections (correct_mot + correct_phrase + split)

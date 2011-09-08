@@ -17,41 +17,45 @@
         array_push($tabCol,$tabDetails[$i]);
     }
     $tabCol = array_unique($tabCol);
-    
+
     // Recherche proprement dite
     $search = str_replace("~plus~","+",$search);
     $tab = recherche($search,$hash,$mode,$methode,$tabCol,$limite,$auto,null);
     $result = $tab['resultats'];
+    $print = "";
 
     if ($visuel=="result"){
         $res = "";
         if (sizeof($result)==0) $res = str_replace("~RES~","Pas de résultats.",$container_list);
         else {
-            foreach ($result as $r){
+            foreach ($result as $r){     
                 $details = $container;
                 foreach ($tabCol as $col){
+                    $txt = decodeUTF($r[strtolower($col)]);                             
                     // Remplacement des ~COLONNE~ par la valeur de colonne
-                    $details = str_replace("~".$col."~",$r[strtolower($col)],$details);
+                    $details = str_replace("~$col~",$txt,$details);
                 }
                 $res .= str_replace("~RES~",$details,$container_list);
             }
         }                                                               
 
-        $print = str_replace("~TITLE~","Résultats de la recherche : ".$search,$container_all);
+        $print = str_replace("~TITLE~","Résultats de la recherche : ".decodeUTF($search),$container_all);
         $print = str_replace("~ALL~",$res,$print);
-        $print = str_replace("~TIME~","Temps écoulé : ".$tab['temps']." seconde(s)",$print);
-        echo $print;                                             
+        $print = str_replace("~TIME~","Temps écoulé : ".$tab['temps']." seconde(s)",$print);                                             
     }
 
     else {
-        for ($i=0; $i<sizeof($result); $i++){
+        foreach ($result as $r){                                         
             $suggest = $container;
-            for ($j=0; $j<sizeof($tabCol); $j++){
+            foreach ($tabCol as $col){
+                $txt = decodeUTF($r[strtolower($col)]); 
                 // Remplacement des ~COLONNE~ par la valeur de colonne  
-                $suggest = str_replace("~".$tabCol[$j]."~",$result[$i][strtolower($tabCol[$j])],$suggest);
+                $suggest = str_replace("~$col~",$txt,$suggest);
             }
-            echo $suggest,"|";
+            $print .= $suggest."|";
         }
     }
+
+    echo $print;
 
 ?>
