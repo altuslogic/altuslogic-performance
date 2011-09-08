@@ -6,7 +6,7 @@
         $error = 0;
         mysql_query("create table `".$mysql_table_prefix."sites`(
         site_id int auto_increment not null primary key,
-        url varchar(255),
+        url varchar(500),
         title varchar(255),
         short_desc text,
         indexdate date,
@@ -23,7 +23,7 @@
         mysql_query("create table `".$mysql_table_prefix."links` (
         link_id int auto_increment primary key not null,
         site_id int,
-        url varchar(255) not null,
+        url varchar(500) not null,
         title varchar(200),
         description varchar(255),
         fullhtml mediumtext,
@@ -74,7 +74,7 @@
         }
 
         mysql_query("create table `".$mysql_table_prefix."images`    (
-        path varchar(255) primary key not null,
+        path varchar(500) primary key not null,
         link_id int not null,
         width int not null,
         height int not null,
@@ -141,7 +141,7 @@
         }
 
         mysql_query("create table `".$mysql_table_prefix."query_log` (
-        query varchar(255),
+        query varchar(500),
         time timestamp,
         elapsed float(2),
         results int, 
