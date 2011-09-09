@@ -434,10 +434,10 @@
         $query = mysql_query("SHOW COLUMNS FROM $nomTable LIKE '$nomColonne'");
         $tab = mysql_fetch_array($query);
         mysql_query("ALTER TABLE $nomTable ADD correct_$nomColonne $tab[Type] AFTER $nomColonne");
-        
+
         while ($tab = mysql_fetch_array($result)){
 
-            $txt = decode_utf($tab[$nomColonne]);                               
+            $txt = decodeUTF($tab[$nomColonne]);                               
             $txt = strtoupper(trim($txt));
 
             // Application des corrections (correct_mot + correct_phrase + split)
@@ -453,7 +453,7 @@
             }
 
             // Correction de la table principale
-            mysql_query("UPDATE $nomTable SET correct_".$nomColonne."='$txt' WHERE $id='$tab[id]'");
+            mysql_query("UPDATE $nomTable SET correct_".$nomColonne."='$txt' WHERE $id='$tab[$id]'");
 
             if ($motParMot!=1){
                 $txtPhrase = preg_replace("/\([^\)]+\)/","",$txt);
@@ -834,21 +834,32 @@
     function stats($limite){                     
         global $nomBase,$nomTable,$nomColonne;                                                                
 
-        $print = "<table><tr>";
+        $print = "<table><tr><td valign='top'>&nbsp;&nbsp;&nbsp;<b>Top</b><table>";
+
+        $table = "y_".$nomTable."_".$nomColonne."_keyword";                                                               
+        $sql = "SELECT $nomColonne,id,nombre FROM $table ORDER BY nombre DESC LIMIT $limite";   
+        $result = mysql_query($sql) or die($sql."<br>".mysql_error());  
+        while ($tab = mysql_fetch_array($result)){
+            $word = $tab[$nomColonne];
+            $print .= "<tr><td style='white-space:nowrap'><input type='checkbox' name='".encode($word)."'>
+            <a href=\"javascript:getStats('stats_keywords','word','".encode($word)."','$tab[id]','$nomBase','$nomTable','$nomColonne');\" title='$tab[nombre]'>$word</a></td></tr>";
+        }
+        $print .= "</table></td>";
+
         for ($i=ord("A"); $i<=ord("Z"); $i++){ 
             $lettre = chr($i);                                               
-            $print .= "<td valign='top'><b>".$lettre."</b>";
-
-            $table = "y_".$nomTable."_".$nomColonne."_keyword";                                                               
+            $print .= "<td valign='top'>&nbsp;&nbsp;&nbsp;<b>".$lettre."</b><table>";
+                                                               
             $sql = "SELECT $nomColonne,id,nombre FROM $table WHERE $nomColonne LIKE '$lettre%' ORDER BY nombre DESC LIMIT $limite";   
             $result = mysql_query($sql) or die($sql."<br>".mysql_error());  
 
             while ($tab = mysql_fetch_array($result)){
                 $word = $tab[$nomColonne];
-                $print .= "<p><a href=\"javascript:getStats('stats_keywords','word','".encode($word)."','$tab[id]','$nomBase','$nomTable','$nomColonne');\" title='$tab[nombre]'>$word</a></p>";
+                $print .= "<tr><td style='white-space:nowrap'><input type='checkbox' name='".encode($word)."'>
+                <a href=\"javascript:getStats('stats_keywords','word','".encode($word)."','$tab[id]','$nomBase','$nomTable','$nomColonne');\" title='$tab[nombre]'>$word</a></td></tr>";
             }
 
-            $print .= "</td>";
+            $print .= "</table></td>";
         }
 
         $print .= "</tr></table>";

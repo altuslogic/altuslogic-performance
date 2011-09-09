@@ -157,11 +157,6 @@
         case 'indexphrase':
             creeIndex(null,2);
             break;
-        case 'keywords':
-            if (isset($_POST['action']) && $_POST['action']=="ignore"){
-                updateCorrec('no_index','word',$_POST['word'],$nomProjet); 
-            }                                                                              
-            break;
         case 'add_project':
             if (isset($_POST['projet'])){
                 $name = $_POST['projet'];

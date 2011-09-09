@@ -59,7 +59,7 @@
             <tr><td>Nombre de résultats</td><td><input type="text" class="grayStyle" name="limite_result" value="<?php echo (isset($limite_result)?$limite_result:10); ?>"></td>
             <td><input type="text" class="grayStyle" name="limite_suggest" value="<?php echo (isset($limite_suggest)?$limite_suggest:10); ?>"></td></tr>
             <tr><td>Format général</td><td><textarea name="container_all" spellcheck="false" style="color: #444; border: 1px solid #444; max-width: 205px;"
-            ><?php echo (isset($container_all)?$container_all:'<b>~TITLE~</b><ul>~ALL~</ul>~TIME~'); ?></textarea></td>
+            ><?php echo (isset($container_all)?$container_all:'<b>~TITLE~</b><ul>~ALL~</ul>~PAGES~~TIME~'); ?></textarea></td>
             <td><input type="checkbox" name="onclickSearch" <?php if (!isset($onclickSearch) || $onclickSearch) echo 'checked'; ?>>Onclick search</td></tr>
             <tr><td>Format liste</td><td><textarea name="container_list" spellcheck="false" style="color: #444; border: 1px solid #444; max-width: 205px;"
             ><?php echo (isset($container_list)?$container_list:'<li>~RES~</li>'); ?></textarea></td></tr>
@@ -171,12 +171,16 @@ if ($nomBase && $nomTable && $nomColonne) $print = stats(20); ?>
 <table><tr><td>
 <div class="stats">
     <h2>Top keywords</h2>
-        <?php echo $print;?> 
+        <form action="correction_ops.php?stage=keywords" method="post" target="iframe_keywords">
+        <br><div style="overflow:auto; border:1px solid #aaa;"><br><?php echo $print;?><br></div>
+        <p align="center"><input type="submit" name="action" value="ignore"></p>
+        </form>
 </div>
 </td><td valign="top">
 <div id="stats_keywords" class="divNoScroll">
     <h2>Keyword</h2>
 </div>
+<iframe class="divNoScroll" name="iframe_keywords"></iframe>
 </td></tr></table>
 
 <?php }          
@@ -315,8 +319,9 @@ if ($show=='correct' || $show=='all'){ ?>
 <?php }          
 if ($show=='geo' || $show=='all'){ ?> 
 
-<div id="geo">
-    <h2>Géo</h2>
+<table><tr><td valign="top">
+<div class="divBig">
+    <h2>Map</h2>
     <form method="get" autocomplete="off">
         Latitude<br><input type="text" size=25 name="latitude" id="latitude" style="background-color: transparent; color: #444; border: 1px solid #444;"> 
         <br><br>Longitude<br><input type="text" size=25 name="longitude" id="longitude" style="background-color: transparent; color: #444; border: 1px solid #444;">
@@ -324,6 +329,19 @@ if ($show=='geo' || $show=='all'){ ?>
     </form>    
     <div id="map_canvas" style="width:100%; height:100%"></div> 
 </div>  
+</td><td valign="top">
+<div class="divNoScroll">
+    <h2>Localisation</h2>
+    <form>
+    <input type="checkbox">Latitude & longitude
+    <br><input type="checkbox">Pays
+    <br><input type="checkbox">Région 
+    <br><input type="checkbox">Ville
+    <br><input type="checkbox">Rue
+    <br><br><input type="submit" value="create columns"> 
+    </form>
+</div>
+</td></tr></table>
 
 <?php }
 if ($show=='log' || $show=='all'){ ?>

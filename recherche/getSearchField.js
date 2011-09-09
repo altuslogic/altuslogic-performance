@@ -1,9 +1,12 @@
 url = "../../recherche/getSearchField.php?hash="+hash;      
 
+// chargement de l'autocomplete (à faire en synchrone)
+$.ajaxSetup({async: false});
 $.getScript("http://localhost/jquery.ui/core.js");
 $.getScript("http://localhost/jquery.ui/widget.js");  
 $.getScript("http://localhost/jquery.ui/position.js");  
-$.getScript("http://localhost/jquery.ui/autocomplete.js");  
+$.getScript("http://localhost/jquery.ui/autocomplete.js");
+$.ajaxSetup({async: true});  
 
 // création d'un objet capable d'interagir avec le serveur                                           
 try {
@@ -28,7 +31,7 @@ xhr.open("GET", url, false);
 xhr.send(null);                          
 
 
-function soumettre(source,page,fieldId,p){  
+function soumettre(re,source,page,fieldId,p){
 
     search = escape(document.getElementById(fieldId).value);
     search = search.replace(/\+/g,"~plus~");
@@ -37,11 +40,14 @@ function soumettre(source,page,fieldId,p){
         return;
     }
 
-    if (p.visuel=="suggest" && !source) p.visuel = "result";
-    p.mode = p["mode_"+p.visuel];
-    p.methode = p["methode_"+p.visuel];
-    p.limite = p["limite_"+p.visuel];
-    p.container = p["container_"+p.visuel];
+    if (!re){
+        if (p.visuel=="suggest" && !source) p.visuel = "result";
+        if (p.visuel=="result" && !page) page = 1;
+        p.mode = p["mode_"+p.visuel];
+        p.methode = p["methode_"+p.visuel];
+        p.limite = p["limite_"+p.visuel];
+        p.container = p["container_"+p.visuel];
+    } 
 
     var param = "";
     for (key in p){
@@ -53,7 +59,7 @@ function soumettre(source,page,fieldId,p){
     var url = "../../recherche/ajax.php?search="+search + "&source="+source + "&page="+page + param;
     // debug
     // alert(url);
-    
+
     // création d'un objet capable d'interagir avec le serveur
     try {
         // Essayer IE
@@ -78,13 +84,13 @@ function soumettre(source,page,fieldId,p){
                 document.getElementById(p.nomDiv).innerHTML = result; 
             }
 
-            else {           
+            else {                                                                           
                 var tab = result.split('|');
                 tab.pop();  
                 $("#champ_"+hash).autocomplete({
                     source: tab,
                     onclickSearch: p.onclickSearch
-                });
+                });                       
             }                 
         }
     };
@@ -95,6 +101,6 @@ function soumettre(source,page,fieldId,p){
 
 }
 
-function endsWith(str, suffix) {
+function endsWith(str, suffix) { 
     return str.indexOf(suffix, str.length - suffix.length) !== -1;
 }

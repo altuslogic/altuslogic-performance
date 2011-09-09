@@ -338,14 +338,11 @@
                     $wordarray = calc_weights ($wordarray, $title, $host, $path, $data['keywords']);
 
                     //if there are words to index, add the link to the database, get its id, and add the word + their relation
-                    if (is_array($wordarray) && count($wordarray) > $min_words_per_page) {
+                    if ((is_array($wordarray) && count($wordarray) > $min_words_per_page) || ($show_images || $save_images)) {
                         if ($md5sum == '') {
                             mysql_query ("insert into ".$mysql_table_prefix."links (site_id, url, title, description, fullhtml, fulltxt, indexdate, size, md5sum, level) values ('$site_id', '$url', '$title', '$desc', '$fullhtml', '$fulltxt', curdate(), '$pageSize', '$newmd5sum', $thislevel)");
                             echo mysql_error();
-                            $result = mysql_query("select link_id from ".$mysql_table_prefix."links where url='$url'");
-                            echo mysql_error();
-                            $row = mysql_fetch_row($result);
-                            $link_id = $row[0];
+                            $link_id = mysql_insert_id();
 
                             if ($save_keywords) save_keywords($wordarray, $link_id, $dom_id);
 
@@ -365,14 +362,16 @@
                                 $query = "update ".$mysql_table_prefix."links set title='$title', description ='$desc', fulltxt = '$fulltxt', indexdate=now(), size = '$pageSize', md5sum='$newmd5sum', level=$thislevel where link_id=$link_id";
                             mysql_query($query);
                             echo mysql_error();
-                            printStandardReport('re-indexed', $command_line);
+                            printStandardReport('re-indexed', $command_line); 
+
                         }
+                        
+                        if ($show_images || $save_images) $print_images = find_images($fullhtml, $host, $link_id, $save_images, $show_images);
+                        
                     }else {
                         printStandardReport('minWords', $command_line);
 
                     }
-
-                    if ($show_images || $save_images) $print_images = find_images($fullhtml, $host, $link_id, $save_images, $show_images);
 
                 }
             }

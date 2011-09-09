@@ -68,6 +68,16 @@
                     } 
                 } 
                 break;
+            case 'keywords':
+                if (isset($_POST['action']) && $_POST['action']=="ignore"){
+                    echo "<h2>Termes à ne pas indexer</h2><div><ul>"; 
+                    foreach ($correc as $val){        
+                        $word = decode($val);
+                        updateCorrec('no_index','word',$word,$nomProjet);
+                        echo "<li>$word</li>";
+                    } 
+                }
+                break;
         }
         echo "</ul></div>";
     }

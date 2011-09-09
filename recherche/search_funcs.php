@@ -82,6 +82,7 @@
             if (strlen($mot[$i])>0){
                 // pas toujours nécessaire (dépend si la table principale est bien encodée)
                 $mot[$i] = addslashes(utf8_encode($mot[$i]));
+                //  $mot[$i] = addslashes($mot[$i]);  
                 $sql .= $and." $table.$nomColonne $like '".$debut."$mot[$i]".$fin."'";
                 $and = " AND"; 
                 if ($i==0){
@@ -104,7 +105,7 @@
         }                                         
         $cpt=0;
         while ($tab = mysql_fetch_array($result)){ 
-            array_push($array,$tab);
+            array_push($array,$tab);        
             if (++$cpt==$limite) break;                                                                     
         }              
 

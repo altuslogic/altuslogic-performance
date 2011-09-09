@@ -13,7 +13,7 @@
 *	jquery.ui.position.js
 */
 (function( $, undefined ) {
-
+    
     // used to prevent race conditions with remote data sources
     var requestIndex = 0;
 
@@ -616,4 +616,4 @@
         }
     });
 
-}(jQuery));
+}(jQuery));                                                                     
