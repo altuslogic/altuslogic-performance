@@ -268,15 +268,17 @@
                             showsites();
                             break;
                     }
-                    $stats = getStatistics();
-                    if ($stats==null) print "<br/><br/><center>Currently in database: no statistics available.</center>";
-                    else print "<br/><br/><center>Currently in database: ".$stats['sites']." sites, ".$stats['links']." links, ".$stats['categories']." categories and ".$stats['keywords']." keywords.<br/><br/></center>\n";
-
-                ?>
+                                   ?>
             </div>
         </div>
 
-        <?php
+        <?php 
+        
+        	$stats = getStatistics();
+            if ($stats==null) print "<center>Currently in database: no statistics available.</center>";
+            else print "<br/><br/><center>Currently in database: ".$stats['sites']." sites, ".$stats['links']." links, ".$stats['categories']." categories and ".$stats['keywords']." keywords.<br/><br/></center>\n";
+
+
             $img = array("yes"=>"images/ok.jpg","no"=>"images/ko1.jpg","empty"=>"images/ko2.jpg");
             $info = "<b>$nomBase</b>";
             $info .= " > ".(tableExiste($nomTable)? "<b>$nomTable</b>": "<a href='?f=prototype&type=selection' style='color:red;' title='Table introuvable.'>$nomTable</a>");

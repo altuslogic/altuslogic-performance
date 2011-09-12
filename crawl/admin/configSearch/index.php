@@ -172,7 +172,8 @@
     }
 
     if ($hash!=""){
-        $src = "http://".$_SERVER['HTTP_HOST']."/recherche/getSearchField.js";
+    $path= explode("/crawl", $_SERVER['REQUEST_URI']); 
+        $src = "http://".$_SERVER['HTTP_HOST']."".$path[0]."/recherche/getSearchField.js";
         $print_search = "<div id='search_zone_".$hash."'></div>\n<script type='text/javascript'>var hash='".$hash."';</script>\n<script type='text/javascript' src='$src'></script>";
     }
 

@@ -1,11 +1,15 @@
 url = "../../recherche/getSearchField.php?hash="+hash;      
 
+var path=location.pathname.split("crawl/");
+var js_path=location.hostname+":"+location.port +path[0]+"";
+
+
 // chargement de l'autocomplete (à faire en synchrone)
 $.ajaxSetup({async: false});
-$.getScript("http://localhost/jquery.ui/core.js");
-$.getScript("http://localhost/jquery.ui/widget.js");  
-$.getScript("http://localhost/jquery.ui/position.js");  
-$.getScript("http://localhost/jquery.ui/autocomplete.js");
+$.getScript("http://"+js_path+"jquery.ui/core.js");
+$.getScript("http://"+js_path+"jquery.ui/widget.js");  
+$.getScript("http://"+js_path+"jquery.ui/position.js");  
+$.getScript("http://"+js_path+"jquery.ui/autocomplete.js");
 $.ajaxSetup({async: true});  
 
 // création d'un objet capable d'interagir avec le serveur                                           
@@ -104,3 +108,5 @@ function soumettre(re,source,page,fieldId,p){
 function endsWith(str, suffix) { 
     return str.indexOf(suffix, str.length - suffix.length) !== -1;
 }
+
+document.getElementById('ajax').innerHTML=js_path;

@@ -7,7 +7,7 @@ ul{
 	padding: 0px;
 	margin: 0px;
 }
- td {font-size: 12px; font-family: Verdana, Arial;height:18px; padding: 2px 6px 2px 6px;}
+ td {font-size: 12px; font-family: Verdana, Arial;height:18px; padding: 2px 8px 2px 8px;}
 a:visited{color:#000066}
 a:hover{text-decoration: underline}
 a {text-decoration: none; color:#000090; }
@@ -25,7 +25,7 @@ a {text-decoration: none; color:#000090; }
 #topstats{background-color: #fff;
     padding: 5px;
     position:absolute;
-    right: 30px;top: 5px;
+    right: 35px;top: 10px;
      border: 1px solid #ccc;  
       -moz-box-shadow: 6px 6px 10px #ddd;
     -webkit-box-shadow: 6px 6px 10px #ddd;
@@ -125,9 +125,12 @@ div.indexoptions{
 	border:1px solid #ccc;
 	background:#ffffff;
 	margin:0 auto;
-     -moz-box-shadow: 6px 6px 10px #ddd;
-                                -webkit-box-shadow: 6px 6px 10px #ddd;
-                                box-shadow: 6px 6px 10px #ddd;
+    -moz-box-shadow: 6px 6px 10px #ddd;
+    -webkit-box-shadow: 6px 6px 10px #ddd;
+    box-shadow: 6px 6px 10px #ddd;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+    
 }
 
 div#sitelist{
@@ -139,7 +142,7 @@ div#sitelist{
 
 div#admin{
     padding:10px;
-	margin: 65px 15px;
+	margin: 60px 15px 0 15px;
 	/*margin:0 auto;
 	width:80%;
 	background-color:#6f6f6;*/
@@ -168,7 +171,7 @@ background: #e5ecf9;
 	font-family: Verdana, Arial;
 	font-size: 12px;
 	clear: both;
-	text-align: center;
+	text-align: center;margin: 0 0 0 20px;
 } 
 #tabs ul li{  
 
@@ -178,7 +181,8 @@ background: #e5ecf9;
 #tabs ul {
 	display: inline;
 	list-style-type: none;
-	margin: 0;
+	
+	
 }
 
 #tabs li { 
@@ -289,10 +293,13 @@ background-color: #fff;
 	width: 100%;
 	margin-top: 2px;
     padding-bottom: 30px;
-     -moz-box-shadow: 6px 6px 10px #ddd;
+    -moz-box-shadow: 6px 6px 10px #ddd;
     -webkit-box-shadow: 6px 6px 10px #ddd;
     box-shadow: 6px 6px 10px #ddd;
     background-color: #fff;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+	text-align: center;
 }
 
 
@@ -306,6 +313,7 @@ background-color: #fff;
 
 #main table {
     text-align: left;
+    line-height: 20pt;
 }
 
 #submenu ul {
@@ -372,7 +380,16 @@ background-image: -moz-linear-gradient(
     center bottom,
     #888 15%,
     #999 58%
-);//	padding: 5px 7px 7px 7px; /* for All other Browsers */
+);
+   -moz-border-radius-topright: 10px;
+   border-top-right-radius: 10px;
+   -moz-border-radius-topleft: 10px;
+   border-top-left-radius: 10px;
+
+
+
+
+//	padding: 5px 7px 7px 7px; /* for All other Browsers */
 }
 
 

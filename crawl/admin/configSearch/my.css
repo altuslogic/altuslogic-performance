@@ -11,7 +11,9 @@
     -webkit-box-shadow: 6px 6px 10px #ddd;
     box-shadow: 6px 6px 10px #ddd;
 }
-.stats{background-color: #fff;border: 1px solid #ccc; padding: 20px;width: 92%;min-height: 200px; margin: 12px;
+.stats{background-color: #fff;border: 1px solid #ccc; padding: 20px;width: 280px;
+min-width: 280px;
+min-height: 200px; margin: 12px;
     -moz-box-shadow: 6px 6px 10px #ddd;
     -webkit-box-shadow: 6px 6px 10px #ddd;
     box-shadow: 6px 6px 10px #ddd;
