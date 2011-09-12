@@ -20,6 +20,8 @@
         <table cellspacing ="0" cellpadding="0" class="darkgrey"><tr><td align="left"><table cellpadding="3" cellspacing = "1"  width="100%">
                         <tr class="grey"  ><td align="left"><a href="admin.php?f=15" id="small_button">Clean keywords</a> 
                             </td><td align="left"> Delete all keywords not associated with any link.</td></tr>
+                        <tr class="grey"  ><td align="left"><a href="admin.php?f=26" id="small_button">Clean images</a> 
+                            </td><td align="left"> Delete all images in the database.</td></tr>
                         <tr class="grey"  ><td align="left"><a href="admin.php?f=16" id="small_button">Clean links</a>
                             </td><td align="left"> Delete all links not associated with any site.</td></tr>
                         <tr class="grey"  ><td align="left"><a href="admin.php?f=17" id="small_button">Clear temp tables </a>
@@ -53,6 +55,18 @@
     <div id="submenu">
     </div><?php 
         print "<br/><center><b>Keywords table cleaned, $del keywords deleted.</b></center>";
+    }
+
+
+    function cleanImages() {
+        global $mysql_table_prefix;
+        $query = "truncate table ".$mysql_table_prefix."images";
+        $result = mysql_query($query);
+        echo mysql_error();
+    ?>
+    <div id="submenu">
+    </div><?php 
+        print "<br/><center><b>Images table cleaned.</b></center>";
     }
 
 

@@ -235,6 +235,9 @@
                                 $limit_affiche = 1;           
                             explorePages($site_id,$limit_affiche);
                             break;
+                        case 26;
+                            cleanImages();
+                            break;
                         case database;
                             include "db_main.php";
                             break;
