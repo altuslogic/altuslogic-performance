@@ -145,23 +145,23 @@
                             list_cats (0, 0, "white");
                             break;
                         case index;
-                            submenuIndex($type);
-                            switch($type){ 
-                                case index:
-                                    if (!isset($url)) $url = "";
-                                    if (!isset($reindex)) $reindex = "";
-                                    if (isset($adv)) $_SESSION['index_advanced']=$adv;
-                                    indexscreen($url, $reindex);
-                                    break;
-                                case sites:
-                                    showsites();
-                                    break;
-                                case clean:
-                                    cleanForm();
-                                    break;
-                                case settings:
-                                    include('configset.php');
-                                    break;
+                        submenuIndex($type);
+                        switch($type){ 
+                            case index:
+                                if (!isset($url)) $url = "";
+                                if (!isset($reindex)) $reindex = "";
+                                if (isset($adv)) $_SESSION['index_advanced']=$adv;
+                                indexscreen($url, $reindex);
+                                break;
+                            case sites:
+                                showsites();
+                                break;
+                            case clean:
+                                cleanForm();
+                                break;
+                            case settings:
+                                include('configset.php');
+                                break;
                         }  
                         break;
                         case add_site;
@@ -253,7 +253,12 @@
                             $show = $type;
                             include "affiche_extract.php";
                             if ($type=='selection') extractScreen();        
-                            else if ($type=='edition') geoScreen();
+                            else if ($type=='edition'){
+                                    include "configSearch/progressbar.php";
+                                    initProgress(5,5,600,30,'#fff','#444','#990000');
+                                    geoScreen();
+                                    if ($action=='localize') localize();
+                            }        
                             break;  
                         case delete_log;
                             unlink($log_dir."/".$file);

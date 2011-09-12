@@ -46,7 +46,7 @@
             $farea=addslashes($fare[1][0]);
             $pca=addslashes($pc[1][0]);
             $addaa=addslashes($add[1][0]);
-
+               
             if($lat=='')$lat="skip";
 
             echo " (latitude : ".$lat.")(longitude : ".$long.") <br><br>".$title[1][0]."<br>$location<br>$farea <br>$pca <br>$addaa <br>$adma" ;         

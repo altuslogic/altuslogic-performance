@@ -25,15 +25,15 @@
     $nomBase = readCookie($_GET,"nomBase","");
     $nomTable = readCookie($_GET,"nomTable","");
     $nomColonne = readCookie($_GET,"nomColonne","");
-    
+
     // Paramètres sous-tables 
     $thres = readCookie($_GET,"threshold",5000);
     $ordreMax = readCookie($_GET,"ordre",3);
-    
+
     // Choix de l'action
     $f = readCookie($_GET,"f",2); 
     $type = readCookie($_GET,"type","");
-    
+
     // Paramètres de l'extraction
     $site = readCookie($_POST,"site","");
     $in = readCookie($_POST,"in","");
@@ -45,5 +45,12 @@
     $attrib_mode = readCookie($_POST,"attrib_mode","exact");
     $start_text = readCookie($_POST,"start_text","");
     $end_text = readCookie($_POST,"end_text","");
+
+    // Paramètres de la localisation
+    $location = readCookie($_POST,"location","");
+    $street = readCookie($_POST,"street","");
+    $city = readCookie($_POST,"city","");       
+    $province = readCookie($_POST,"province","");
+    $country = readCookie($_POST,"country","");
 
 ?>

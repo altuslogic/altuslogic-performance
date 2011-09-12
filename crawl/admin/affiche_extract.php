@@ -12,7 +12,6 @@
         <li><a href="admin.php?f=extract&type=edition" class=<?php print ($type=='edition'?"subselected":"subdefault"); ?>>Geo</a></li>  
     </ul>
 </div>
-<br/> 
 
 <?php                              
   //  include "configSearch/index.php";
