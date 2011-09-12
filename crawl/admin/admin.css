@@ -1,11 +1,16 @@
 .main {font-size: 12px; font-family: Verdana, Arial; font-weight: bold}
 html { height: 100%; margin-bottom: 1px; }
 body {font-size: 12px; font-family: Verdana, Arial;background-color: #eee; }
-
- td {font-size: 12px; font-family: Verdana, Arial;height:26px; padding: 2px 6px 2px 6px;}
+ul{
+	list-style-type: none;
+	list-style: none;
+	padding: 0px;
+	margin: 0px;
+}
+ td {font-size: 12px; font-family: Verdana, Arial;height:18px; padding: 2px 6px 2px 6px;}
 a:visited{color:#000066}
 a:hover{text-decoration: underline}
-a {text-decoration: underline; color:#000090}
+a {text-decoration: none; color:#000090; }
 .white {background-color: #FFFFFF}
 .grey {background-color: #F2F2F2}
 #main table.darkgrey {background-color: #fff;  -moz-box-shadow: 6px 6px 6px #fff;  border: 0px;
