@@ -115,8 +115,8 @@ div#settings{
 
 
 div.indexoptions{
-	padding:10px;
-	width:500px;
+	padding:20px;
+	width:550px;
 	border:1px solid #ccc;
 	background:#ffffff;
 	margin:0 auto;
@@ -203,8 +203,18 @@ background: #e5ecf9;
    border-top-right-radius: 6px;
    -moz-border-radius-topleft: 6px;
    border-top-left-radius: 6px;
-
-}
+  background-image: -webkit-gradient(
+    linear,
+    left bottom,
+    left top,
+    color-stop(0.15, #999),
+    color-stop(0.58, #aaa)
+);
+background-image: -moz-linear-gradient(
+    center bottom,
+    #999 15%,
+    #aaa 58%
+);}
 
 #tabs a#default {
 background-color: #fff;
@@ -303,8 +313,8 @@ background-color: #fff;
 
 #submenu li {
 	float: left;
-	padding: 12px 15px 0 15px;
-	border-right: 1px solid #d6d6d6;
+	padding: 12px 8px 0 8px;
+	/*border-right: 1px solid #d6d6d6;*/
 	white-space: nowrap;
 	height: 30px;
 }
@@ -313,13 +323,28 @@ background-color: #fff;
 	font-weight:bold;
 /*	border-left:1px solid;
 	border-bottom:1px solid;*/
-	padding:2px;
+	padding:10px;
 	text-decoration:none;
-}
+	 -moz-border-radius: 5px;
+    border-radius: 5px;
+   }
 
 
 #submenu li a:hover{
-	text-decoration:underline;
+	text-decoration:none;
+	   background-image: -webkit-gradient(
+    linear,
+    left bottom,
+    left top,
+    color-stop(0.15, #999),
+    color-stop(0.58, #aaa)
+);
+background-image: -moz-linear-gradient(
+    center bottom,
+    #999 15%,
+    #aaa 58%
+);
+
 }
 
 /*#submenu li:first-child { border-left: none; }*/
@@ -333,7 +358,18 @@ background-color: #fff;
 	color: #fff;
 	border-bottom:1px solid #666;
 	height: 38px;
-//	padding: 5px 7px 7px 7px; /* for All other Browsers */
+background-image: -webkit-gradient(
+    linear,
+    left bottom,
+    left top,
+    color-stop(0.15, #888),
+    color-stop(0.58, #999)
+);
+background-image: -moz-linear-gradient(
+    center bottom,
+    #888 15%,
+    #999 58%
+);//	padding: 5px 7px 7px 7px; /* for All other Browsers */
 }
 
 
