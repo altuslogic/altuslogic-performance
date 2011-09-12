@@ -54,6 +54,10 @@
             $database_funcs = Array ("database" => "default"); 
             $choosedatabase_funcs = Array ("choosedatabase" => "default");
             $prototype_funcs = Array ("prototype" => "default");
+			$search_funcs = Array ("search" => "default");
+			$template_funcs = Array ("template" => "default");
+			$production_funcs = Array ("production" => "default");
+			$extract_funcs = Array ("extract" => "default");
 
             //die ("a;:$DbHost, $DbUser, $DbPassword");
             $success = mysql_pconnect ($DbHost, $DbUser, $DbPassword);
@@ -66,29 +70,36 @@
             }                                     
 
         ?> 
-
+        <div id="logo_top"><img src="images/logo_altuslogic.png"></div>
         <div id="admin"> 
             <div id="tabs">
                 <ul>
                     <?php
-                        $liste = array("stat_funcs","site_funcs","settings_funcs","index_funcs","cat_funcs","clean_funcs","database_funcs","choosedatabase_funcs","prototype_funcs");
+                        $liste = array("stat_funcs","site_funcs","settings_funcs","index_funcs","cat_funcs","clean_funcs","database_funcs","choosedatabase_funcs","prototype_funcs","search_funcs","template_funcs","production_funcs","extract_funcs");
                         for ($i=0; $i<sizeof($liste); $i++){
                             if (${$liste[$i]}[$f]) ${$liste[$i]}[$f] = "selected";
                             else ${$liste[$i]}[$f] = "default";
                         }      
                     ?>
-
-                    <li><a href="admin.php?f=2" id="<?php print $site_funcs[$f]?>">Sites</a>  </li>
-                    <li><a href="admin.php?f=categories" id="<?php print $cat_funcs[$f]?>">Categories</a></li> 
+					<li><a href="admin.php?f=choosedatabase" id="<?php print $choosedatabase_funcs[$f]?>">Database</a></li>
                     <li><a href="admin.php?f=index" id="<?php print $index_funcs[$f]?>">Crawl</a></li>
-                    <li><a href="admin.php?f=clean" id="<?php print $clean_funcs[$f]?>">Clean</a> </li>
-                    <li><a href="admin.php?f=settings" id="<?php print $settings_funcs[$f]?>">Settings</a></li>
-                    <li><a href="admin.php?f=statistics" id="<?php print $stat_funcs[$f]?>">Statistics</a> </li>
-                    <li><a href="admin.php?f=database" id="<?php print $database_funcs[$f]?>">Database</a></li>
-                    <li><a href="admin.php?f=choosedatabase" id="<?php print $choosedatabase_funcs[$f]?>">Choose db</a></li>
+                    <li><a href="admin.php?f=extract" id="<?php print $extract_funcs[$f]?>">Extract</a> </li>
                     <li><a href="admin.php?f=prototype" id="<?php print $prototype_funcs[$f]?>">Prototype</a></li>
-                    <li><a href="admin.php?f=24" id="default">Log out</a></li>
-                </ul>
+                    <li><a href="admin.php?f=search&type=search" id="<?php print $search_funcs[$f]?>">Search</a></li>
+                    <li><a href="admin.php?f=template" id="<?php print $template_funcs[$f]?>">Template</a></li>
+                    <li><a href="admin.php?f=production" id="<?php print $production_funcs[$f]?>">Production</a></li>   
+                    <li><a href="admin.php?f=statistics" id="<?php print $stat_funcs[$f]?>">Statistics</a> </li>
+                  
+                </ul> 
+                <!-- 
+                
+                		<li><a href="admin.php?f=2" id="<?php print $site_funcs[$f]?>">Sites</a>  </li>
+                    	<li><a href="admin.php?f=settings" id="<?php print $settings_funcs[$f]?>">Settings</a></li>
+                   		<li><a href="admin.php?f=categories" id="<?php print $cat_funcs[$f]?>">Categories</a></li>    
+                        <li><a href="admin.php?f=24" id="default">Log out</a></li>  
+                        <li><a href="admin.php?f=clean" id="<?php print $clean_funcs[$f]?>">Clean</a> </li>
+                        <li><a href="admin.php?f=database" id="<?php print $database_funcs[$f]?>">Database</a></li>
+                        -->
             </div>
             <div id="main">
 
@@ -240,10 +251,27 @@
                             break;
                         case choosedatabase;
                             include "choice_db.php";
-                            break;
+                            include "db_main.php";
+							break;
                         case prototype;
                             $show = $type;
                             include "affiche_proto.php";        
+                            break;
+                       case search;
+                            $show = $type;
+                            include "affiche_proto.php";        
+                            break;
+                       case template;
+                            $show = $type;
+                            include "affiche_template.php";        
+                            break;
+                       case production;
+                            $show = $type;
+                            include "affiche_production.php";        
+                            break;
+                      case extract;
+                            $show = $type;
+                            include "affiche_extract.php";        
                             break;
                         case settings;
                             include('configset.php');
@@ -268,22 +296,22 @@
             $info = "<b>$nomBase</b>";
             $info .= " > ".(tableExiste($nomTable)? "<b>$nomTable</b>": "<a href='?f=prototype&type=selection' style='color:red;' title='Table introuvable.'>$nomTable</a>");
             $info .= " > ".(colonneExiste($nomColonne)? "<b>$nomColonne</b>": "<a href='?f=prototype&type=selection' style='color:red;' title='Colonne introuvable.'>$nomColonne</a>");
-            $col = array($info,"Table principale","Index mot","Index phrase");
+            $col = array($info);
             foreach ($col as &$t) $t="&nbsp;$t&nbsp;";
-            echo "<div id=\"topstats\"><table border='1' id='info'><tr><td>".implode("</td><td>",$col)."</td></tr>";
+            echo "<div id=\"topstats\"><table border='1' id='info'><tr><td style='padding-right:20px;padding-right:15px;'>".implode("</td><td>",$col)."</td>";
 
             $etatBase="yes";
             if (!colonneExiste($nomColonne)) $etatBase="no";
             else if (tableSize($nomTable)==0) $etatBase="empty";
-                echo "<tr><td align='center'>table/subtables</td><td align='center'><img src='$img[$etatBase]'>";
+                echo "<td align='center' width='65px'><img src='$img[$etatBase]'>";
             etatInfo("y_".$nomTable."_".$nomColonne."_stats",$etatBase,"stage=subtables","Création des sous-tables");
 
-            echo "</td><td align='center'>";
+            echo "</td><td align='center' width='65px'>";
             $tableMot = "y_".$nomTable."_".$nomColonne."_keyword";
             $etat = etatInfo($tableMot,$etatBase,"stage=indexmot","Création de l'index mot");
             etatInfo("y_".$tableMot."_".$nomColonne."_stats",$etat,"stage=subtables&methode=word","Création des sous-tables de l'index mot");
 
-            echo "</td><td align='center'>";
+            echo "</td><td align='center' width='65px'>";
             $tablePhrase = "y_".$nomTable."_".$nomColonne."_keyphrase";  
             $etat = etatInfo($tablePhrase,$etatBase,"stage=indexphrase","Création de l'index phrase");
             etatInfo("y_".$tablePhrase."_".$nomColonne."_stats",$etat,"stage=subtables&methode=phrase","Création des sous-tables de l'index phrase");

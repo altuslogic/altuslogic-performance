@@ -1,6 +1,6 @@
 .main {font-size: 12px; font-family: Verdana, Arial; font-weight: bold}
 html { height: 100%; margin-bottom: 1px; }
-body {font-size: 12px; font-family: Verdana, Arial; }
+body {font-size: 12px; font-family: Verdana, Arial;background-color: #eee; }
 
  td {font-size: 12px; font-family: Verdana, Arial;height:26px; padding: 2px 6px 2px 6px;}
 a:visited{color:#000066}
@@ -17,7 +17,7 @@ a {text-decoration: underline; color:#000090}
 	padding: 4px;
 }
 
-#topstats{
+#topstats{background-color: #fff;
     padding: 5px;
     position:absolute;
     right: 30px;top: 5px;
@@ -25,6 +25,13 @@ a {text-decoration: underline; color:#000090}
       -moz-box-shadow: 6px 6px 10px #ddd;
     -webkit-box-shadow: 6px 6px 10px #ddd;
     box-shadow: 6px 6px 10px #ddd;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+}
+#logo_top{
+	  position:absolute;
+      left: 30px;top: 10px;
+  
 }
 #topstats table{
    border: 0;
@@ -126,7 +133,7 @@ div#sitelist{
 
 div#admin{
     padding:10px;
-	margin: 35px 15px;
+	margin: 65px 15px;
 	/*margin:0 auto;
 	width:80%;
 	background-color:#6f6f6;*/
@@ -191,17 +198,24 @@ background: #e5ecf9;
     -webkit-box-shadow: 2px -2px 4px #ddd;
     box-shadow: 2px -2px 4px #ddd;
     margin: 4px 4px 1px 3px;
+    -moz-border-radius-topright: 6px;
+   border-top-right-radius: 6px;
+   -moz-border-radius-topleft: 6px;
+   border-top-left-radius: 6px;
+
 }
 
 #tabs a#default {
+background-color: #fff;
 	position: relative;
 	top: 0;
-	margin: 2px 8px 0 0;
+	margin: 2px 8px 1px 0;
 	float: left;
 	border-right: 1px solid #bbb;
 	border-top: 1px solid #bbb;
 	border-left: 1px solid #bbb;
-	padding: 9px 4px 5px 10px;
+	border-bottom: 1px solid #ccc;
+	padding: 9px 4px 3px 10px;
 	text-decoration: none;
 	font-weight: bold;
 	color: #444;height: 24px;
@@ -209,6 +223,10 @@ background: #e5ecf9;
     -webkit-box-shadow: 2px -2px 4px #ddd;
     box-shadow: 2px -2px 4px #ddd;
     margin: 4px 4px 1px 3px;
+   -moz-border-radius-topright: 6px;
+   border-top-right-radius: 6px;
+   -moz-border-radius-topleft: 6px;
+   border-top-left-radius: 6px;
 }
 
 #tabs a:hover {
@@ -228,6 +246,11 @@ background: #e5ecf9;
 	padding: 6px 4px 6px 10px;
 	text-decoration: none;
 	color: #333;
+	-moz-border-radius-topright: 10px;
+   border-top-right-radius: 10px;
+   -moz-border-radius-topleft: 10px;
+   border-top-left-radius: 10px;
+
 }
 
 #tabs a.active:hover {
@@ -255,6 +278,7 @@ background: #e5ecf9;
      -moz-box-shadow: 6px 6px 10px #ddd;
     -webkit-box-shadow: 6px 6px 10px #ddd;
     box-shadow: 6px 6px 10px #ddd;
+    background-color: #fff;
 }
 
 
@@ -302,7 +326,7 @@ background: #e5ecf9;
 #submenu {
 	height:1em;
 	padding:7px;
-	margin-bottom:10px;
+	margin-bottom:10px;	margin-top:10px;
 	font-family: Verdana, Arial;
 	background: #999;
 	color: #fff;

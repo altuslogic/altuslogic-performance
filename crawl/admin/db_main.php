@@ -41,29 +41,17 @@ function checkAll(theForm, cName, allNo_stat) {
 </script>
 
 </head>
-<div id="submenu">
-</div>
-  <TABLE WIDTH="94%">
-	 <TR> 
-	  <TD valign="top"><center> 
-		<?php 
-		  if (!get_extension_funcs('zlib'))  {
-			 echo "Compression module status notice: <font color='red'>Zlib is NOT installed on the server! Backup disabled!";
-		  } ?>
-		  </font></center>	  
-		</TD>
-	</TR>
-  </TABLE>
+<td valign="top" >
 
 <FORM NAME="dobackup" ID="dbform" METHOD="post" ACTION="admin.php">
 <input type="hidden" name="f" value="database">
 
-<table width="94%" border="0" cellspacing=0 cellpadding=0 align="center">
+<table width="100%" border="0" cellspacing=0 cellpadding=0 align="center">
   <tr align=center> 
 	<td width="1%" class="greyHeading">&nbsp;</td>
 	<td class="greyHeading"><b>Tables</b></td>
 	<td width="10%" class="greyHeading"><b>Rows</b></td>
-	<td width="20%" class="greyHeading"><b>Created on</b></td>
+	<!-- <td width="20%" class="greyHeading"><b>Created on</b></td> -->
 	<td width="15%" class="greyHeading"><b>Data Size kB</b></td>
 	<td width="17%" class="greyHeading"><b>Index Size kB</b></td>
   </tr>
@@ -82,7 +70,7 @@ function checkAll(theForm, cName, allNo_stat) {
 			print "<tr><td class=".$bgcolor."><input type='checkbox' id='tables$i' class='check' name='tables[$i]' value='".$rows["Name"]."' ></td>";
 			print "<td class=".$bgcolor.">".$rows["Name"]."</td>";
 			print '<td align="center" class='.$bgcolor.'>'.$rows['Rows'].'</td>';
-			print '<td align="center" class='.$bgcolor.'>'.$rows['Create_time'].'</td>';
+		//	print '<td align="center" class='.$bgcolor.'>'.$rows['Create_time'].'</td>';
 			print '<td align="center" class='.$bgcolor.'>'.number_format($rows['Data_length']/1024,1).'</td>';
 			print '<td align="center" class='.$bgcolor.'>'.number_format($rows['Index_length']/1024,1).'</td></tr>'."\n";
   		$i++;
@@ -213,3 +201,6 @@ if (isset($file) && $del==1) {
 	
   </TABLE>
 </CENTER>
+
+
+</td></tr></table>
