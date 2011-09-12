@@ -1,5 +1,7 @@
-<div id='submenu'></div>
-<div style="margin:50px;line-height:20pt;">
+<div id="submenu">
+</div>
+<table width="98%"><tr><td valign="top" width="50%">
+<div style="line-height:20pt;">
 
 <?php
 
@@ -65,3 +67,4 @@
     }
 
 ?>
+</td>
