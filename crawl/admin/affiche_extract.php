@@ -4,18 +4,15 @@
 </script>
 <script type="text/javascript"
     src="http://www.google.com/jsapi?key=ABQIAAAAuIowY22xd6M7t2fgVRJUZhTS00s8BpmtWZHzIF6WCUpWiuK3aRR3Kcl7kSKmyZnX6ao-QJp2Ptyj_w">
-</script>
-<link rel="stylesheet" href="../../jquery.ui/all.css">      
-<script src="../../jquery-1.5.1.js"></script>
-<script src="getWordStats.js"></script>
-<script src="geolocate.js"></script>
+</script>                                      
 
 <div id='submenu'>
     <ul>                               
-        <li><a href="admin.php?f=extract&type=selection">extract</a></li>  
-        <li><a href="admin.php?f=extract&type=edition">geo</a></li>  
+        <li><a href="admin.php?f=extract&type=selection" class=<?php print ($type=='selection'?"subselected":"subdefault"); ?>>Extract</a></li>  
+        <li><a href="admin.php?f=extract&type=edition" class=<?php print ($type=='edition'?"subselected":"subdefault"); ?>>Geo</a></li>  
     </ul>
 </div>
+<br/> 
 
 <?php                              
   //  include "configSearch/index.php";

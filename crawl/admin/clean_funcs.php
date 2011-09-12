@@ -14,8 +14,6 @@
         }
 
     ?>
-    <div id="submenu">
-    </div>
     <br/><div align="center">
         <table cellspacing ="0" cellpadding="0" class="darkgrey"><tr><td align="left"><table cellpadding="3" cellspacing = "1"  width="100%">
                         <tr class="grey"  ><td align="left"><a href="admin.php?f=15" id="small_button">Clean keywords</a> 

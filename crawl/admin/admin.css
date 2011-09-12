@@ -330,7 +330,7 @@ background-color: #fff;
    }
 
 
-#submenu li a:hover{
+#submenu li a:hover, li a.subselected{
 	text-decoration:none;
 	   background-image: -webkit-gradient(
     linear,

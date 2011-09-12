@@ -1,11 +1,13 @@
 <?php
 
-    function submenuIndex(){
+    function submenuIndex($type){
     ?>
     <div id="submenu">
         <ul>
-            <li><a href="admin.php?f=index&type=index">Index</a></li>
-            <li><a href="admin.php?f=index&type=extract">Extract</a></li>
+            <li><a href="admin.php?f=index&type=index" class=<?php print ($type=='index'?"subselected":"subdefault"); ?>>Index</a></li>
+            <li><a href="admin.php?f=index&type=sites" class=<?php print ($type=='sites'?"subselected":"subdefault"); ?>>Sites</a></li>
+            <li><a href="admin.php?f=index&type=clean" class=<?php print ($type=='clean'?"subselected":"subdefault"); ?>>Clean</a></li>
+            <li><a href="admin.php?f=index&type=settings" class=<?php print ($type=='settings'?"subselected":"subdefault"); ?>>Settings</a></li>
         </ul>
     </div>
     <br/>
@@ -74,40 +76,6 @@
         </form></div>
 
     <?php 
-    }
-
-    function extractScreen(){
-        global $mysql_table_prefix, $site, $in, $out, $column, $tag_name, $attrib_name, $attrib_mode, $attrib_value, $start_text, $end_text;
-        $result = mysql_query("SELECT site_id,url FROM ".$mysql_table_prefix."sites");
-        echo mysql_error();
-        $printSites = "";
-        while ($tab = mysql_fetch_array($result)){
-            $selected = ($tab['site_id']==$site? "selected": "");
-            $printSites .= "<option $selected value='$tab[site_id]'>$tab[url]</option>";
-        }
-    ?>
-    <div class="indexoptions"><table>
-            <form action="extract.php" method="post">
-            <tr><td><b>Site:</b></td><td><select name="site">
-                        <?php echo $printSites; ?>
-                    </select></td></tr>
-            <tr><td><b>URL must include:</b></td><td><input type="text" name="in" value="<?php print $in;?>"></td></tr> 
-            <tr><td><b>URL must not include:</b></td><td><input type="text" name="out" value="<?php print $out;?>"></td></tr>
-            <tr><td><b>Column to save in:</b></td><td><input type="text" name="column" value="<?php print $column;?>"></td></tr> 
-            <tr><td><b>HTML Container:</b></td><td><input type="text" name="tag_name" value="<?php print $tag_name;?>"></td></tr>
-            <tr><td><b>Attribute:</b></td><td>              
-                    <input type="text" name="attrib_name" value="<?php print $attrib_name; ?>" style="width:100px;">
-                    <select name="attrib_mode">
-                        <option <?php if ($attrib_mode=='exact') echo 'selected' ?> value="exact">equals</option>
-                        <option <?php if ($attrib_mode=='contains') echo 'selected' ?> value="contains">contains</option> 
-                    </select>
-                    <input type="text" name="attrib_value" value="<?php print $attrib_value; ?>">  
-                </td></tr>
-            <tr><td><b>Start text:</b></td><td><textarea name="start_text" cols=35 rows=2 wrap="virtual"><?php print $start_text;?></textarea></td></tr> 
-            <tr><td><b>End text:</b></td><td><textarea name="end_text" cols=35 rows=2 wrap="virtual"><?php print $end_text;?></textarea></td></tr></table>
-        <center><input type="submit" id="submit" value="Start extracting"></center> 
-        </form></div>
-    <?php
     }
 
 ?>

@@ -232,7 +232,6 @@ if (isset($Submit)) {
 } 	
 include "../settings/conf.php"; 
 ?>
-<div id='submenu'>&nbsp;</div>
 <div id="settings">
 
 <form name="form1" method="post" action="admin.php">

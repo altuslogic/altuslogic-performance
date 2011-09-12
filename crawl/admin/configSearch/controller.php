@@ -49,7 +49,7 @@
         `afficheDiv` tinyint(1) NOT NULL,
         `onclickSearch` tinyint(1) NOT NULL,
         `description` text NOT NULL,
-        `mode_suggest` enum('regexp,'debut','milieu','fin') NOT NULL,
+        `mode_suggest` enum('regexp','debut','milieu','fin') NOT NULL,
         `mode_result` enum('regexp','debut','milieu','fin') NOT NULL,
         `methode_suggest` enum('direct','tables','mot','phrase') NOT NULL,
         `methode_result` enum('direct','tables','mot','phrase') NOT NULL,
@@ -690,14 +690,16 @@
 
         mysql_select_db($nomBase);
         $sql = "SHOW COLUMNS FROM ".$nomTable;
-        $result = mysql_query($sql) or die(mysql_error()."<br>".$sql);                                                                                      
-        $print = "";
+        $result = mysql_query($sql);
+        $print = mysql_error();
 
-        while ($ligne=mysql_fetch_array($result)){
-            if ($ligne['Field']==$nomColonne){
-                $print .= "<b>".$ligne['Field']."</b><br>";  
+        if ($result){
+            while ($ligne=mysql_fetch_array($result)){
+                if ($ligne['Field']==$nomColonne){
+                    $print .= "<b>".$ligne['Field']."</b><br>";  
+                }
+                else $print .= "<a href='?nomColonne=".$ligne['Field']."'>".$ligne['Field']."</a><br>";
             }
-            else $print .= "<a href='?nomColonne=".$ligne['Field']."'>".$ligne['Field']."</a><br>";
         }                                                                                                     
         return $print;
     }
@@ -849,7 +851,7 @@
         for ($i=ord("A"); $i<=ord("Z"); $i++){ 
             $lettre = chr($i);                                               
             $print .= "<td valign='top'>&nbsp;&nbsp;&nbsp;<b>".$lettre."</b><table>";
-                                                               
+
             $sql = "SELECT $nomColonne,id,nombre FROM $table WHERE $nomColonne LIKE '$lettre%' ORDER BY nombre DESC LIMIT $limite";   
             $result = mysql_query($sql) or die($sql."<br>".mysql_error());  
 

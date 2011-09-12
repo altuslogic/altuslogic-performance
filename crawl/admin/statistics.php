@@ -6,11 +6,11 @@
     ?>  
     <div id='submenu'>
         <ul>
-            <li><a href="admin.php?f=statistics&type=keywords">Top keywords</a></li>
-            <li><a href="admin.php?f=statistics&type=pages">Largest pages</a></li>
-            <li><a href="admin.php?f=statistics&type=top_searches">Most popular searches</a></li>
-            <li><a href="admin.php?f=statistics&type=log">Search log</a></li>
-            <li><a href="admin.php?f=statistics&type=spidering_log">Spidering logs</a></li>
+            <li><a href="admin.php?f=statistics&type=keywords" class=<?php print ($type=='keywords'?"subselected":"subdefault"); ?>>Top keywords</a></li>
+            <li><a href="admin.php?f=statistics&type=pages" class=<?php print ($type=='pages'?"subselected":"subdefault"); ?>>Largest pages</a></li>
+            <li><a href="admin.php?f=statistics&type=top_searches" class=<?php print ($type=='top_searches'?"subselected":"subdefault"); ?>>Most popular searches</a></li>
+            <li><a href="admin.php?f=statistics&type=log" class=<?php print ($type=='log'?"subselected":"subdefault"); ?>>Search log</a></li>
+            <li><a href="admin.php?f=statistics&type=spidering_log" class=<?php print ($type=='spidering_log'?"subselected":"subdefault"); ?>>Spidering logs</a></li>
         </ul>
     </div>
 
@@ -170,7 +170,8 @@
         $siteQuery = "select count(site_id) from ".$mysql_table_prefix."sites";
         $categoriesQuery = "select count(category_id) from ".$mysql_table_prefix."categories";
 
-        $result = mysql_query($keywordQuery) or die(mysql_error());
+        $result = mysql_query($keywordQuery);
+        if (!$result) return null;
         if ($row=mysql_fetch_array($result)) {
             $stats['keywords']=$row[0];
         }

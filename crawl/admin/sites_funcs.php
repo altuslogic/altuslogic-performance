@@ -209,18 +209,14 @@
         $result = mysql_query("SELECT site_id, url, title, indexdate from ".$mysql_table_prefix."sites ORDER By indexdate, title");
         echo mysql_error();
     ?>
-    <div id='submenu'>
-        <ul>
-            <li><a href='admin.php?f=add_site'>Add site</a> </li>
+    <a href='admin.php?f=add_site'>Add site</a>
             <?php 
                 if (mysql_num_rows($result) > 0) {
                 ?>
-                <li><a href='spider.php?all=1'> Reindex all</a></li>
+                <br><a href='spider.php?all=1'>Reindex all</a>
                 <?php 
                 }
             ?>
-        </ul>
-    </div>
 
     <?php 
         print $message;
@@ -230,7 +226,7 @@
             <tr class=\"grey\"><td align=\"center\"><b>Site name</b></td><td align=\"center\"><b>Site url</b></td>
             <td align=\"center\"><b>Last indexed</b></td><td colspan=7 align=\"center\"><b>Options</b></td></tr>\n";
         } else {
-        ?><center><p><b>Welcome to Glerkp's CRAWL. <br><br>Choose "Add site" from the submenu to add a new site, or "Index" to directly go to the indexing section.</b></p></center><?php 
+        ?><center><p><b>Welcome to Glerkp's CRAWL. <br><br>Choose "Add site" to add a new site, or "Index" to directly go to the indexing section.</b></p></center><?php 
         }
         $class = "grey";
         while ($row=mysql_fetch_array($result))    {

@@ -71,21 +71,22 @@
         <p align="center"><input type="submit" name="action" value="new"><input type="submit" name="action" value="save"><input type="submit" name="action" value="delete"></p>
     </form>
 </div> 
-</td><td valign="top">  
-<div class="divNoScroll">  
-    <h2>Recherche</h2>
-    <?php
-    echo $print_search;
-    ?>
-</div>
-</td><td valign="top">  
+</td><td valign="top">
+<table class="tableSansMarge"><tr><td> 
 <div class="divNoScroll">
     <h2>Code</h2>
     <textarea style="width:inherit; height:145px; resize: none;" readonly="readonly"><?php
         echo $print_search;
         ?></textarea>  
+</div> 
+</td></tr>
+<tr><td> 
+<div class="divNoScroll">  
+    <h2>Recherche</h2>
+    <?php echo $print_search; ?>
 </div>
 </td></tr></table> 
+</td></tr></table>
 
 <?php }
 if ($show=='index' || $show=='all'){ ?>  
@@ -329,18 +330,6 @@ if ($show=='geo' || $show=='all'){ ?>
     </form>    
     <div id="map_canvas" style="width:100%; height:100%"></div> 
 </div>  
-</td><td valign="top">
-<div class="divNoScroll">
-    <h2>Localisation</h2>
-    <form>
-    <input type="checkbox">Latitude & longitude
-    <br><input type="checkbox">Pays
-    <br><input type="checkbox">Région 
-    <br><input type="checkbox">Ville
-    <br><input type="checkbox">Rue
-    <br><br><input type="submit" value="create columns"> 
-    </form>
-</div>
 </td></tr></table>
 
 <?php }

@@ -12,7 +12,8 @@
     include "configSearch/controller.php";
     include "sites_funcs.php"; 
     include "categories_funcs.php";
-    include "index_funcs.php"; 
+    include "index_funcs.php";
+    include "extract_funcs.php"; 
     include "clean_funcs.php"; 
     include "statistics.php";        
 
@@ -43,22 +44,8 @@
 
     </head>
     <body>     
-        <?php 
-
-            $site_funcs = Array (25=> "default", 22=> "default",21=> "default",4=> "default", 19=> "default", 1=> "default", 2 => "default", "add_site" => "default", 20=> "default", "edit_site" => "default", 5=>"default");
-            $stat_funcs = Array ("statistics" => "default",  "delete_log"=> "default");
-            $settings_funcs = Array ("settings" => "default");
-            $index_funcs = Array ("index" => "default");    
-            $clean_funcs = Array ("clean" => "default", 15=>"default", 16=>"default", 17=>"default", 23=>"default");
-            $cat_funcs = Array (11=> "default", 10=> "default", "categories" => "default", "edit_cat"=>"default", "delete_cat"=>"default", "add_cat" => "default", 7=> "default");
-            $database_funcs = Array ("database" => "default"); 
-            $choosedatabase_funcs = Array ("choosedatabase" => "default");
-            $prototype_funcs = Array ("prototype" => "default");
-			$search_funcs = Array ("search" => "default");
-			$template_funcs = Array ("template" => "default");
-			$production_funcs = Array ("production" => "default");
-			$extract_funcs = Array ("extract" => "default");
-
+        <?php  
+            //<body onload="javascript:initCoord();">
             //die ("a;:$DbHost, $DbUser, $DbPassword");
             $success = mysql_pconnect ($DbHost, $DbUser, $DbPassword);
 
@@ -74,37 +61,29 @@
         <div id="admin"> 
             <div id="tabs">
                 <ul>
-                    <?php
-                        $liste = array("stat_funcs","site_funcs","settings_funcs","index_funcs","cat_funcs","clean_funcs","database_funcs","choosedatabase_funcs","prototype_funcs","search_funcs","template_funcs","production_funcs","extract_funcs");
-                        for ($i=0; $i<sizeof($liste); $i++){
-                            if (${$liste[$i]}[$f]) ${$liste[$i]}[$f] = "selected";
-                            else ${$liste[$i]}[$f] = "default";
-                        }      
-                    ?>
-					<li><a href="admin.php?f=choosedatabase" id="<?php print $choosedatabase_funcs[$f]?>">Database</a></li>
-                    <li><a href="admin.php?f=index" id="<?php print $index_funcs[$f]?>">Crawl</a></li>
-                    <li><a href="admin.php?f=extract" id="<?php print $extract_funcs[$f]?>">Extract</a> </li>
-                    <li><a href="admin.php?f=prototype" id="<?php print $prototype_funcs[$f]?>">Prototype</a></li>
-                    <li><a href="admin.php?f=search&type=search" id="<?php print $search_funcs[$f]?>">Search</a></li>
-                    <li><a href="admin.php?f=template" id="<?php print $template_funcs[$f]?>">Template</a></li>
-                    <li><a href="admin.php?f=production" id="<?php print $production_funcs[$f]?>">Production</a></li>   
-                    <li><a href="admin.php?f=statistics" id="<?php print $stat_funcs[$f]?>">Statistics</a> </li>
-                  
+                    <li><a href="admin.php?f=choosedatabase" id="<?php print ($f=='choosedatabase'? "selected":"default");?>">Database</a></li>
+                    <li><a href="admin.php?f=index&type=index" id="<?php print ($f=='index'? "selected":"default");?>">Crawl</a></li>
+                    <li><a href="admin.php?f=extract&type=selection" id="<?php print ($f=='extract'? "selected":"default");?>">Extract</a> </li>
+                    <li><a href="admin.php?f=prototype&type=selection" id="<?php print ($f=='prototype'? "selected":"default");?>">Prototype</a></li>
+                    <li><a href="admin.php?f=search&type=search" id="<?php print ($f=='search'? "selected":"default");?>">Search</a></li>
+                    <li><a href="admin.php?f=template" id="<?php print ($f=='template'? "selected":"default");?>">Template</a></li>
+                    <li><a href="admin.php?f=production" id="<?php print ($f=='production'? "selected":"default");?>">Production</a></li>   
+                    <li><a href="admin.php?f=statistics" id="<?php print ($f=='statistics'? "selected":"default");?>">Statistics</a> </li>
+
                 </ul> 
                 <!-- 
-                
-                		<li><a href="admin.php?f=2" id="<?php print $site_funcs[$f]?>">Sites</a>  </li>
-                    	<li><a href="admin.php?f=settings" id="<?php print $settings_funcs[$f]?>">Settings</a></li>
-                   		<li><a href="admin.php?f=categories" id="<?php print $cat_funcs[$f]?>">Categories</a></li>    
-                        <li><a href="admin.php?f=24" id="default">Log out</a></li>  
-                        <li><a href="admin.php?f=clean" id="<?php print $clean_funcs[$f]?>">Clean</a> </li>
-                        <li><a href="admin.php?f=database" id="<?php print $database_funcs[$f]?>">Database</a></li>
-                        -->
+
+                <li><a href="admin.php?f=2" id="<?php print $site_funcs[$f]?>">Sites</a>  </li>
+                <li><a href="admin.php?f=settings" id="<?php print $settings_funcs[$f]?>">Settings</a></li>
+                <li><a href="admin.php?f=categories" id="<?php print $cat_funcs[$f]?>">Categories</a></li>    
+                <li><a href="admin.php?f=24" id="default">Log out</a></li>  
+                <li><a href="admin.php?f=clean" id="<?php print $clean_funcs[$f]?>">Clean</a> </li>
+                <li><a href="admin.php?f=database" id="<?php print $database_funcs[$f]?>">Database</a></li>
+                -->
             </div>
             <div id="main">
 
-                <?php 
-
+                <?php          
 
                     switch ($f)	{
                         case 1:
@@ -120,10 +99,7 @@
                                 siteScreen($site_id, $message);
                             else
                                 showsites($message);
-                            break;
-                        case 2:
-                            showsites();
-                            break;
+                            break;   
                         case edit_site:
                             editsiteform($site_id);
                             break;
@@ -169,26 +145,27 @@
                             list_cats (0, 0, "white");
                             break;
                         case index;
-                            submenuIndex();
-                            if ($type=='extract'){
-                                extractscreen();
-                            }
-                            else {
-                                if (!isset($url))
-                                    $url = "";
-                                if (!isset($reindex))
-                                    $reindex = "";
-                                if (isset($adv)) {	
-                                    $_SESSION['index_advanced']=$adv;
-                                }
-                                indexscreen($url, $reindex);
-                            }  
-                            break;
+                            submenuIndex($type);
+                            switch($type){ 
+                                case index:
+                                    if (!isset($url)) $url = "";
+                                    if (!isset($reindex)) $reindex = "";
+                                    if (isset($adv)) $_SESSION['index_advanced']=$adv;
+                                    indexscreen($url, $reindex);
+                                    break;
+                                case sites:
+                                    showsites();
+                                    break;
+                                case clean:
+                                    cleanForm();
+                                    break;
+                                case settings:
+                                    include('configset.php');
+                                    break;
+                        }  
+                        break;
                         case add_site;
                             addsiteform();
-                            break;
-                        case clean;
-                            cleanForm();
                             break;
 
                         case 15;
@@ -255,30 +232,29 @@
                         case choosedatabase;
                             include "choice_db.php";
                             include "db_main.php";
-							break;
+                            break;
                         case prototype;
                             $show = $type;
                             include "affiche_proto.php";        
                             break;
-                       case search;
+                        case search;
                             $show = $type;
-                            include "affiche_proto.php";        
+                            include "affiche_search.php";        
                             break;
-                       case template;
+                        case template;
                             $show = $type;
                             include "affiche_template.php";        
                             break;
-                       case production;
+                        case production;
                             $show = $type;
                             include "affiche_production.php";        
                             break;
-                      case extract;
+                        case extract;
                             $show = $type;
-                            include "affiche_extract.php";        
-                            break;
-                        case settings;
-                            include('configset.php');
-                            break;
+                            include "affiche_extract.php";
+                            if ($type=='selection') extractScreen();        
+                            else if ($type=='edition') geoScreen();
+                            break;  
                         case delete_log;
                             unlink($log_dir."/".$file);
                             statisticsForm('spidering_log');
@@ -288,7 +264,8 @@
                             break;
                     }
                     $stats = getStatistics();
-                    print "<br/><br/>	<center>Currently in database: ".$stats['sites']." sites, ".$stats['links']." links, ".$stats['categories']." categories and ".$stats['keywords']." keywords.<br/><br/></center>\n";
+                    if ($stats==null) print "<br/><br/><center>Currently in database: no statistics available.</center>";
+                    else print "<br/><br/><center>Currently in database: ".$stats['sites']." sites, ".$stats['links']." links, ".$stats['categories']." categories and ".$stats['keywords']." keywords.<br/><br/></center>\n";
 
                 ?>
             </div>
