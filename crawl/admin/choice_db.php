@@ -1,5 +1,3 @@
-<div id="submenu">
-</div>
 <table width="98%"><tr><td valign="top" width="50%">
 <div style="line-height:20pt;">
 

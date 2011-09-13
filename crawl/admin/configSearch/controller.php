@@ -703,6 +703,88 @@
         }                                                                                                     
         return $print;
     }
+    
+    function list_colonnes_search(){
+        global $nomBase,$nomTable,$nomColonne;
+
+        mysql_select_db($nomBase);
+        $sql = "SHOW COLUMNS FROM ".$nomTable;
+        $result = mysql_query($sql);
+        $print = mysql_error()."<table><tr><td colspan='3' align='right'><input type='submit' value='Save'></td></tr>";
+
+        if ($result){
+            while ($ligne=mysql_fetch_array($result)){
+            
+            if ($ligne['Field']==$nomColonne){
+                    $item = "<b>".$ligne['Field']."</b><br>";  
+                }
+                else {$item = "<a href='?nomColonne=".$ligne['Field']."'>".$ligne['Field']."</a><br>";}
+            
+            
+                $print .= "<tr><td>$item</td>
+                <td>
+                		<select name='operator_".$ligne['Field']."'>
+			                		<option> </option>
+			                		<option>=</option>
+			                		<option>like</option>
+			                		<option><</option>
+			                 		<option>></option>
+			                		<option><=</option>
+			                		<option>>=</option>
+			           </select>
+                </td>
+                <td>
+                		<input size='10' name='value_".$ligne['Field']."'>
+                
+                </td></tr>";
+            }
+        }                                                                                                     
+        return $print."<tr><td colspan='3' align='right'><input type='submit' value='Save'></td></tr></table>";
+    }
+ 
+ 
+ function list_resume(){
+        global $nomBase,$nomTable,$nomColonne;
+
+        mysql_select_db($nomBase);
+        $sql = "SELECT `".$nomColonne."` FROM $nomTable WHERE `".$nomColonne."`!='' LIMIT 20";
+         $print = "$sql<table>";
+        $result = mysql_query($sql);
+        $print .= mysql_error();
+  
+        if ($result){
+            while ($ligne=mysql_fetch_array($result)){
+                /*if ($ligne['Field']==$nomColonne){
+                    $print .= "<b>".$ligne['Field']."</b><br>";  
+                }
+                else */ 
+                $print .= "<tr><td id='resumeitem'><a href='?item=".$ligne[$nomColonne]."'>".$ligne[$nomColonne]."</a></td></tr>";
+            }
+        }                                                                                                     
+        return $print."</table>";
+    }
+
+
+ function list_resume_details(){
+        global $nomBase,$nomTable,$nomColonne;
+
+        mysql_select_db($nomBase);
+        $sql = "SELECT `".$nomColonne."`, COUNT(*) AS countx FROM $nomTable GROUP BY $nomColonne ORDER BY countx DESC LIMIT 50";
+         $print = "$sql<table>";
+        $result = mysql_query($sql);
+        $print .= mysql_error();
+  
+        if ($result){
+            while ($ligne=mysql_fetch_array($result)){
+                /*if ($ligne['Field']==$nomColonne){
+                    $print .= "<b>".$ligne['Field']."</b><br>";  
+                }
+                else */ 
+                $print .= "<tr><td>".$ligne['countx']."</td><td><a id='resumeitem' href='?item=".$ligne[$nomColonne]."'>".$ligne[$nomColonne]."</a></td></tr>";
+            }
+        }                                                                                                     
+        return $print."</table>";
+    }
 
 
     function info_colonnes(){

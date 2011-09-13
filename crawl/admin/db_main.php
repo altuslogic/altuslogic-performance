@@ -52,13 +52,14 @@ function checkAll(theForm, cName, allNo_stat) {
 	<td class="greyHeading"><b>Tables</b></td>
 	<td width="10%" class="greyHeading"><b>Rows</b></td>
 	<!-- <td width="20%" class="greyHeading"><b>Created on</b></td> -->
-	<td width="15%" class="greyHeading"><b>Data Size kB</b></td>
-	<td width="17%" class="greyHeading"><b>Index Size kB</b></td>
+	<td width="15%" class="greyHeading"><b>Data kB</b></td>
+	<td width="17%" class="greyHeading"><b>Index kB</b></td>
   </tr>
  <?php
 
-
+		$dbprefix="z_";
 		$stats  = mysql_query ("SHOW TABLE STATUS FROM $dbname LIKE '$dbprefix%'");
+		echo "SHOW TABLE STATUS FROM $dbname NOT LIKE '$dbprefix%'";
 		$num_tables = mysql_num_rows($stats);
 		if ($num_tables==0) {
 			echo("ERROR: Database contains no tables");

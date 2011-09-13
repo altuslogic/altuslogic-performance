@@ -61,10 +61,10 @@
         <div id="admin"> 
             <div id="tabs">
                 <ul>
-                    <li><a href="admin.php?f=choosedatabase" id="<?php print ($f=='choosedatabase'? "selected":"default");?>">Database</a></li>
+                    <li><a href="admin.php?f=database&type=selection" id="<?php print ($f=='database'? "selected":"default");?>">Database</a></li>
                     <li><a href="admin.php?f=index&type=index" id="<?php print ($f=='index'? "selected":"default");?>">Crawl</a></li>
                     <li><a href="admin.php?f=extract&type=selection" id="<?php print ($f=='extract'? "selected":"default");?>">Extract</a> </li>
-                    <li><a href="admin.php?f=prototype&type=selection" id="<?php print ($f=='prototype'? "selected":"default");?>">Prototype</a></li>
+                    <li><a href="admin.php?f=prototype&type=keywords" id="<?php print ($f=='prototype'? "selected":"default");?>">Prototype</a></li>
                     <li><a href="admin.php?f=search&type=search" id="<?php print ($f=='search'? "selected":"default");?>">Search</a></li>
                     <li><a href="admin.php?f=template" id="<?php print ($f=='template'? "selected":"default");?>">Template</a></li>
                     <li><a href="admin.php?f=production" id="<?php print ($f=='production'? "selected":"default");?>">Production</a></li>   
@@ -227,14 +227,28 @@
                             cleanImages();
                             break;
                         case database;
-                            include "db_main.php";
-                            break;
-                        case choosedatabase;
-                            include "choice_db.php";
-                            include "db_main.php";
-                            break;
+                        /*submenuIndex($type);*/
+			                      	 include "affiche_database_header.php";
+                            				
+			                        switch($type){ 
+			                            case selection:
+			                                 	$show = $type;
+			                                 	include "affiche_proto.php";  
+			                                break;
+			                            case tabledetails:
+			                                 	$show = $type;
+			                                 	include "affiche_proto.php";  
+			                                break;
+			                            case databasedetails:
+			                                include "choice_db.php";
+                            				include "db_main.php";			                                
+                            				break;
+			                        
+			                        }                              
+			            break;
                         case prototype;
                             $show = $type;
+                             include "affiche_proto_header.php";
                             include "affiche_proto.php";        
                             break;
                         case search;

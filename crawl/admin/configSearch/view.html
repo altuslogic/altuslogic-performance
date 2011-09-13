@@ -141,29 +141,59 @@ if ($show=='index' || $show=='all'){ ?>
 if ($show=='selection' || $show=='all'){ ?>
 
 <table><tr><td valign="top">
-<div class="divNoScroll">
-    <h2>Sélection de la db</h2> 
+<div class="divNoScroll_n">
+    <h2>Database</h2> 
     <?php          
     echo list_db();    
     ?>
 </div>
 </td><td valign="top">
-<div class="divNoScroll">
-    <h2>Sélection de la table</h2> 
+<div class="divNoScroll_n">
+    <h2>Table</h2> 
     <?php          
     if ($nomBase) echo list_tables();    
     ?>
 </div>
 </td><td valign="top">
-<div class="divNoScroll">
-    <h2>Sélection de la colonne</h2>
+<div class="divNoScroll_n">
+    <h2>Column</h2>
     <?php          
     if ($nomBase && $nomTable) echo list_colonnes();    
     ?>
 </div>
+</td><td valign="top">
+
+    <h2>Data Sample NOT NULL</h2>
+    <?php          
+    if ($nomBase && $nomTable && $nomColonne) echo list_resume();    
+    ?>
 </td></tr></table> 
 
-<?php }          
+<?php }   
+
+
+if ($show=='tabledetails'){ ?>
+
+<table><tr><td valign="top">
+<div class="divNoScroll">
+    <h2>Column</h2>
+    <?php          
+    if ($nomBase && $nomTable) echo list_colonnes_search();    
+    ?>
+</div>
+</td><td valign="top">
+
+    <h2>Resume</h2>
+    <?php          
+    if ($nomBase && $nomTable && $nomColonne) echo list_resume_details();    
+    ?>
+</td></tr></table> 
+
+<?php }  
+
+
+
+       
 if ($show=='keywords' || $show=='all'){
 $print = "";
 if ($nomBase && $nomTable && $nomColonne) $print = stats(45); ?> 
