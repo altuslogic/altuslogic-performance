@@ -40,7 +40,7 @@
             $path = new DOMXPath($doc);
             $newDoc = new DOMDocument();
             $newDoc->formatOutput = true;
-
+                   
             $query;                          
             if ($attrib_mode=='exact') $query = "@$attrib_name='$attrib_value'";
             else if ($attrib_mode=='contains') $query = "contains(@$attrib_name,'$attrib_value')"; 
@@ -50,8 +50,8 @@
             while ($item = $filtered->item($i++)){
                 $node = $newDoc->importNode($item, true);   
                 $newDoc->appendChild($node);                   
-            }
-            $html = $newDoc->saveHTML();
+            }               
+            $html = $newDoc->saveHTML();         
         }
         if ($start_text!=""){
             $start_text = stripslashes($start_text);
@@ -65,7 +65,7 @@
             else $html = "";
         }
 
-        if ($html!=""){
+        if ($html!="" && $html!=chr(10)){
 
             $partialtxt = $html;        
 

@@ -271,7 +271,10 @@
                                     include "configSearch/progressbar.php";
                                     initProgress(5,5,600,30,'#fff','#444','#990000');
                                     geoScreen();
-                                    if ($action=='localize') localize();
+                                    
+                                    if (isset($modify)) update_address($modify);
+                                    if (isset($status)) list_status($status);
+                                    if (isset($action)) localize();
                             }        
                             break;  
                         case delete_log;

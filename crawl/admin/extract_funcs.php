@@ -64,13 +64,13 @@
                             <tr><td>Ville : </td><td><select name="city"><?php echo $printCol['city']; ?></select></td></tr>
                             <tr><td>Région : </td><td><select name="province"><?php echo $printCol['province']; ?></select></td></tr>
                             <tr><td>Pays : </td><td><select name="country"><?php echo $printCol['country']; ?></select></td></tr></table>
-                        <p align='center'><input type="submit" value="validate" name="action"><input type="submit" name="action" value="localize"></p> 
+                        <p align='center'><input type="submit" name="action" value="localize"></p> 
                     </form>
                 </div>
             </td><td valign="top">
                 <div class="divNoScroll">
                     <h2>Stats</h2>
-                    <?php if ($action=='validate') echo localizeStats(); ?>
+                    <?php echo localizeStats(); ?>
                 </div>
             </td></tr>
     </table>
@@ -84,17 +84,33 @@
 
         $print = "";
         $address = "";
-        foreach ($_POST as $key=>$val){
-            if ($val!="" && $key!='action'){         
-                $result = mysql_query("SELECT COUNT($val) FROM $nomTable WHERE $val != ''");
-                $row = mysql_fetch_row($result);
-                $print .= "$key : ".$row[0]."<br>";
-                $address .= ($address==''?"":", ").$val;
-            }
+
+        $liste = getParam();
+        foreach ($liste as $key=>$val){     
+            $result = mysql_query("SELECT COUNT($val) FROM $nomTable WHERE $val != ''");
+            $row = mysql_fetch_row($result);
+            $print .= "$key : ".$row[0]."<br>";
+            $address .= ($address==''?"":", ").$val;
         }
-        $result = mysql_query("SELECT COUNT(*) FROM $nomTable WHERE geo_adresse IS NULL AND CONCAT($address)!=''");
-        if ($result) $print .= "<br>Restants : ".mysql_result($result,0);
+        $result = mysql_query("SELECT geo_status,COUNT(*) AS compte FROM $nomTable WHERE CONCAT($address)!='' GROUP BY geo_status ORDER BY compte DESC");
+        $print .= "<br><table border=1><tr><td>status</td><td>count</td></tr>";
+        while ($tab = mysql_fetch_array($result)){
+            $status = $tab['geo_status'];
+            if ($status=='') $status="à faire"; 
+            $print .= "<tr><td><a href='?status=$status'>$status</a></td><td>".$tab['compte']."</td></tr>";
+        }
+        $print .= "</table>";
         return $print;
+    }
+
+    function getParam(){
+        global $location,$street,$city,$province,$country; 
+        $liste = array("location","street","city","province","country");
+        $res = array();
+        foreach ($liste as $val){
+            if ($$val!='') $res[$val] = $$val;
+        }
+        return $res;
     }
 
 
@@ -104,20 +120,29 @@
         mysql_query("ALTER TABLE $nomTable ADD geo_xml TEXT, ADD geo_adresse VARCHAR(255), ADD geo_codePays VARCHAR(3), ADD geo_pays VARCHAR(30), ADD geo_region VARCHAR(30), ADD geo_departement VARCHAR(30),
         ADD geo_ville VARCHAR(30), ADD geo_codePostal VARCHAR(10), ADD geo_quartier VARCHAR(30), ADD geo_rue VARCHAR(100), ADD geo_latitude DOUBLE(10,7), ADD geo_longitude DOUBLE(10,7), ADD geo_status ENUM('ok','multiple','error')");
 
-        $address = "";
-        foreach ($_POST as $key=>$val){         
-            if ($val!="" && $key!='action') $address .= ($address==''?"":",").$val;
-        }
+        $liste = getParam();
+        $address = implode(",",$liste);      
 
+        if ($address=="") return;            
         $primary = getPrimaryKey($nomTable);
-        $result = mysql_query("SELECT $primary,CONCAT_WS(' ',$address) as adresse FROM $nomTable WHERE geo_adresse IS NULL AND CONCAT($address)!='' LIMIT 1");
+        $result = mysql_query("SELECT $primary,$address,CONCAT_WS(' ',$address) as monAdresse FROM $nomTable WHERE geo_status IS NULL AND CONCAT($address)!='' LIMIT 10");
+        echo mysql_error();                                                                                                                 
         startProgress("Localisation");
 
         $total = mysql_num_rows($result);
         $cpt = 0; $progress = 0;
+        echo "<table align='center' border=1 style='width:98%'><tr><td><b>$primary<b></td><td><b>status</b></td>";
+        foreach ($liste as $val) echo "<td><b>$val</b></td>";
+        echo "<td><b>résultat</b></td><td><b>latitude</b></td><td><b>longitude</b></td><td><b>XML</b></td></tr>"; 
+
         while ($tab = mysql_fetch_array($result)){  
 
-            $res = geolocate($tab['adresse']);
+            $res = geolocate($tab['monAdresse']);
+            echo "<tr><td>$tab[$primary]</td><td>$res[status]</td>";
+            foreach ($liste as $val) echo "<td><input type='text' value=\"".$tab[$val]."\" style='width:100%'></td>"; 
+            echo "<td>$res[adresse]</td><td>$res[latitude]</td><td>$res[longitude]</td><td><a href='".createRequest($tab['monAdresse'])."'>XML</a></td></tr>";                                                               
+
+            unset($res['request']);
             foreach ($res as $key => $val){
                 $res[$key] = "geo_".$key."='".$val."'";
             }
@@ -129,13 +154,13 @@
                 $progress = $pourcent;
                 updateProgress("Localisation",$progress);
             }
-        }    
+        }
+        echo "</table>";   
     }
 
 
-    function geoLocate($location) {
-
-        $location = urlencode($location); 
+    function createRequest($location){
+        $location = urlencode(utf8_encode($location));          
 
         $request  = 'http://maps.google.com/maps/geo?';
         $request .= 'q='.$location.'&';
@@ -143,11 +168,19 @@
         $request .= 'output=xml'.$config_ga['format'].'&';
         $request .= 'oe=utf8';
 
+        return $request;
+    }
+
+
+    function geoLocate($location) {
+
+        $request = createRequest($location);
         $response  = file_get_contents($request);
+        $res = array("request" => $request,"xml" => addslashes($response));
 
         preg_match_all( "/\<Response\>(.*?)\<\/Response\>/s",$response, $bookblocks );  
         foreach( $bookblocks[1] as $block )
-        {
+        {  
             preg_match_all( "/\<coordinates\>(.*?)\<\/coordinates\>/",$block,$coord );
             preg_match_all( "/\<address\>(.*?)\<\/address\>/",$block,$adresse );  
             preg_match_all( "/\<ThoroughfareName\>(.*?)\<\/ThoroughfareName\>/",$block,$rue );
@@ -158,9 +191,12 @@
             preg_match_all( "/\<AdministrativeAreaName\>(.*?)\<\/AdministrativeAreaName\>/",$block,$region );
             preg_match_all( "/\<CountryName\>(.*?)\<\/CountryName\>/",$block,$pays );
             preg_match_all( "/\<CountryNameCode\>(.*?)\<\/CountryNameCode\>/",$block,$codePays );
-            
-            $res = array(); 
-            if (!isset($coord[1][0])) return $res;
+
+            if (!isset($coord[1][0])){
+                $res["status"]="error";
+                break;
+            }
+            $res["status"]="ok"; 
             $coord=explode(',',$coord[1][0]);
             $res['longitude']=addslashes($coord[0]);
             $res['latitude']=addslashes($coord[1]);        
@@ -175,6 +211,43 @@
         }  
 
         return $res;
+    }
+
+
+    function list_status($status){
+        global $nomTable;
+
+        $liste = getParam();
+        $address = implode(",",$liste);
+        if ($address=="") return;            
+        $primary = getPrimaryKey($nomTable);
+        $where = $status=="à faire"? "geo_status IS NULL AND CONCAT($address)!=''" :"geo_status = '$status'";
+
+        $result = mysql_query("SELECT $primary,$address,CONCAT_WS(' ',$address) as monAdresse,geo_status,geo_adresse,geo_latitude,geo_longitude FROM $nomTable WHERE $where LIMIT 1000");
+
+        echo "<table align='center' border=1 style='width:98%'><tr><td><b>$primary</b></td><td><b>status</b></td>";
+        foreach ($liste as $val) echo "<td><b>$val</b></td>";
+        echo "<td><b>update</b></td><td><b>résultat</b></td><td><b>latitude</b></td><td><b>longitude</b></td><td><b>XML</b></td></tr>";
+        while ($tab = mysql_fetch_array($result)){  
+            echo "<tr><form method='post'><input type='hidden' name='modify' value='$tab[$primary]'><input type='hidden' name='status' value='$status'><td>$tab[$primary]</td><td>$tab[geo_status]</td>";
+            foreach ($liste as $val) echo "<td><input type='text' name='$val' value=\"".$tab[$val]."\" style='width:100%'></td>"; 
+            echo "<td><input type='submit' value='ok'></td><td>$tab[geo_adresse]</td><td>$tab[geo_latitude]</td><td>$tab[geo_longitude]</td><td><a href='".createRequest($tab['monAdresse'])."'>XML</a></td></form></tr>"; 
+        }
+        echo "</table>";
+
+    }
+
+
+    function update_address($modify){
+        global $nomTable;
+        $tab = array();
+        foreach ($_POST as $key => $val){
+            if ($key != "action" && $key != "modify" && $key != "status"){
+                $tab[] = $key." = '$val'";
+            }
+        }
+        $primary = getPrimaryKey($nomTable);
+        mysql_query("UPDATE $nomTable SET geo_status=NULL,".implode(",",$tab)." WHERE $primary=$modify") or die("UPDATE $nomTable SET geo_status=NULL,".implode(",",$tab)." WHERE $primary=$modify");
     }
 
 ?>

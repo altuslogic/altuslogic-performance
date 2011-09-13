@@ -58,8 +58,7 @@ function checkAll(theForm, cName, allNo_stat) {
  <?php
 
 		$dbprefix="z_";
-		$stats  = mysql_query ("SHOW TABLE STATUS FROM $dbname LIKE '$dbprefix%'");
-		echo "SHOW TABLE STATUS FROM $dbname NOT LIKE '$dbprefix%'";
+		$stats  = mysql_query ("SHOW TABLE STATUS FROM $dbname WHERE Name NOT LIKE 'z_%'");
 		$num_tables = mysql_num_rows($stats);
 		if ($num_tables==0) {
 			echo("ERROR: Database contains no tables");
