@@ -125,7 +125,7 @@
 
         if ($address=="") return;            
         $primary = getPrimaryKey($nomTable);
-        $result = mysql_query("SELECT $primary,$address,CONCAT_WS(' ',$address) as monAdresse FROM $nomTable WHERE geo_status IS NULL AND CONCAT($address)!='' LIMIT 10");
+        $result = mysql_query("SELECT $primary,$address,CONCAT_WS(' ',$address) as monAdresse FROM $nomTable WHERE geo_status IS NULL AND CONCAT($address)!='' LIMIT 50");
         echo mysql_error();                                                                                                                 
         startProgress("Localisation");
 
@@ -196,7 +196,8 @@
                 $res["status"]="error";
                 break;
             }
-            $res["status"]="ok"; 
+            if (isset($coord[1][1])) $res['status']="multiple";
+            else $res["status"]="ok"; 
             $coord=explode(',',$coord[1][0]);
             $res['longitude']=addslashes($coord[0]);
             $res['latitude']=addslashes($coord[1]);        
