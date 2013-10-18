@@ -520,7 +520,7 @@
         global $mysql_table_prefix, $nomBase;
 
         $nbImg = 0;
-        if ($save_images) mkdir("C:/Users/Antoine/altuslogic-performance/images/$nomBase");
+        if ($save_images) mkdir("../images/$nomBase");
         preg_match_all("/\<img([^\>]+)\>/",$html,$match);               
 
         if ($show_images) $print = "<div class='groupeImg'>";
@@ -538,13 +538,13 @@
                 $path = "http://$host/$path";
             }
 
-            $result = mysql_query("select * from ".$mysql_table_prefix."images where path='$path'");
+            $result = mysql_query("select * from images where path='$path'");
             if (mysql_num_rows($result)==0){
 
                 $img = $path;
                 if ($save_images){
                     $img = preg_replace("/[^A-Za-z0-9_\.]+/","_",$img);
-                    $img = "C:/Users/Antoine/altuslogic-performance/images/$nomBase/$img";
+                    $img = "../images/$nomBase/$img";
                     file_put_contents($img, file_get_contents($path));
                 }
                 $dim = getimagesize($img);
@@ -552,7 +552,7 @@
                 $width = $dim[0];
                 $height = $dim[1];
                 $size = round(getFileSize($img)/1024,2);
-                mysql_query("insert into ".$mysql_table_prefix."images set path='$path', link_id=$link_id, width=$width, height=$height, size=$size");
+                mysql_query("insert into images set path='$path', link_id=$link_id, width=$width, height=$height, size=$size");
                 echo(mysql_error());
                 $nbImg++;             
 

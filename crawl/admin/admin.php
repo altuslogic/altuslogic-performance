@@ -256,8 +256,16 @@
                             include "affiche_search.php";        
                             break;
                         case template;
-                            $show = $type;
-                            include "affiche_template.php";        
+                         	$show = $type;
+                        if($type=='selection'){
+                           include "affiche_template.php"; 
+                        }else if($type=='edition'){   
+                            include "affiche_template.php";           
+                        }else {   
+                            include "affiche_template.php";           
+                        }
+                        
+                                  
                             break;
                         case production;
                             $show = $type;

@@ -769,8 +769,20 @@
         global $nomBase,$nomTable,$nomColonne;
 
         mysql_select_db($nomBase);
+        
+        
+        $sql = "SELECT COUNT(*) AS count_notnull, COUNT(DISTINCT `$nomColonne`) AS count_distinct,AVG(CHAR_LENGTH(`$nomColonne`)) AS avgLength,MAX(CHAR_LENGTH(`$nomColonne`)) AS maxLength,MIN(CHAR_LENGTH(`$nomColonne`)) AS minLength FROM $nomTable WHERE `$nomColonne`!=''";
+        $result = mysql_query($sql);
+        $ligne=mysql_fetch_array($result);
+        
+       $print="Longueur min/max : <b>".$ligne['minLength']." / ".$ligne['maxLength']."</b>
+               <br>Longueur moyenne : <b>".$ligne['avgLength']."</b>
+               <br>Nb non-nul : <b>".$ligne['count_notnull']."</b>
+               <br>Nb item distinct : <b>".$ligne['count_distinct']."</b>
+               <br>Couper après : <select><option value=50>50</option><option value=100>100</option><option value=full>full</option></select><br>Colonne : <select><option value=50>50</option><option value=100>100</option><option value=full>full</option></select><br><br>";
+        
         $sql = "SELECT `".$nomColonne."`, COUNT(*) AS countx FROM $nomTable GROUP BY $nomColonne ORDER BY countx DESC LIMIT 50";
-         $print = "$sql<table>";
+         $print .= "<table>";
         $result = mysql_query($sql);
         $print .= mysql_error();
   

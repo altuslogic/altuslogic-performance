@@ -285,12 +285,12 @@
                 //get all links from file
                 $data = clean_file($file, $url, $url_status['content']); 
 
-                if ($data['noindex'] == 1) {
-                    $OKtoIndex = 0;
+              /*  if ($data['noindex'] == 1) {
+                    $OKtoIndex = 1;
                     $deletable = 1;
                     printStandardReport('metaNoindex',$command_line);
                 }
-
+*/
 
                 $wordarray = unique_array(explode(" ", $data['content']));   
 

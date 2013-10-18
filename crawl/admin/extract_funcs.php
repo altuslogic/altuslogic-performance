@@ -9,16 +9,72 @@
             $selected = ($tab['site_id']==$site? "selected": "");
             $printSites .= "<option $selected value='$tab[site_id]'>$tab[url]</option>";
         }
+        //<-- <input type="text" name="column" value="<?php print $column;
+        
+        $result = mysql_query("SHOW columns FROM ".$mysql_table_prefix."links");
+        echo mysql_error();
+        $print_columns = "<option $selected value=''>Source column</option>";
+        while ($tab = mysql_fetch_array($result)){
+            //$selected = ($tab[0]==$site? "selected": "");
+            $print_columns .= "<option  value='$tab[0]'>$tab[0]</option>";
+        }
+        
+        
+        
     ?>
     <br><div class="indexoptions"><table>
             <form action="extract.php" method="post"> 
-            <tr><td><b>Site:</b></td><td><select name="site">
+           <tr><td><b>Site:</b></td><td>
+                   <select name="site">
                         <?php echo $printSites; ?>
+                    </select></td></tr>
+           <tr><td><b>Actual Column:</b></td><td>
+                   <select name="actual_column">
+                        <?php echo $print_columns; ?>
                     </select></td></tr>
             <tr><td><b>URL must include:</b></td><td><input type="text" name="in" value="<?php print $in;?>"></td></tr> 
             <tr><td><b>URL must not include:</b></td><td><input type="text" name="out" value="<?php print $out;?>"></td></tr>
-            <tr><td><b>Column to save in:</b></td><td><input type="text" name="column" value="<?php print $column;?>"></td></tr> 
-            <tr><td><b>HTML Container:</b></td><td><input type="text" name="tag_name" value="<?php print $tag_name;?>"></td></tr>
+            <tr><td><b>Column to save in:</b></td><td> <select name="column">
+  													  <option value="final_titre">final_titre</option>
+													  <option value="final_adresse">final_adresse</option>
+													  <option value="final_telephone">final_telephone</option>
+													  <option value="final_telecopie">final_telecopie</option>
+													  <option value="final_email">final_email</option>
+														<option value="final_contact">final_contact</option>
+														<option value="final_latitude">final_latitude</option>
+														<option value="final_longitude">final_longitude</option>
+														<option value="final_dimanche">final_dimanche</option>
+														<option value="final_lundi">final_lundi</option>
+														<option value="final_mardi">final_mardi</option>
+														<option value="final_mercredi">final_mercredi</option>
+														<option value="final_jeudi">final_jeudi</option>
+														<option value="final_vendredi">final_vendredi</option>
+														<option value="final_url">final_url</option>
+														<option value="final_codepostal">final_codepostal</option>
+														<option value="final_quartier">final_quartier</option>
+														<option value="final_ville">final_ville</option>
+														<option value="final_province">final_province</option>
+														<option value="final_region">final_region</option>
+														<option value="final_pays">final_pays</option>
+														<option value="final_google_map">final_google_map</option>
+														<option value="final_activite">Activité</option>
+														<option value="final_categorie">Catégorie</option>
+														<option value="final_detail1">Détail 1</option>
+														<option value="final_detail2">Détail 2</option>
+														<option value="final_detail3">Détail 3</option>
+														<option value="final_detail4">Détail 4</option>
+														<option value="final_detail5">Détail 5</option>
+														<option value="final_detail6">Détail 6</option>
+														<option value="final_detail7">Détail 7</option>
+														<option value="final_detail8">Détail 8</option>
+														<option value="final_tmp1">tmp1</option>
+														<option value="final_tmp2">tmp2</option>
+														<option value="final_tmp3">tmp3</option>
+														<option value="final_tmp4">tmp4</option>
+														
+</select></td></tr> 
+          <tr><td>&nbsp;</td><td><input type="checkbox" name="keep_html" >keep result in html<font size="1" color="grey"></font></td></tr>
+          <tr><td><b>HTML Container:</b></td><td><input type="text" name="tag_name" value="<?php print $tag_name;?>"></td></tr>
             <tr><td><b>Attribute:</b></td><td>              
                     <input type="text" name="attrib_name" value="<?php print $attrib_name; ?>" style="width:100px;">
                     <select name="attrib_mode">
@@ -31,6 +87,9 @@
             <tr><td><b>End text:</b></td><td><textarea name="end_text" cols=35 rows=2 wrap="virtual"><?php print $end_text;?></textarea></td></tr></table>
         <center><input type="submit" value="Start extracting"></center> 
         </form></div>
+        
+          <?php include "dataviewer.php"; ?>
+        
     <?php
     }
 

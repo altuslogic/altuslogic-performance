@@ -4,16 +4,34 @@
 <dict>
 	<key>ESProjectShowHiddenFilesKey</key>
 	<false/>
+	<key>ESProjectWindowState</key>
+	<dict>
+		<key>ContentSize</key>
+		<string>{1920, 1096}</string>
+		<key>IsMiniaturized</key>
+		<true/>
+		<key>ProjectURL</key>
+		<string>file://localhost/Applications/MAMP/htdocs/altuslogic-performance/altuslogic-performance.esproj/</string>
+		<key>StateType</key>
+		<string>ProjectWindow</string>
+		<key>TopLeftPoint</key>
+		<string>{0, 1178}</string>
+	</dict>
+	<key>com.macrabbit.Espresso.FileManager.DisclosureCollapsed</key>
+	<false/>
+	<key>com.macrabbit.Espresso.FileManager.FileControllerState</key>
+	<dict>
+		<key>ExpandedURLs</key>
+		<array>
+			<string>file://localhost/Applications/MAMP/htdocs/altuslogic-performance/crawl/admin</string>
+		</array>
+	</dict>
+	<key>com.macrabbit.Espresso.Publisher.DisclosureCollapsed</key>
+	<false/>
 	<key>com.macrabbit.Espresso.Workspace.Tabs</key>
 	<dict>
 		<key>Tabs</key>
 		<array>
-			<dict>
-				<key>DocumentURL</key>
-				<string>file://localhost/Applications/MAMP/htdocs/altuslogic-performance/crawl/admin/affiche_production.php</string>
-				<key>StateType</key>
-				<string>DefaultTab</string>
-			</dict>
 			<dict>
 				<key>DocumentURL</key>
 				<string>file://localhost/Applications/MAMP/htdocs/altuslogic-performance/crawl/admin/admin.php</string>
@@ -28,71 +46,13 @@
 			</dict>
 			<dict>
 				<key>DocumentURL</key>
-				<string>file://localhost/Applications/MAMP/htdocs/altuslogic-performance/crawl/admin/affiche_proto.php</string>
-				<key>StateType</key>
-				<string>DefaultTab</string>
-			</dict>
-			<dict>
-				<key>DocumentURL</key>
-				<string>file://localhost/Applications/MAMP/htdocs/altuslogic-performance/crawl/admin/affiche_database_header.php</string>
-				<key>StateType</key>
-				<string>DefaultTab</string>
-			</dict>
-			<dict>
-				<key>DocumentURL</key>
-				<string>file://localhost/Applications/MAMP/htdocs/altuslogic-performance/crawl/admin/affiche_extract.php</string>
-				<key>StateType</key>
-				<string>DefaultTab</string>
-			</dict>
-			<dict>
-				<key>DocumentURL</key>
-				<string>file://localhost/Applications/MAMP/htdocs/altuslogic-performance/crawl/admin/configSearch/index.php</string>
-				<key>StateType</key>
-				<string>DefaultTab</string>
-			</dict>
-			<dict>
-				<key>DocumentURL</key>
-				<string>file://localhost/Applications/MAMP/htdocs/altuslogic-performance/crawl/admin/configSearch/view.html</string>
-				<key>StateType</key>
-				<string>DefaultTab</string>
-			</dict>
-			<dict>
-				<key>DocumentURL</key>
-				<string>file://localhost/Applications/MAMP/htdocs/altuslogic-performance/crawl/admin/admin.css</string>
-				<key>StateType</key>
-				<string>DefaultTab</string>
-			</dict>
-			<dict>
-				<key>DocumentURL</key>
-				<string>file://localhost/Applications/MAMP/htdocs/altuslogic-performance/crawl/admin/configSearch/my.css</string>
-				<key>StateType</key>
-				<string>DefaultTab</string>
-			</dict>
-			<dict>
-				<key>DocumentURL</key>
-				<string>file://localhost/Applications/MAMP/htdocs/altuslogic-performance/crawl/admin/configSearch/controller.php</string>
-				<key>StateType</key>
-				<string>DefaultTab</string>
-			</dict>
-			<dict>
-				<key>DocumentURL</key>
-				<string>file://localhost/Applications/MAMP/htdocs/altuslogic-performance/crawl/admin/extract_funcs.php</string>
-				<key>StateType</key>
-				<string>DefaultTab</string>
-			</dict>
-			<dict>
-				<key>DocumentURL</key>
-				<string>file://localhost/Applications/MAMP/htdocs/altuslogic-performance/crawl/admin/db_main.php</string>
-				<key>StateType</key>
-				<string>DefaultTab</string>
-			</dict>
-			<dict>
-				<key>DocumentURL</key>
-				<string>file://localhost/Applications/MAMP/htdocs/altuslogic-performance/crawl/admin/affiche_template.php</string>
+				<string>file://localhost/Applications/MAMP/htdocs/altuslogic-performance/crawl/admin/spider.php</string>
 				<key>StateType</key>
 				<string>DefaultTab</string>
 			</dict>
 		</array>
 	</dict>
+	<key>com.macrabbit.Espresso.WorkspaceTabs.DisclosureCollapsed</key>
+	<false/>
 </dict>
 </plist>
