@@ -11,9 +11,11 @@
  
  $urldata="temp.php?db=$_GET[db]&find=$_GET[find]&table=$_GET[table]";
  
- //http://urbania.ca/blog/3559/loco-locass-les-pendules-a-lheure
- 
-//if($_GET[db])$db=$_GET[db];
+
+
+
+// retour d'action reload de la page sans les actions
+
 if($_GET[action]=='delete'){
 		$e=mysql_query("DELETE FROM `$_GET[table]` WHERE `".$field[$_GET[table]]."` LIKE '%$_GET[find]%'");
 		header('http://localhost:8888/webproject/'.$urldata);
@@ -68,7 +70,7 @@ if($_GET[action]=='notdelete'){
  </style>
  
  
- TABLE &nbsp;&nbsp;<a href="<?php echo $urldata; ?>&table=links">LINK</a>&nbsp;&nbsp;<a href="<?php echo $urldata; ?>&table=temp">TEMP</a><hr>
+ &nbsp;&nbsp;<a href="<?php echo $urldata; ?>&table=links">LINK</a>&nbsp;&nbsp;<a href="<?php echo $urldata; ?>&table=temp">TEMP</a><hr>
  
  <?php
  
@@ -92,13 +94,8 @@ if($_GET[action]=='notdelete'){
  <a href="<?php echo $urldata; ?>&action=insert">INSERT</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="<?php echo $urldata; ?>&action=delete">DELETE</a>&nbsp;&nbsp;&nbsp;&nbsp; <a href="<?php echo $urldata; ?>&action=notdelete">NOTDELETE</a><br><br><br>
  </form>
  
- <form action="<?php echo $urldata; ?>&action=regex" method="GET">
- <input type="hidden" value="<?php echo $_GET[db]; ?>" name="db">
- <input type="hidden" value="<?php echo $_GET[table]; ?>" name="table">
- <input type="hidden" value="regex" name="action">
- <input type="text" name="regx" size="80" value="<?php echo $_GET[regx]; ?>">
- &nbsp;&nbsp;&nbsp;&nbsp;
- <input type="submit" value="Search"></form>
+ 
+ 
  
  <?php 
  
@@ -118,18 +115,6 @@ if($_GET[action]=='notdelete'){
  
  
  
- if($_GET[action]=='regex'){
- 
- 
- 
- 
-			 
-			 
-			
- 
- 
- 		
- }else{
  
 			 
 			 
@@ -209,7 +194,7 @@ if($_GET[action]=='notdelete'){
 			 
 			 
   
- }
+ 
  
  function socount($url,$id) {
  		 
