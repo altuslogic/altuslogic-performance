@@ -98,7 +98,7 @@ function printUrlStringReport($num, $thislink, $cl) {
 function printRetrieving($num, $thislink, $cl) {
 	global $print_results, $log_format;
 	$log_msg_txt = "$num. Retrieving: $thislink at " . date("H:i:s").".\n";
-	$log_msg_html = "<b>$num</b>. Retrieving: <b><a href='".$thislink."' target='new'>".$thislink."</a></b> <a href='?db=".$db."&find=".$thislink."'>SEARCH</a> at " . date("H:i:s").".<br>\n";
+	$log_msg_html = "<b>$num</b>. Retrieving: <b><a href='".$thislink."' target='new'>".$thislink."</a></b> <a href='../../temp.php?db=".$_COOKIE[nomBase]."&find=".$thislink."' target='new'>SEARCH</a> at " . date("H:i:s").".<br>\n";
 	if ($print_results) {
 		if ($cl==0) {
 			print $log_msg_html;
