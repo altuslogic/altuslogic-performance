@@ -114,7 +114,7 @@
             fputs($fp, $request);
             $answer = fgets($fp, 4096);
             $regs = Array ();
-            if (preg_match("/HTTP/[0-9.]+ (([0-9])[0-9]{2})/", $answer, $regs)) {
+            if (preg_match("/HTTP\/[0-9.]+ (([0-9])[0-9]{2})/", $answer, $regs)) {
                 $httpcode = $regs[2];
                 $full_httpcode = $regs[1];
 
@@ -239,7 +239,7 @@
             $path = preg_replace("/$check"."/i", "", $path);
         }
 
-        if ($url_parts['port'] == 80 || $url_parts['port'] == "") {
+        if (!array_key_exists('port',$url_parts) || $url_parts['port'] == 80 || $url_parts['port'] == "") {
             $portq = "";
         } else {
             $portq = ":".$url_parts['port'];
@@ -266,7 +266,7 @@
 
         preg_match_all("/href\s*=\s*[\'\"]?([+:%\/\?~=&;\\\(\),._a-zA-Z0-9-]*)(#[.a-zA-Z0-9-]*)?[\'\" ]?(\s*rel\s*=\s*[\'\"]?(nofollow)[\'\"]?)?/i", $file, $regs, PREG_SET_ORDER);
         foreach ($regs as $val) {
-            if ($checked_urls[$val[1]]!=1 && !isset ($val[4])) { //if nofollow is not set
+            if (!array_key_exists($val[1], $checked_urls) && !isset ($val[4])) { //if nofollow is not set
                 if (($a = url_purify($val[1], $url, $can_leave_domain)) != '') {
                     $links[] = $a;
                 }
@@ -275,7 +275,7 @@
         }
         preg_match_all("/(frame[^>]*src[[:blank:]]*)=[[:blank:]]*[\'\"]?(([[a-z]{3,5}:\/\/(([.a-zA-Z0-9-])+(:[0-9]+)*))*([+:%\/?=&;\\\(\),._ a-zA-Z0-9-]*))(#[.a-zA-Z0-9-]*)?[\'\" ]?/i", $file, $regs, PREG_SET_ORDER);
         foreach ($regs as $val) {
-            if ($checked_urls[$val[1]]!=1 && !isset ($val[4])) { //if nofollow is not set
+            if (!array_key_exists($val[1], $checked_urls) && !isset ($val[4])) { //if nofollow is not set
                 if (($a = url_purify($val[1], $url, $can_leave_domain)) != '') {
                     $links[] = $a;
                 }
@@ -284,7 +284,7 @@
         }
         preg_match_all("/(window[.]location)[[:blank:]]*=[[:blank:]]*[\'\"]?(([[a-z]{3,5}:\/\/(([.a-zA-Z0-9-])+(:[0-9]+)*))*([+:%\/?=&;\\\(\),._ a-zA-Z0-9-]*))(#[.a-zA-Z0-9-]*)?[\'\" ]?/i", $file, $regs, PREG_SET_ORDER);
         foreach ($regs as $val) {
-            if ($checked_urls[$val[1]]!=1 && !isset ($val[4])) { //if nofollow is not set
+            if (!array_key_exists($val[1], $checked_urls) && !isset ($val[4])) { //if nofollow is not set
                 if (($a = url_purify($val[1], $url, $can_leave_domain)) != '') {
                     $links[] = $a;
                 }
@@ -293,7 +293,7 @@
         }
         preg_match_all("/(http-equiv=['\"]refresh['\"] *content=['\"][0-9]+;url)[[:blank:]]*=[[:blank:]]*[\'\"]?(([[a-z]{3,5}:\/\/(([.a-zA-Z0-9-])+(:[0-9]+)*))*([+:%\/?=&;\\\(\),._ a-zA-Z0-9-]*))(#[.a-zA-Z0-9-]*)?[\'\" ]?/i", $file, $regs, PREG_SET_ORDER);
         foreach ($regs as $val) {
-            if ($checked_urls[$val[1]]!=1 && !isset ($val[4])) { //if nofollow is not set
+            if (!array_key_exists($val[1], $checked_urls) && !isset ($val[4])) { //if nofollow is not set
                 if (($a = url_purify($val[1], $url, $can_leave_domain)) != '') {
                     $links[] = $a;
                 }
@@ -303,7 +303,7 @@
 
         preg_match_all("/(window[.]open[[:blank:]]*[(])[[:blank:]]*[\'\"]?(([[a-z]{3,5}:\/\/(([.a-zA-Z0-9-])+(:[0-9]+)*))*([+:%\/?=&;\\\(\),._ a-zA-Z0-9-]*))(#[.a-zA-Z0-9-]*)?[\'\" ]?/i", $file, $regs, PREG_SET_ORDER);
         foreach ($regs as $val) {
-            if ($checked_urls[$val[1]]!=1 && !isset ($val[4])) { //if nofollow is not set
+            if (!array_key_exists($val[1], $checked_urls) && !isset ($val[4])) { //if nofollow is not set
                 if (($a = url_purify($val[1], $url, $can_leave_domain)) != '') {
                     $links[] = $a;
                 }
@@ -383,10 +383,12 @@
 
 
         $urlparts = parse_url($url);
-
         $main_url_parts = parse_url($mainurl);
-        if ($urlparts['host'] != "" && $urlparts['host'] != $main_url_parts['host']  && $can_leave_domain != 1) {
-            return '';
+
+        if (isset($urlparts['host'])) {
+            if ($urlparts['host'] != "" && $urlparts['host'] != $main_url_parts['host'] && $can_leave_domain != 1) {
+                return '';
+            }
         }
 
         reset($ext);
@@ -452,7 +454,7 @@
         if (isset($url_parts['query'])) {
             $query = "?".$url_parts['query'];
         }
-        if ($main_url_parts['port'] == 80 || $url_parts['port'] == "") {
+        if (!array_key_exists('port', $main_url_parts) || $main_url_parts['port'] == 80 || $main_url_parts['port'] == "") {
             $portq = "";
         } else {
             $portq = ":".$main_url_parts['port'];
@@ -594,23 +596,23 @@
         $base = "";
         $res = Array ();
         if ($headdata != "") {
-            preg_match("/<meta +name *=[\"']?robots[\"']? *content=[\"']?([^<>'\"]+)[\"']?/i", $headdata, $res);
-            if (isset ($res)) {
+            $found = preg_match("/<meta +name *=[\"']?robots[\"']? *content=[\"']?([^<>'\"]+)[\"']?/i", $headdata, $res);
+            if ($found) {
                 $robots = $res[1];
             }
 
-            preg_match("/<meta +name *=[\"']?description[\"']? *content=[\"']?([^<>'\"]+)[\"']?/i", $headdata, $res);
-            if (isset ($res)) {
+            $found = preg_match("/<meta +name *=[\"']?description[\"']? *content=[\"']?([^<>'\"]+)[\"']?/i", $headdata, $res);
+            if ($found) {
                 $description = $res[1];
             }
 
-            preg_match("/<meta +name *=[\"']?keywords[\"']? *content=[\"']?([^<>'\"]+)[\"']?/i", $headdata, $res);
-            if (isset ($res)) {
+            $found = preg_match("/<meta +name *=[\"']?keywords[\"']? *content=[\"']?([^<>'\"]+)[\"']?/i", $headdata, $res);
+            if ($found) {
                 $keywords = $res[1];
             }
             // e.g. <base href="http://www.consil.co.uk/index.php" />
-            preg_match("/<base +href *= *[\"']?([^<>'\"]+)[\"']?/i", $headdata, $res);
-            if (isset ($res)) {
+            $found = preg_match("/<base +href *= *[\"']?([^<>'\"]+)[\"']?/i", $headdata, $res);
+            if ($found) {
                 $base = $res[1];
             }
             $keywords = preg_replace("/[, ]+/", " ", $keywords);

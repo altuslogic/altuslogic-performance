@@ -12,7 +12,7 @@ error_reporting (E_ALL ^ E_NOTICE ^ E_WARNING);
 //echo 'j';
  $urldata="temp.php?db=".$nomBase;
 
-echo "<a href='http://localhost:8888/webproject/".$urldata."' target='new'>OPEN SELECTOR</a><br><br>
+echo "<a href='../../".$urldata."' target='new'>OPEN SELECTOR</a><br><br>
 db :".$db."<br>";
 echo "prefix :".$prefix."<br>";
 echo "create_db :".$_POST['create_db']."<br>";
@@ -128,7 +128,7 @@ if($soption=='full'){
             <tr><td><b>Address:</b></td><td> <input type="text" name="url" size="64" onkeyup="javascript:text_transform(this.value,'db');" onkeydown="javascript:text_transform(this.value,'db');" oninput="javascript:text_transform(this.value,'db');" value=<?php print "\"$url\"";?>></td></tr>
             <tr><td><b>Indexing options:</b></td><td>
                     <input type="radio" name="soption" value="full" <?php print $fullchecked;?>> Full<br/>
-                    <input type="radio" name="soption" value="level" <?php print $levelchecked;?>>To depth: <input type="text" name="maxlevel" size="2" value="<?php print $spider_depth;?>"><br/>
+                    <input type="radio" name="soption" value="level" <?php print $levelchecked;?>>To depth: <input type="text" name="maxlevel" size="2" value="<?php print $maxlevel;?>"><br/>
                     <?php if ($reindex==1) $check="checked"?>
                     <input type="checkbox" name="reindex" value="1" <?php print $check;?>> Reindex<br/>
                     <input type="checkbox" name="save_keywords" value="1"> Save keywords<br/>
@@ -137,14 +137,14 @@ if($soption=='full'){
                     <input type="checkbox" name="capture_pages" value="1"> Capture pages<br/>  
                 </td></tr>
             <tr><td></td><td><input type="checkbox" name="domaincb" value="1" <?php print $checkcan;?>> CRAWLER can leave domain <!--a href="javascript:;" onClick="window.open('hmm','newWindow','width=300,height=300,left=600,top=200,resizable');" >?</a--><br/></td></tr>
-            <tr><td>&nbsp;</td><td><table><tr><td valign="top"><b>URL must include:</b><br><textarea name="in" cols=20 rows=10 wrap="virtual"><?php print $in;?></textarea></td><td valign="top"><b>URL must not include:</b><br><textarea name="out" cols=20 rows=12 wrap="virtual" ><?php print $mustnot; echo $out;?></textarea></td></tr></table></td></tr></table>
+            <tr><td>&nbsp;</td><td><table><tr><td valign="top"><b>URL must include:</b><br><textarea name="in" cols=20 rows=10 wrap="virtual"><?php print $in;?></textarea></td><td valign="top"><b>URL must not include:</b><br><textarea name="out" cols=20 rows=12 wrap="virtual" ><?php print $out; echo $out;?></textarea></td></tr></table></td></tr></table>
         <center><input type="submit" id="submit" value="Start indexing"></center>
         </form></div>
 
 
 
 
-<?
+<?php
 
 
 
@@ -255,6 +255,7 @@ if($soption=='full'){
 
         $url_status = url_status($url);
         $thislevel = $level - 1;
+        $print_images = "";
 
 
         if ($capture_pages){
@@ -368,7 +369,7 @@ if($soption=='full'){
                         reset ($links);
 
                         while ($thislink = each($links)) {
-                            if ($tmp_urls[$thislink[1]] != 1) {
+                            if (array_key_exists($thislink[1], $tmp_urls)) {
                                 $tmp_urls[$thislink[1]] = 1;
                                 $numoflinks++;
                                 mysql_query ("insert into ".$mysql_table_prefix."temp (link, level, id) values ('$thislink[1]', '$level', '$sessid')");
