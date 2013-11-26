@@ -20,6 +20,8 @@
             print "<br>\n";
             $error += mysql_errno();
         }
+        
+            	
         mysql_query("create table `".$mysql_table_prefix."links` (
         link_id int auto_increment primary key not null,
         site_id int,
@@ -30,6 +32,21 @@
         fulltxt mediumtext,
         indexdate date,
         size float(2),
+        StumbleUpon int,
+        Reddit int,
+        Facebook_commentsbox_count int,
+        Facebook_click_count int,
+        Facebook_total_count int,
+        Facebook_comment_count int,
+        Facebook_like_count int,
+        Facebook_share_count int,
+        Delicious int,
+        GooglePlusOne int,
+        Buzz int,
+        Twitter int,
+        Diggs int,
+        Pinterest int,
+        LinkedIn int,
         md5sum varchar(32),
         key url (url),
         key md5key (md5sum),
@@ -87,6 +104,67 @@
             $error += mysql_errno();
         }
         
+       mysql_query("create table `".$mysql_table_prefix."extract`    (
+               id int primary key not null auto_increment,
+               site mediumtext,
+               actual_column mediumtext,
+               in mediumtext,
+               out mediumtext,
+               column mediumtext,
+               keep_html mediumtext,
+               tag_name mediumtext,
+               attrib_name mediumtext,
+               attrib_mode mediumtext,
+               attrib_value mediumtext,
+               start_text mediumtext,
+               end_text mediumtext,
+               size int not null)");
+       
+               if (mysql_errno() > 0) {
+                   print "Error: ";
+                   print mysql_error();
+                   print "<br>\n";
+                   $error += mysql_errno();
+               }
+               
+       mysql_query("create table `".$mysql_table_prefix."crawl`    (
+                  id int primary key not null auto_increment,
+                  prefix mediumtext,
+                  db mediumtext,
+                  in mediumtext,
+                  out mediumtext,
+                  maxlevel int,
+                  reindex int,
+                  save_keywords int,
+                  show_images int,
+                  save_images int,
+                  capture_pages int,
+                  domaincb int,
+                  create_db int,
+                  soption mediumtext)");
+          
+                  if (mysql_errno() > 0) {
+                      print "Error: ";
+                      print mysql_error();
+                      print "<br>\n";
+                      $error += mysql_errno();
+                  }
+                  
+       mysql_query("create table `".$mysql_table_prefix."rule`    (
+                  id int primary key not null auto_increment,
+                  link_id int not null,
+                  width int not null,
+                  height int not null,
+                  size int not null)");
+          
+                  if (mysql_errno() > 0) {
+                      print "Error: ";
+                      print mysql_error();
+                      print "<br>\n";
+                      $error += mysql_errno();
+                  }
+          
+                 
         mysql_query("create table `".$mysql_table_prefix."categories` (
         category_id integer not null auto_increment primary key, 
         category text,

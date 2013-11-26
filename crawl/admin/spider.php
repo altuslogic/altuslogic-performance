@@ -1,4 +1,6 @@
 <?php 
+///echo 'j';
+error_reporting (E_ALL ^ E_NOTICE ^ E_WARNING);
 
     include "configSearch/cookie.php";
     $prefix = readCookie($_POST,"prefix","");
@@ -7,6 +9,14 @@
         $nomBase = $prefix."_".$db;
         saveCookie("nomBase",$nomBase);
     }
+//echo 'j';
+ $urldata="temp.php?db=".$nomBase;
+
+echo "<a href='http://localhost:8888/webproject/".$urldata."' target='new'>OPEN SELECTOR</a><br><br>
+db :".$db."<br>";
+echo "prefix :".$prefix."<br>";
+echo "create_db :".$_POST['create_db']."<br>";
+
 
     set_time_limit (0);
     $include_dir = "../include";
@@ -15,7 +25,10 @@
     $all = 0; 
     extract (getHttpVars());
     $settings_dir =  "../settings";
-    require_once ("$settings_dir/conf.php");
+  //echo 'j';  
+  require_once ("$settings_dir/conf.php");
+
+
 
     include "messages.php";
     include "spider_funcs.php";
@@ -23,8 +36,8 @@
     include "install_funcs.php";
     include "capture.php";
     include "image.class.php";
-    error_reporting (E_ALL ^ E_NOTICE ^ E_WARNING);
-
+    
+    
     $success = mysql_pconnect ($DbHost, $DbUser, $DbPassword);
     if (!$success)
         die ("<b>Cannot connect to database, check if username, password and host are correct.</b>");
@@ -82,10 +95,61 @@
                                         } else {
                                             commandline_help();
                                             die();
+                 
             }
+            
+           
 
         }
     }
+    
+ /*   
+echo "all :".$all."<br>";
+echo "url :".$url."<br>";
+echo "soption :".$soption."<br>";
+echo "maxlevel :".$maxlevel."<br>";
+echo "domaincb :".$domaincb."<br>";
+echo "reindex :".$reindex."<br>";
+echo "in :<textarea cols='30' rows='20'>".$in."</textarea><br>";
+echo "out :<textarea cols='30' rows='20'>".$out."</textarea><br>";
+*/
+
+if($soption=='full'){
+		$fullchecked="checked";
+}
+?>
+
+
+
+ <div class="indexoptions"><table>
+            <form action="spider.php" method="post">
+            <tr><td><b>Database:</b></td><td><input type="text" name="prefix" size="10" value="<?php print "crawl"; ?>">
+                    <input type="text" name="db" id="db" size="34" value="<?php print str_replace("crawl_","",$nomBase); ?>"><input type="checkbox" name="create_db">Create DB</td></tr>
+            <tr><td><b>Address:</b></td><td> <input type="text" name="url" size="64" onkeyup="javascript:text_transform(this.value,'db');" onkeydown="javascript:text_transform(this.value,'db');" oninput="javascript:text_transform(this.value,'db');" value=<?php print "\"$url\"";?>></td></tr>
+            <tr><td><b>Indexing options:</b></td><td>
+                    <input type="radio" name="soption" value="full" <?php print $fullchecked;?>> Full<br/>
+                    <input type="radio" name="soption" value="level" <?php print $levelchecked;?>>To depth: <input type="text" name="maxlevel" size="2" value="<?php print $spider_depth;?>"><br/>
+                    <?php if ($reindex==1) $check="checked"?>
+                    <input type="checkbox" name="reindex" value="1" <?php print $check;?>> Reindex<br/>
+                    <input type="checkbox" name="save_keywords" value="1"> Save keywords<br/>
+                    <input type="checkbox" name="show_images" value="1"> Show images<br/>
+                    <input type="checkbox" name="save_images" value="1"> Save images<br/>  
+                    <input type="checkbox" name="capture_pages" value="1"> Capture pages<br/>  
+                </td></tr>
+            <tr><td></td><td><input type="checkbox" name="domaincb" value="1" <?php print $checkcan;?>> CRAWLER can leave domain <!--a href="javascript:;" onClick="window.open('hmm','newWindow','width=300,height=300,left=600,top=200,resizable');" >?</a--><br/></td></tr>
+            <tr><td>&nbsp;</td><td><table><tr><td valign="top"><b>URL must include:</b><br><textarea name="in" cols=20 rows=10 wrap="virtual"><?php print $in;?></textarea></td><td valign="top"><b>URL must not include:</b><br><textarea name="out" cols=20 rows=12 wrap="virtual" ><?php print $mustnot; echo $out;?></textarea></td></tr></table></td></tr></table>
+        <center><input type="submit" id="submit" value="Start indexing"></center>
+        </form></div>
+
+
+
+
+<?
+
+
+
+
+
 
 
     if (isset($soption) && $soption == 'full') {
@@ -202,8 +266,8 @@
         if (strstr($url_status['state'], "Relocation")) {
             $url = preg_replace("/ /", "", url_purify($url_status['path'], $url, $can_leave_domain));
 
-            if ($url <> '') {
-                $result = mysql_query("select link from ".$mysql_table_prefix."temp where link='$url' && id = '$sessid'");
+            if ($url <> '') {						//where link='$url' && id = '$sessid'
+                $result = mysql_query("select link from ".$mysql_table_prefix."temp ORDER BY `link` DESC");
                 echo mysql_error();
                 $rows = mysql_numrows($result);
                 if ($rows == 0) {
@@ -514,7 +578,7 @@
 
             $links = array();
 
-            $result = mysql_query("select distinct link from ".$mysql_table_prefix."temp where level=$level && id='$sessid' order by link");
+            $result = mysql_query("select distinct link from ".$mysql_table_prefix."temp where level=$level && id='$sessid' order by link DESC");
             echo mysql_error();
             $rows = mysql_num_rows($result);
 
