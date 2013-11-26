@@ -1,10 +1,14 @@
 <?php 
  
- mysql_connect("localhost", "root", "root") or die(mysql_error()); 
+ include "crawl/settings/database.php";
+ mysql_connect("localhost", $DbUser, $DbPassword) or die(mysql_error()); 
  mysql_select_db($_GET[db]) or die(mysql_error()); 
  
  $field["links"]="url";
  $field["temp"]="link";
+ $sql_col["links"]=", link_id";
+ $sql_col["temp"]="";
+ 
  $urldata="temp.php?db=$_GET[db]&find=$_GET[find]&table=$_GET[table]";
  
  //http://urbania.ca/blog/3559/loco-locass-les-pendules-a-lheure
@@ -71,7 +75,7 @@ if($_GET[action]=='notdelete'){
  
  $sq="SELECT COUNT(DISTINCT `".$field[$_GET[table]]."`) AS `numb` FROM `$_GET[table]` WHERE `".$field[$_GET[table]]."` LIKE '%$_GET[find]%' ORDER BY `".$field[$_GET[table]]."`";
  $e=mysql_query($sq);
- //echo $sq."<br><br>";
+ echo $sq."<br><br>";
  $r=mysql_fetch_array($e);
  echo "DISTINCT : $r[numb]";
  ?> 
@@ -130,7 +134,7 @@ if($_GET[action]=='notdelete'){
 			 
 			 
 			 //echo "SELECT * FROM `links` ORDER BY `url` ASC LIMIT 0, ".$nbppage."";//
-			  $e=mysql_query("SELECT DISTINCT `".$field[$_GET[table]]."`,`link_id` FROM `$_GET[table]`  WHERE `".$field[$_GET[table]]."` LIKE '%$_GET[find]%' ORDER BY `".$field[$_GET[table]]."` ASC LIMIT ".$start.", ".$nbppage."");
+			  $e=mysql_query("SELECT DISTINCT `".$field[$_GET[table]]."` ".$sql_col[$_GET[table]]." FROM `$_GET[table]`  WHERE `".$field[$_GET[table]]."` LIKE '%$_GET[find]%' ORDER BY `".$field[$_GET[table]]."` ASC LIMIT ".$start.", ".$nbppage."");
 			  echo "<div style='clear:both;'> <table cellpadding='6' width='100%'>";
 			  $x=0;
 			  echo "<tr>
@@ -153,9 +157,9 @@ if($_GET[action]=='notdelete'){
 			  while ($r=mysql_fetch_array($e)) {
 			  
 			  
-			  $sqx="SELECT COUNT(DISTINCT `".$field[$_GET[table]]."`) AS `numb`,`link_id` FROM `$_GET[table]` WHERE `".$field[$_GET[table]]."` LIKE '%".$r[$field[$_GET[table]]]."%' ORDER BY `".$field[$_GET[table]]."`";
+			  $sqx="SELECT COUNT(DISTINCT `".$field[$_GET[table]]."`) AS `numb` ".$sql_col[$_GET[table]]." FROM `$_GET[table]` WHERE `".$field[$_GET[table]]."` LIKE '%".$r[$field[$_GET[table]]]."%' ORDER BY `".$field[$_GET[table]]."`";
 			  $ex=mysql_query($sqx);
-			  //echo $sq."<br><br>";
+			  //echo $sqx."<br><br>";
 			  $rx=mysql_fetch_array($ex);
 			   
 			  if($rx[numb]>1){$countx="<b>".$rx[numb]."</b>";}else{$countx="&nbsp;";}
