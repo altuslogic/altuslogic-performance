@@ -58,7 +58,7 @@ echo "create_db :".$_POST['create_db']."<br>";
 
     $delay_time = 0;
 
-
+    $reindex = 0;
     $command_line = 0;
 
     if (isset($_SERVER['argv']) && $_SERVER['argc'] >= 2) {
@@ -369,7 +369,7 @@ if($soption=='full'){
                         reset ($links);
 
                         while ($thislink = each($links)) {
-                            if (array_key_exists($thislink[1], $tmp_urls)) {
+                            if (!array_key_exists($thislink[1], $tmp_urls)) {
                                 $tmp_urls[$thislink[1]] = 1;
                                 $numoflinks++;
                                 mysql_query ("insert into ".$mysql_table_prefix."temp (link, level, id) values ('$thislink[1]', '$level', '$sessid')");
@@ -477,7 +477,7 @@ if($soption=='full'){
             }
         }
         $compurl = parse_url($url);
-        if ($compurl['path'] == '')
+        if (!isset($compurl['path']) or $compurl['path'] == '')
             $url = $url . "/";
 
         $t = microtime();
